@@ -700,7 +700,13 @@
     <div class="auth-subheading">Join the university portal today</div>
 
     <div class="form-group"><label>Full Name</label><input type="text" id="signup-name" placeholder="John Doe"></div>
-    <div class="form-group"><label>Student ID</label><input type="text" id="signup-id" placeholder="e.g. 101"></div>
+    <div class="form-group">
+      <label>Student ID <span style="color:var(--accent); font-size:10px; font-weight:700; background:rgba(79,142,247,0.1); padding:2px 7px; border-radius:10px; letter-spacing:0.3px;">Admin Approved</span></label>
+      <select id="signup-id" style="width:100%; background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); padding:12px 15px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:14px; transition:border-color 0.2s, box-shadow 0.2s;">
+        <option value="">— Loading approved IDs... —</option>
+      </select>
+      <div id="signup-id-notice" style="font-size:11px; color:var(--text-muted); margin-top:5px;">Only IDs approved by the admin are available. Contact admin if your ID is missing.</div>
+    </div>
     <div class="form-group"><label>Email</label><input type="email" id="signup-email" placeholder="example@lu.com"></div>
     <div class="form-group"><label>Password</label><input type="password" id="signup-pass" placeholder="••••••••"></div>
     <div class="form-group">
@@ -1334,6 +1340,20 @@
           <button class="btn-action" style="background:#eeebe4; color:var(--text-dim); box-shadow:none;" onclick="generateRandomKey()">🎲 Generate Random</button>
         </div>
       </div>
+
+      <!-- Approved Student IDs Panel -->
+      <div class="admin-form-card" style="max-width:560px;">
+        <div class="card-title" style="margin-bottom:6px;">📋 Approved Student IDs for Registration</div>
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:18px;">Only IDs in this list can be used to create a new account. Students pick from this list at signup.</div>
+        <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; margin-bottom:14px;">
+          <div class="form-group" style="margin-bottom:0; flex:1; min-width:140px;">
+            <label>Add Student ID</label>
+            <input type="text" id="approved-id-input" placeholder="e.g. 2024101" onkeydown="if(event.key==='Enter')addApprovedId()">
+          </div>
+          <button class="btn-action" style="margin-top:0; white-space:nowrap;" onclick="addApprovedId()">➕ Add ID</button>
+        </div>
+        <div id="approved-ids-list" style="display:flex; flex-wrap:wrap; gap:8px; min-height:40px; padding:4px 0;"></div>
+      </div>
     </section>
 
   </main>
@@ -1373,19 +1393,20 @@
   let currentSession = null;
   let editingId = null;
 
-  // ── Session Persistence (refresh করলে logout হবে না) ──
-  const savedSession = sessionStorage.getItem('skillCircleSession');
+  // ── Session Persistence — localStorage keeps session after refresh & browser close ──
+  const savedSession = localStorage.getItem('skillCircleSession');
   if(savedSession) {
     currentSession = JSON.parse(savedSession);
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('portal-page').style.display = 'block';
     if(currentSession.role === 'admin') {
       document.getElementById('menu-admin').classList.remove('hidden');
-      window.switchTab('admin-users');
     } else {
       document.getElementById('menu-admin').classList.add('hidden');
-      window.switchTab('dash');
     }
+    // Restore last active tab after all functions are defined
+    const lastTab = localStorage.getItem('skillCircleLastTab');
+    window.__pendingRestoreTab = lastTab || (currentSession.role === 'admin' ? 'admin-users' : 'dash');
   }
 
   const monthsList = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -1394,7 +1415,7 @@
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('signup-page').style.display = 'none';
     document.getElementById('forgot-page').style.display = 'none';
-    if(page === 'signup') document.getElementById('signup-page').style.display = 'flex';
+    if(page === 'signup') { document.getElementById('signup-page').style.display = 'flex'; populateSignupIdDropdown(); }
     else if(page === 'forgot') {
       document.getElementById('forgot-page').style.display = 'flex';
       document.getElementById('forgot-result').style.display = 'none';
@@ -1463,6 +1484,10 @@
 
     if(!name || !id || !email || !pass || !secret) return alert("Please fill all fields including the Secret Key!");
 
+    // Verify selected ID is still in approved list (not snatched by someone else)
+    const approvedSnap = await get(child(ref(db), `config/approvedIds/${id}`));
+    if(!approvedSnap.exists()) return alert("❌ This Student ID is no longer available. Please reload and try again.");
+
     // Validate secret key against admin-set key in Firebase
     const keySnap = await get(child(ref(db), 'config/registrationKey'));
     if(!keySnap.exists()) return alert("❌ Registration is currently disabled. Please contact the admin.");
@@ -1472,12 +1497,12 @@
     const snapshot = await get(child(ref(db), `users/${id}`));
     if(snapshot.exists()) return alert("This ID is already registered!");
 
-    set(ref(db, 'users/' + id), { name, email, pass, role: 'user' })
-    .then(() => {
-      alert("✅ Account created successfully!");
-      window.toggleAuth('login');
-      document.getElementById('login-id').value = id;
-    });
+    await set(ref(db, 'users/' + id), { name, email, pass, role: 'user' });
+    // Remove from approved list so it cannot be re-used by another person
+    await remove(ref(db, `config/approvedIds/${id}`));
+    alert("✅ Account created successfully!");
+    window.toggleAuth('login');
+    document.getElementById('login-id').value = id;
   };
 
   window.handleLogin = async () => {
@@ -1498,7 +1523,7 @@
       const userData = snapshot.val();
       if(userData.pass === pass) {
         currentSession = { ...userData, id: id };
-        sessionStorage.setItem('skillCircleSession', JSON.stringify(currentSession));
+        localStorage.setItem('skillCircleSession', JSON.stringify(currentSession));
         document.getElementById('login-page').style.display = 'none';
         document.getElementById('portal-page').style.display = 'block';
         
@@ -1521,6 +1546,7 @@
     
     document.getElementById('tab-' + tabId).classList.remove('hidden');
     if(document.getElementById('nav-' + tabId)) document.getElementById('nav-' + tabId).classList.add('active');
+    localStorage.setItem('skillCircleLastTab', tabId);
     
     if(tabId === 'routine') loadStudentRoutine();
     if(tabId === 'admin-routine') {};
@@ -2042,6 +2068,7 @@
     const snap = await get(child(ref(db), 'config/registrationKey'));
     const display = document.getElementById('current-secret-display');
     if(display) display.innerText = snap.exists() ? snap.val() : '⚠️ No key set — registration is disabled';
+    loadApprovedIds();
   }
 
   window.saveSecretKey = async () => {
@@ -2061,6 +2088,63 @@
     for(let i = 0; i < 4; i++) key += chars[Math.floor(Math.random() * chars.length)];
     document.getElementById('new-secret-key-input').value = key;
   };
+
+  // ── Approved Student IDs Management ──
+  async function loadApprovedIds() {
+    const snap = await get(child(ref(db), 'config/approvedIds'));
+    const list = document.getElementById('approved-ids-list');
+    if(!list) return;
+    const ids = snap.exists() ? Object.keys(snap.val()) : [];
+    if(ids.length === 0) {
+      list.innerHTML = '<span style="color:var(--text-muted); font-size:13px; padding:6px 0;">No approved IDs yet. Add IDs above.</span>';
+    } else {
+      list.innerHTML = ids.map(id => `
+        <div style="display:inline-flex; align-items:center; gap:7px; background:rgba(79,142,247,0.1); border:1px solid rgba(79,142,247,0.25); border-radius:20px; padding:5px 12px; font-family:var(--mono); font-size:13px; font-weight:700; color:var(--accent);">
+          ${id}
+          <button onclick="removeApprovedId('${id}')" style="background:none; border:none; color:rgba(79,142,247,0.5); cursor:pointer; font-size:15px; line-height:1; padding:0; display:flex; align-items:center;" title="Remove">✕</button>
+        </div>
+      `).join('');
+    }
+  }
+
+  window.addApprovedId = async () => {
+    const val = document.getElementById('approved-id-input').value.trim();
+    if(!val) return alert("Please enter a Student ID!");
+    await set(ref(db, `config/approvedIds/${val}`), true);
+    document.getElementById('approved-id-input').value = '';
+    loadApprovedIds();
+  };
+
+  window.removeApprovedId = async (id) => {
+    await remove(ref(db, `config/approvedIds/${id}`));
+    loadApprovedIds();
+  };
+
+  // ── Populate approved IDs on signup page ──
+  async function populateSignupIdDropdown() {
+    const select = document.getElementById('signup-id');
+    const notice = document.getElementById('signup-id-notice');
+    if(!select) return;
+    select.innerHTML = '<option value="">Loading...</option>';
+
+    const [approvedSnap, usersSnap] = await Promise.all([
+      get(child(ref(db), 'config/approvedIds')),
+      get(child(ref(db), 'users'))
+    ]);
+
+    const approved = approvedSnap.exists() ? Object.keys(approvedSnap.val()) : [];
+    const registered = usersSnap.exists() ? Object.keys(usersSnap.val()) : [];
+    const available = approved.filter(id => !registered.includes(id));
+
+    if(available.length === 0) {
+      select.innerHTML = '<option value="">No available IDs — contact admin</option>';
+      if(notice) notice.style.color = 'var(--red)';
+    } else {
+      select.innerHTML = '<option value="">— Select your Student ID —</option>' +
+        available.map(id => `<option value="${id}">${id}</option>`).join('');
+      if(notice) notice.style.color = 'var(--text-muted)';
+    }
+  }
 
   function loadProfileData() {
     document.getElementById('p-name').innerText = currentSession.name;
@@ -2091,7 +2175,7 @@
       if(editingId === currentSession.id) {
         currentSession.name = newName;
         currentSession.email = newEmail;
-        sessionStorage.setItem('skillCircleSession', JSON.stringify(currentSession));
+        localStorage.setItem('skillCircleSession', JSON.stringify(currentSession));
       }
       alert("Profile updated successfully!");
       window.closeModal();
@@ -2364,13 +2448,20 @@
   };
 
   window.handleLogout = () => {
-    sessionStorage.removeItem('skillCircleSession');
+    localStorage.removeItem('skillCircleSession');
+    localStorage.removeItem('skillCircleLastTab');
     currentSession = null;
     document.getElementById('portal-page').style.display = 'none';
     document.getElementById('login-page').style.display = 'flex';
     document.getElementById('login-id').value = '';
     document.getElementById('login-pass').value = '';
   };
+
+  // ── Restore last tab after all functions defined ──
+  if(window.__pendingRestoreTab) {
+    window.switchTab(window.__pendingRestoreTab);
+    window.__pendingRestoreTab = null;
+  }
 
   // Mobile sidebar toggle
   function checkMobile() {
