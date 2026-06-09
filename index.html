@@ -630,6 +630,7 @@
     .card { padding: 16px; }
     .admin-form-card { padding: 16px; }
     .profile-info-label { width: 70px; font-size: 11px; }
+    #portal-page footer { margin-left: 0; padding: 16px; }
   }
   @media (max-width: 400px) {
     .auth-card { padding: 26px 16px; }
@@ -909,7 +910,15 @@
         <div class="page-subtitle">Drive links and uploaded PDFs</div>
       </div>
       <div class="card">
-        <div class="table-wrap">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap;">
+          <div style="position:relative; flex:1; min-width:220px; max-width:400px;">
+            <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:15px; pointer-events:none;">🔍</span>
+            <input type="text" id="notes-search-input" placeholder="Search by note name..." oninput="filterStudentNotes()" style="width:100%; padding:10px 14px 10px 36px; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); background:#f8f6f2; font-family:var(--font); font-size:13.5px; color:var(--text); outline:none; transition:border-color 0.2s, box-shadow 0.2s;">
+          </div>
+          <span id="notes-count-badge" style="font-size:12px; color:var(--text-muted); background:#f0ede8; padding:5px 12px; border-radius:20px; white-space:nowrap;"></span>
+        </div>
+        <div id="notes-no-result" style="display:none; text-align:center; padding:32px; color:var(--text-muted); font-size:14px;">No notes match your search.</div>
+        <div class="table-wrap" id="notes-table-wrap">
           <table>
             <thead><tr><th>Topic / Note Name</th><th>Type</th><th>Action</th></tr></thead>
             <tbody id="notes-table-body"></tbody>
@@ -961,6 +970,25 @@
           <span class="profile-info-value" id="p-email">—</span>
         </div>
         <button class="btn-action" style="margin-top: 16px;" onclick="openEditModal()">Edit Profile</button>
+      </div>
+
+      <!-- Change Password Card -->
+      <div class="card" style="max-width: 480px; margin-top: 0;">
+        <div class="card-title">🔒 Change Password</div>
+        <div class="form-group">
+          <label>Current Password</label>
+          <input type="password" id="cp-current" placeholder="Enter your current password">
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" id="cp-new" placeholder="Enter new password (min 4 chars)">
+        </div>
+        <div class="form-group">
+          <label>Confirm New Password</label>
+          <input type="password" id="cp-confirm" placeholder="Re-enter new password">
+        </div>
+        <div id="cp-result" style="display:none; padding:11px 14px; border-radius:var(--radius-sm); font-size:13px; margin-bottom:14px;"></div>
+        <button class="btn-action" onclick="changeStudentPassword()">Update Password</button>
       </div>
     </section>
 
@@ -1357,6 +1385,11 @@
     </section>
 
   </main>
+
+  <!-- FOOTER -->
+  <footer style="margin-left: var(--sidebar-w); padding: 18px 36px; border-top: 1px solid var(--border); background: var(--surface); text-align: center; font-size: 12.5px; color: var(--text-muted); letter-spacing: 0.2px;">
+    © 2026 <strong style="color: var(--text-dim);">Skill Circle Academy</strong> &nbsp;|&nbsp; All Rights Reserved
+  </footer>
 </div>
 
 <!-- EDIT MODAL -->
@@ -1861,11 +1894,40 @@
     }
   }
 
+  let allNotesCache = [];
+
   async function loadStudentNotes() {
     const tbody = document.getElementById('notes-table-body');
+    const countBadge = document.getElementById('notes-count-badge');
+    const noResult = document.getElementById('notes-no-result');
+    const searchInput = document.getElementById('notes-search-input');
+    if(searchInput) searchInput.value = '';
+    if(noResult) noResult.style.display = 'none';
     const snapshot = await get(child(ref(db), 'notes'));
     if(snapshot.exists()) {
-      tbody.innerHTML = Object.values(snapshot.val()).map(n => {
+      allNotesCache = Object.values(snapshot.val());
+      renderNotesRows(allNotesCache);
+    } else {
+      allNotesCache = [];
+      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:24px;">No notes published yet.</td></tr>`;
+      if(countBadge) countBadge.innerText = '0 notes';
+    }
+  }
+
+  function renderNotesRows(notes) {
+    const tbody = document.getElementById('notes-table-body');
+    const countBadge = document.getElementById('notes-count-badge');
+    const noResult = document.getElementById('notes-no-result');
+    const tableWrap = document.getElementById('notes-table-wrap');
+    if(countBadge) countBadge.innerText = notes.length + ' note' + (notes.length !== 1 ? 's' : '');
+    if(notes.length === 0) {
+      tbody.innerHTML = '';
+      if(noResult) noResult.style.display = 'block';
+      if(tableWrap) tableWrap.style.display = 'none';
+    } else {
+      if(noResult) noResult.style.display = 'none';
+      if(tableWrap) tableWrap.style.display = '';
+      tbody.innerHTML = notes.map(n => {
         const isUrl = n.path.startsWith('http');
         return `
           <tr>
@@ -1875,10 +1937,51 @@
           </tr>
         `;
       }).join('');
-    } else {
-      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:24px;">No notes published yet.</td></tr>`;
     }
   }
+
+  window.filterStudentNotes = () => {
+    const q = document.getElementById('notes-search-input').value.trim().toLowerCase();
+    if(!q) { renderNotesRows(allNotesCache); return; }
+    const filtered = allNotesCache.filter(n => n.title && n.title.toLowerCase().includes(q));
+    renderNotesRows(filtered);
+  };
+
+  window.changeStudentPassword = async () => {
+    const current = document.getElementById('cp-current').value.trim();
+    const newPass = document.getElementById('cp-new').value.trim();
+    const confirm = document.getElementById('cp-confirm').value.trim();
+    const resultDiv = document.getElementById('cp-result');
+
+    const showMsg = (msg, ok) => {
+      resultDiv.style.display = 'block';
+      resultDiv.style.background = ok ? 'rgba(52,211,153,0.1)' : 'rgba(248,113,113,0.1)';
+      resultDiv.style.border = ok ? '1px solid rgba(52,211,153,0.3)' : '1px solid rgba(248,113,113,0.3)';
+      resultDiv.style.color = ok ? 'var(--green)' : 'var(--red)';
+      resultDiv.innerHTML = msg;
+    };
+
+    if(!current || !newPass || !confirm) return showMsg('❌ Please fill in all fields.', false);
+    if(newPass.length < 4) return showMsg('❌ New password must be at least 4 characters.', false);
+    if(newPass !== confirm) return showMsg('❌ New passwords do not match.', false);
+
+    // Verify current password against Firebase
+    const snapshot = await get(child(ref(db), `users/${currentSession.id}`));
+    if(!snapshot.exists()) return showMsg('❌ Account not found.', false);
+    const userData = snapshot.val();
+    if(userData.pass !== current) return showMsg('❌ Current password is incorrect.', false);
+    if(current === newPass) return showMsg('❌ New password must be different from the current one.', false);
+
+    // Update password directly in Firebase
+    await update(ref(db), { [`/users/${currentSession.id}/pass`]: newPass });
+    currentSession.pass = newPass;
+    localStorage.setItem('skillCircleSession', JSON.stringify(currentSession));
+
+    document.getElementById('cp-current').value = '';
+    document.getElementById('cp-new').value = '';
+    document.getElementById('cp-confirm').value = '';
+    showMsg('✅ Password updated successfully!', true);
+  };
 
   window.uploadAttendance = () => {
     const sId = document.getElementById('attn-student-id').value.trim();
