@@ -1,0 +1,3247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill Circle Academy — Student & Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --surface2: #eeebe5;
+    --surface3: #e5e1da;
+    --border: rgba(0,0,0,0.08);
+    --border-bright: rgba(0,0,0,0.13);
+    --accent: #4f8ef7;
+    --accent-glow: rgba(79,142,247,0.15);
+    --cyan: #22d3ee;
+    --gold: #fbbf24;
+    --green: #34d399;
+    --red: #f87171;
+    --purple: #a78bfa;
+    --text: #0d1117;
+    --text-muted: #4a5270;
+    --text-dim: #5a6278;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --font: 'Plus Jakarta Sans', sans-serif;
+    --mono: 'Space Mono', monospace;
+    --sidebar-w: 270px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #c8c2bb; border-radius: 2px; }
+
+  /* ===== AUTH ===== */
+  .auth-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .auth-wrapper::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(79,142,247,0.06) 0%, transparent 70%);
+    top: -100px; left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  .auth-wrapper::after {
+    content: '';
+    position: absolute;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(34,211,238,0.04) 0%, transparent 70%);
+    bottom: -50px; right: 10%;
+    pointer-events: none;
+  }
+
+  .auth-card {
+    background: var(--surface);
+    border: 1px solid var(--border-bright);
+    padding: 44px 40px;
+    border-radius: 22px;
+    width: 420px;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.05), 0 20px 60px rgba(0,0,0,0.12);
+  }
+
+  .auth-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 30px;
+  }
+
+  .auth-logo-icon {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--accent), var(--cyan));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+
+  .auth-logo-text {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .auth-logo-text span { color: var(--accent); }
+
+  .auth-heading {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+
+  .auth-subheading {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+  }
+
+  .form-group { margin-bottom: 16px; }
+
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 7px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    background: #f8f6f2;
+    border: 1px solid rgba(0,0,0,0.13);
+    padding: 12px 15px;
+    color: var(--text);
+    border-radius: var(--radius-sm);
+    outline: none;
+    font-family: var(--font);
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  .form-group input::placeholder { color: var(--text-muted); }
+
+  .form-group select option { background: #f8f6f2; color: var(--text); }
+
+  .btn-primary {
+    width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 14px;
+    font-family: var(--font);
+    transition: all 0.2s;
+    letter-spacing: 0.2px;
+  }
+
+  .btn-primary:hover {
+    background: #5f9cf8;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(79,142,247,0.35);
+  }
+
+  .btn-primary:active { transform: translateY(0); }
+
+  .auth-toggle {
+    text-align: center;
+    margin-top: 22px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .auth-toggle a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .auth-toggle a:hover { text-decoration: underline; }
+
+  /* ===== PORTAL LAYOUT ===== */
+  #portal-page { display: none; }
+
+  .sidebar {
+    position: fixed;
+    width: var(--sidebar-w);
+    height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
+    overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 8px;
+    margin-bottom: 28px;
+  }
+
+  .sidebar-brand-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--cyan));
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-brand-name {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+  }
+
+  .sidebar-brand-name span { color: var(--accent); }
+
+  .nav-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    padding: 0 10px;
+    margin: 16px 0 6px;
+  }
+
+  .nav-section-label.gold { color: var(--gold); }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    margin-bottom: 2px;
+    transition: all 0.15s;
+    color: var(--text-dim);
+    font-size: 13.5px;
+    font-weight: 500;
+  }
+
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--accent-glow); color: var(--accent); font-weight: 600; }
+  .nav-item.active .nav-dot { background: var(--accent); }
+
+  .nav-dot {
+    width: 6px; height: 6px;
+    background: var(--border-bright);
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+
+  .sidebar-footer { margin-top: auto; padding-top: 16px; }
+
+  .btn-logout {
+    width: 100%;
+    padding: 11px;
+    background: rgba(248,113,113,0.1);
+    border: 1px solid rgba(248,113,113,0.2);
+    color: var(--red);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    font-family: var(--font);
+    transition: all 0.2s;
+  }
+
+  .btn-logout:hover {
+    background: rgba(248,113,113,0.2);
+    border-color: var(--red);
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  .main-content {
+    margin-left: var(--sidebar-w);
+    padding: 32px 36px;
+    min-height: 100vh;
+  }
+
+  .page-header { margin-bottom: 28px; }
+
+  .page-title {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+
+  .page-title .accent { color: var(--accent); }
+
+  .page-subtitle {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 5px;
+  }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 22px 24px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: var(--border-bright); }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ===== GRID ===== */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+  /* ===== STATS CARD ===== */
+  .stat-item {
+    background: #f0ede8;
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .stat-label { font-size: 13px; color: var(--text-muted); }
+  .stat-value { font-size: 13px; font-weight: 600; }
+
+  /* ===== BADGES ===== */
+  .badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+
+  .badge-admin { background: rgba(251,191,36,0.12); color: var(--gold); border: 1px solid rgba(251,191,36,0.2); }
+  .badge-user { background: rgba(79,142,247,0.12); color: var(--accent); border: 1px solid rgba(79,142,247,0.2); }
+  .badge-paid { background: rgba(52,211,153,0.12); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
+  .badge-pending { background: rgba(248,113,113,0.12); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+  .badge-due { background: rgba(251,191,36,0.12); color: var(--gold); border: 1px solid rgba(251,191,36,0.2); }
+
+  /* ===== TABLE ===== */
+  .table-wrap {
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  thead { background: #eeebe5; }
+
+  th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    text-align: left;
+    padding: 13px 16px;
+    font-size: 13.5px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tbody tr { transition: background 0.1s; }
+  tbody tr:hover { background: #f5f2ec; }
+
+  /* ===== NOTICE ITEM ===== */
+  .notice-item {
+    padding: 12px 14px;
+    background: #f0ede8;
+    margin-bottom: 8px;
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--accent);
+    font-size: 13.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* ===== ADMIN FORM ===== */
+  .admin-form-card {
+    background: #ffffff;
+    border: 1px solid var(--border-bright);
+    padding: 24px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+  }
+
+  .btn-action {
+    padding: 11px 24px;
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+    font-family: var(--font);
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+
+  .btn-action:hover {
+    background: #5f9cf8;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(79,142,247,0.3);
+  }
+
+  .btn-sm {
+    padding: 6px 14px;
+    background: rgba(79,142,247,0.12);
+    border: 1px solid rgba(79,142,247,0.25);
+    color: var(--accent);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font);
+    transition: all 0.15s;
+  }
+
+  .btn-sm:hover { background: rgba(79,142,247,0.2); }
+
+  /* ===== MODAL ===== */
+  .modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-content {
+    background: var(--surface);
+    padding: 32px;
+    border-radius: 18px;
+    width: 420px;
+    border: 1px solid var(--border-bright);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  }
+
+  .modal-title {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    margin-bottom: 20px;
+  }
+
+  .modal-actions { display: flex; gap: 10px; margin-top: 6px; }
+  .modal-actions .btn-action { margin-top: 0; }
+
+  .btn-cancel {
+    padding: 11px 20px;
+    background: #eeeae4;
+    border: 1px solid rgba(0,0,0,0.13);
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    font-family: var(--font);
+    transition: all 0.2s;
+  }
+
+  .btn-cancel:hover { background: #e5e1da; color: var(--text); }
+
+  /* ===== CGPA ===== */
+  .cgpa-result {
+    background: linear-gradient(135deg, rgba(79,142,247,0.1), rgba(34,211,238,0.1));
+    border: 1px solid rgba(79,142,247,0.2);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .cgpa-label { font-size: 13px; color: var(--text-muted); }
+  .cgpa-value { font-size: 36px; font-weight: 800; color: var(--gold); font-family: var(--mono); }
+
+  /* ===== PROFILE ===== */
+  .profile-info-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+  }
+
+  .profile-info-item:last-child { border-bottom: none; }
+  .profile-info-label { font-size: 12px; color: var(--text-muted); width: 80px; flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+  .profile-info-value { font-size: 14px; font-weight: 500; }
+
+  /* ===== FILE HISTORY ===== */
+  .file-history-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #f0ede8;
+    border-radius: var(--radius-sm);
+    margin-bottom: 6px;
+    font-size: 13.5px;
+    border: 1px dashed rgba(0,0,0,0.13);
+  }
+
+  .hidden { display: none; }
+  .tab-content { animation: fadeIn 0.2s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== MOBILE TOPBAR ===== */
+  .mobile-topbar {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 56px;
+    background: #ffffff;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: 200;
+  }
+  .mobile-brand {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 15px; font-weight: 800; letter-spacing: -0.3px;
+  }
+  .mobile-brand-icon {
+    width: 30px; height: 30px;
+    background: linear-gradient(135deg, var(--accent), var(--cyan));
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+  }
+  .mobile-brand span { color: var(--accent); }
+  .hamburger {
+    width: 36px; height: 36px;
+    background: #eeebe5;
+    border: 1px solid rgba(0,0,0,0.13);
+    border-radius: 8px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+    cursor: pointer; padding: 0;
+  }
+  .hamburger span {
+    display: block; width: 18px; height: 2px;
+    background: #1a1f2e; border-radius: 2px; transition: all 0.25s;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .sidebar-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6); z-index: 149;
+    
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .mobile-topbar { display: flex; }
+    .sidebar-overlay { display: none; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+    .sidebar-overlay.visible { display: block; opacity: 1; pointer-events: auto; }
+    .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; top: 0; z-index: 200; }
+    .sidebar.open { transform: translateX(0); }
+    .main-content { margin-left: 0; padding: 76px 16px 24px; }
+    .auth-card { width: 92vw; padding: 32px 20px; margin: 0 auto; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr; }
+    .page-title { font-size: 20px; }
+    .modal-content { width: 92vw; padding: 22px 18px; }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { min-width: 440px; }
+    .cgpa-result { flex-direction: column; gap: 8px; }
+    .btn-action { width: 100%; }
+    #cgpa-courses-container > div { grid-template-columns: 1fr 80px 80px auto !important; gap:8px !important; }
+    #student-cards-grid { grid-template-columns: repeat(auto-fill, minmax(160px,1fr)) !important; }
+    #user-search-input { width: 100% !important; }
+    .card { padding: 16px; }
+    .admin-form-card { padding: 16px; }
+    .profile-info-label { width: 70px; font-size: 11px; }
+    #portal-page footer { margin-left: 0; padding: 16px; }
+  }
+  @media (max-width: 400px) {
+    .auth-card { padding: 26px 16px; }
+    .page-title { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar" id="mobile-topbar" style="display:none;">
+  <div class="mobile-brand">
+    <div class="mobile-brand-icon">🎓</div>
+    Skill Circle <span>Academy</span>
+  </div>
+  <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- LOGIN PAGE -->
+<div id="login-page" class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">🎓</div>
+      <div class="auth-logo-text">Skill Circle <span>Academy</span></div>
+    </div>
+    <div class="auth-heading">Welcome back</div>
+    <div class="auth-subheading">Sign in to access your academic portal</div>
+
+    <div class="form-group"><label>Student ID</label><input type="text" id="login-id" placeholder="Enter your Student ID"></div>
+    <div class="form-group"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••"></div>
+    <button class="btn-primary" onclick="handleLogin()">Sign In →</button>
+    <div style="text-align:right; margin-top: -4px; margin-bottom: 4px;">
+      <a href="#" onclick="toggleAuth('forgot')" style="font-size:12px; color:var(--text-muted); text-decoration:none;">Forgot password?</a>
+    </div>
+    <div class="auth-toggle">Don't have an account? <a href="#" onclick="toggleAuth('signup')">Create Account</a></div>
+  </div>
+</div>
+
+<!-- FORGOT PASSWORD PAGE -->
+<div id="forgot-page" class="auth-wrapper" style="display:none;">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">🎓</div>
+      <div class="auth-logo-text">Skill Circle <span>Academy</span></div>
+    </div>
+    <div class="auth-heading">Reset Password</div>
+    <div class="auth-subheading">Fill in the form below — your request will be sent to the admin for approval</div>
+    <div class="form-group"><label>Full Name</label><input type="text" id="forgot-name" placeholder="Your registered full name"></div>
+    <div class="form-group"><label>Student ID</label><input type="text" id="forgot-id" placeholder="e.g. 101"></div>
+    <div class="form-group"><label>New Password (Requested)</label><input type="password" id="forgot-newpass" placeholder="Enter your desired new password"></div>
+    <button class="btn-primary" onclick="handleForgotPassword()">Send Request to Admin →</button>
+    <div id="forgot-result" style="margin-top:16px; padding:14px; border-radius:var(--radius-sm); display:none;"></div>
+    <div class="auth-toggle" style="margin-top:16px;"><a href="#" onclick="toggleAuth('login')">← Back to Sign In</a></div>
+  </div>
+</div>
+
+<!-- SIGNUP PAGE -->
+<div id="signup-page" class="auth-wrapper" style="display:none;">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">🎓</div>
+      <div class="auth-logo-text">Skill Circle <span>Academy</span></div>
+    </div>
+    <div class="auth-heading">Create account</div>
+    <div class="auth-subheading">Join the university portal today</div>
+
+    <div class="form-group"><label>Full Name</label><input type="text" id="signup-name" placeholder="John Doe"></div>
+    <div class="form-group">
+      <label>Student ID <span style="color:var(--accent); font-size:10px; font-weight:700; background:rgba(79,142,247,0.1); padding:2px 7px; border-radius:10px; letter-spacing:0.3px;">Admin Approved</span></label>
+      <select id="signup-id" style="width:100%; background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); padding:12px 15px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:14px; transition:border-color 0.2s, box-shadow 0.2s;">
+        <option value="">— Loading approved IDs... —</option>
+      </select>
+      <div id="signup-id-notice" style="font-size:11px; color:var(--text-muted); margin-top:5px;">Only IDs approved by the admin are available. Contact admin if your ID is missing.</div>
+    </div>
+    <div class="form-group"><label>Email</label><input type="email" id="signup-email" placeholder="example@lu.com"></div>
+    <div class="form-group"><label>Password</label><input type="password" id="signup-pass" placeholder="••••••••"></div>
+    <div class="form-group">
+      <label>Student Level</label>
+      <select id="signup-level">
+        <option value="">— Select your level —</option>
+        <option value="SSC">SSC</option>
+        <option value="HSC">HSC</option>
+        <option value="University">University</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>🔑 Registration Secret Key</label>
+      <input type="password" id="signup-secret" placeholder="Enter key provided by admin">
+      <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">This key is provided by your admin. Without it, registration is not allowed.</div>
+    </div>
+    <button class="btn-primary" onclick="handleSignUp()">Register Now →</button>
+    <div class="auth-toggle">Already have an account? <a href="#" onclick="toggleAuth('login')">Sign In</a></div>
+  </div>
+</div>
+
+<!-- PORTAL PAGE -->
+<div id="portal-page">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">🎓</div>
+      <div class="sidebar-brand-name">Skill Circle <span>Academy</span></div>
+    </div>
+
+    <div id="menu-user">
+      <div class="nav-section-label">Student</div>
+      <div class="nav-item active" id="nav-dash" onclick="switchTab('dash')"><span class="nav-dot"></span>Dashboard</div>
+      <div class="nav-item" id="nav-routine" onclick="switchTab('routine')"><span class="nav-dot"></span>Class Routine</div>
+      <div class="nav-item" id="nav-result" onclick="switchTab('result')"><span class="nav-dot"></span>Academic Result</div>
+      <div class="nav-item" id="nav-attendance" onclick="switchTab('attendance')"><span class="nav-dot"></span>Attendance</div>
+      <div class="nav-item" id="nav-payment" onclick="switchTab('payment')"><span class="nav-dot"></span>Payment Tracker</div>
+      <div class="nav-item" id="nav-class-dates" onclick="switchTab('class-dates')"><span class="nav-dot"></span>Classes Held Dates</div>
+      <div class="nav-item" id="nav-homework" onclick="switchTab('homework')"><span class="nav-dot"></span>Homework</div>
+      <div class="nav-item" id="nav-library" onclick="switchTab('library')"><span class="nav-dot"></span>Library Resources</div>
+      <div class="nav-item" id="nav-notices" onclick="switchTab('notices')"><span class="nav-dot"></span>📢 Notices</div>
+      <div class="nav-item" id="nav-notes" onclick="switchTab('notes')"><span class="nav-dot"></span>Class Notes & PDFs</div>
+      <div class="nav-item" id="nav-cgpa" onclick="switchTab('cgpa')"><span class="nav-dot"></span>CGPA Calculator</div>
+      <div class="nav-item" id="nav-profile" onclick="switchTab('profile')"><span class="nav-dot"></span>My Profile</div>
+    </div>
+
+    <div id="menu-admin" class="hidden">
+      <div class="nav-section-label gold">Admin Controls</div>
+      <div class="nav-item" id="nav-admin-users" onclick="switchTab('admin-users')"><span class="nav-dot"></span>Manage Users</div>
+      <div class="nav-item" id="nav-admin-routine" onclick="switchTab('admin-routine')"><span class="nav-dot"></span>Manage Class Routine</div>
+      <div class="nav-item" id="nav-admin-results" onclick="switchTab('admin-results')"><span class="nav-dot"></span>Publish Results</div>
+      <div class="nav-item" id="nav-admin-attendance" onclick="switchTab('admin-attendance')"><span class="nav-dot"></span>Manage Attendance</div>
+      <div class="nav-item" id="nav-admin-payments" onclick="switchTab('admin-payments')"><span class="nav-dot"></span>Manage Payments</div>
+      <div class="nav-item" id="nav-admin-class-dates" onclick="switchTab('admin-class-dates')"><span class="nav-dot"></span>Manage Class Dates</div>
+      <div class="nav-item" id="nav-admin-homework" onclick="switchTab('admin-homework')"><span class="nav-dot"></span>Manage Homework</div>
+      <div class="nav-item" id="nav-admin-library" onclick="switchTab('admin-library')"><span class="nav-dot"></span>Manage Library</div>
+      <div class="nav-item" id="nav-admin-notes" onclick="switchTab('admin-notes')"><span class="nav-dot"></span>Upload Notes / Drive</div>
+      <div class="nav-item" id="nav-admin-notices" onclick="switchTab('admin-notices')"><span class="nav-dot"></span>📢 Manage Notices</div>
+      <div class="nav-item" id="nav-admin-files" onclick="switchTab('admin-files')"><span class="nav-dot"></span>Upload Files</div>
+      <div class="nav-item" id="nav-admin-passrequests" onclick="switchTab('admin-passrequests')"><span class="nav-dot"></span>🔑 Password Requests</div>
+      <div class="nav-item" id="nav-admin-secretkey" onclick="switchTab('admin-secretkey')"><span class="nav-dot"></span>🛡️ Registration Key</div>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="handleLogout()">← Logout</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- DASHBOARD -->
+    <section id="tab-dash" class="tab-content">
+      <div class="page-header">
+        <div class="page-title">Hello, <span class="accent" id="user-name-display">Student</span> 👋</div>
+        <div class="page-subtitle">Here is your current academic overview</div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">📁 Recent Notices & Materials</div>
+          <div id="file-list-user">Loading materials...</div>
+        </div>
+        <div class="card">
+          <div class="card-title">📊 Quick Stats</div>
+          <div class="stat-item">
+            <span class="stat-label">Registration Status</span>
+            <span class="badge badge-paid">Active</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Current Semester</span>
+            <span class="stat-value" style="color:var(--green)">Spring 2026</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLASS ROUTINE (Student) -->
+    <section id="tab-routine" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">Class Routine</div>
+        <div class="page-subtitle">Your weekly class schedule</div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Day</th><th>Time</th><th>Subject</th></tr></thead>
+            <tbody id="routine-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULT -->
+    <section id="tab-result" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">Academic Result Sheet</div>
+        <div class="page-subtitle">Your published grades and GPA</div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Course Code</th><th>Course Title</th><th>Credit</th><th>Grade</th><th>GPA</th></tr></thead>
+            <tbody id="result-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ATTENDANCE -->
+    <section id="tab-attendance" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">Class Attendance</div>
+        <div class="page-subtitle">Track your attendance across all courses</div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Course Code</th><th>Total Classes</th><th>Attended</th><th>Percentage</th></tr></thead>
+            <tbody id="attendance-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAYMENT -->
+    <section id="tab-payment" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">Payment Tracker</div>
+        <div class="page-subtitle">Month-wise payment history and status</div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Month</th><th>Payment Date</th><th>Status</th></tr></thead>
+            <tbody id="payment-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLASS DATES -->
+    <section id="tab-class-dates" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">Classes Conducted</div>
+        <div class="page-subtitle">Dates of classes held each month</div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Month</th><th>Conducted Dates</th></tr></thead>
+            <tbody id="class-dates-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOMEWORK -->
+    <section id="tab-homework" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">Assigned Homework</div>
+        <div class="page-subtitle">Your pending and upcoming assignments</div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Course Code</th><th>Homework Details</th><th>Deadline</th><th>File</th></tr></thead>
+            <tbody id="homework-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- LIBRARY -->
+    <section id="tab-library" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">Library Resources</div>
+        <div class="page-subtitle">Books and academic materials</div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Book / Resource Title</th><th>Access</th></tr></thead>
+            <tbody id="library-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- NOTICES (Student) -->
+    <section id="tab-notices" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">📢 Notices</div>
+        <div class="page-subtitle">Important announcements from the academy</div>
+      </div>
+      <div id="notices-student-list">
+        <div style="text-align:center; padding:32px; color:var(--text-muted); font-size:14px;">Loading notices...</div>
+      </div>
+    </section>
+
+    <!-- NOTES -->
+    <section id="tab-notes" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">Class Notes & Materials</div>
+        <div class="page-subtitle">Drive links and uploaded PDFs</div>
+      </div>
+      <div class="card">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap;">
+          <div style="position:relative; flex:1; min-width:220px; max-width:400px;">
+            <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:15px; pointer-events:none;">🔍</span>
+            <input type="text" id="notes-search-input" placeholder="Search by note name..." oninput="filterStudentNotes()" style="width:100%; padding:10px 14px 10px 36px; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); background:#f8f6f2; font-family:var(--font); font-size:13.5px; color:var(--text); outline:none; transition:border-color 0.2s, box-shadow 0.2s;">
+          </div>
+          <select id="notes-level-filter" onchange="filterStudentNotes()" style="padding:10px 14px; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); background:#f8f6f2; font-family:var(--font); font-size:13.5px; color:var(--text); outline:none;">
+            <option value="all">All Levels</option>
+            <option value="SSC">SSC</option>
+            <option value="HSC">HSC</option>
+            <option value="University">University</option>
+          </select>
+          <span id="notes-count-badge" style="font-size:12px; color:var(--text-muted); background:#f0ede8; padding:5px 12px; border-radius:20px; white-space:nowrap;"></span>
+        </div>
+        <div id="notes-no-result" style="display:none; text-align:center; padding:32px; color:var(--text-muted); font-size:14px;">No notes match your search.</div>
+        <div class="table-wrap" id="notes-table-wrap">
+          <table>
+            <thead><tr><th>Topic / Note Name</th><th>Level</th><th>Type</th><th>Action</th></tr></thead>
+            <tbody id="notes-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- CGPA -->
+    <section id="tab-cgpa" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">CGPA Calculator</div>
+        <div class="page-subtitle">Add multiple courses — optional courses are included only if you enter a GPA</div>
+      </div>
+      <div class="card">
+        <div id="cgpa-courses-container"></div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:4px; margin-bottom:20px;">
+          <button class="btn-sm" onclick="addCourseRow(false)" style="background:rgba(52,211,153,0.1); border-color:rgba(52,211,153,0.3); color:var(--green);">➕ Add Course</button>
+          <button class="btn-sm" onclick="addCourseRow(true)" style="background:rgba(167,139,250,0.1); border-color:rgba(167,139,250,0.3); color:var(--purple);">➕ Add Optional Course</button>
+        </div>
+        <button class="btn-action" onclick="calculateCGPA()">Calculate CGPA</button>
+        <div class="cgpa-result" id="cgpa-result-area">
+          <div>
+            <div class="cgpa-label">Estimated CGPA</div>
+            <div class="cgpa-value" id="cgpa-display">0.00</div>
+          </div>
+          <div id="cgpa-breakdown" style="font-size:12px; color:var(--text-muted); margin-left:auto; text-align:right; line-height:1.7;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROFILE -->
+    <section id="tab-profile" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">My Profile</div>
+        <div class="page-subtitle">Your account details</div>
+      </div>
+      <div class="card" style="max-width: 480px;">
+        <div class="profile-info-item">
+          <span class="profile-info-label">Name</span>
+          <span class="profile-info-value" id="p-name">—</span>
+        </div>
+        <div class="profile-info-item">
+          <span class="profile-info-label">Student ID</span>
+          <span class="profile-info-value" id="p-id" style="font-family:var(--mono); color:var(--accent)">—</span>
+        </div>
+        <div class="profile-info-item">
+          <span class="profile-info-label">Email</span>
+          <span class="profile-info-value" id="p-email">—</span>
+        </div>
+        <div class="profile-info-item">
+          <span class="profile-info-label">Student Level</span>
+          <span class="profile-info-value" id="p-level" style="color:var(--purple); font-weight:700;">—</span>
+        </div>
+        <button class="btn-action" style="margin-top: 16px;" onclick="openEditModal()">Edit Profile</button>
+      </div>
+
+      <!-- Change Password Card -->
+      <div class="card" style="max-width: 480px; margin-top: 0;">
+        <div class="card-title">🔒 Change Password</div>
+        <div class="form-group">
+          <label>Current Password</label>
+          <input type="password" id="cp-current" placeholder="Enter your current password">
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" id="cp-new" placeholder="Enter new password (min 4 chars)">
+        </div>
+        <div class="form-group">
+          <label>Confirm New Password</label>
+          <input type="password" id="cp-confirm" placeholder="Re-enter new password">
+        </div>
+        <div id="cp-result" style="display:none; padding:11px 14px; border-radius:var(--radius-sm); font-size:13px; margin-bottom:14px;"></div>
+        <button class="btn-action" onclick="changeStudentPassword()">Update Password</button>
+      </div>
+    </section>
+
+    <!-- ADMIN: USERS -->
+    <section id="tab-admin-users" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">User Management</div>
+        <div class="page-subtitle">Add new students and manage all registered accounts</div>
+      </div>
+
+      <!-- Add New Student Form -->
+      <div class="admin-form-card">
+        <div class="card-title">➕ Add New Student</div>
+        <div class="grid-2">
+          <div class="form-group"><label>Full Name</label><input type="text" id="new-student-name" placeholder="e.g. John Doe"></div>
+          <div class="form-group"><label>Student ID</label><input type="text" id="new-student-id" placeholder="e.g. 202"></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label>Email</label><input type="email" id="new-student-email" placeholder="student@lu.com"></div>
+          <div class="form-group"><label>Initial Password</label><input type="text" id="new-student-pass" placeholder="Set a password"></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Role</label>
+            <select id="new-student-role">
+              <option value="user">Student</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Student Level</label>
+            <select id="new-student-level">
+              <option value="">— Select Level —</option>
+              <option value="SSC">SSC</option>
+              <option value="HSC">HSC</option>
+              <option value="University">University</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-action" onclick="adminAddStudent()">➕ Create Account</button>
+      </div>
+
+      <!-- Search + Student Cards -->
+      <div class="card">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
+          <div class="card-title" style="margin-bottom:0;">👥 All Registered Students</div>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <input type="text" id="user-search-input" placeholder="🔍 Search by ID or Name..." oninput="filterStudentCards()" style="padding:9px 14px; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); background:#f8f6f2; font-family:var(--font); font-size:13px; color:var(--text); outline:none; width:240px; transition:border-color 0.2s;">
+            <span id="user-count-badge" style="font-size:12px; color:var(--text-muted); white-space:nowrap; background:#f0ede8; padding:5px 10px; border-radius:20px;"></span>
+          </div>
+        </div>
+        <div id="student-cards-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:14px;"></div>
+        <div id="student-no-result" style="display:none; text-align:center; padding:32px; color:var(--text-muted); font-size:14px;">No students found.</div>
+      </div>
+    </section>
+
+    <!-- STUDENT PROFILE MODAL -->
+    <div id="student-profile-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(5px); z-index:2000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeStudentProfileModal()">
+      <div style="background:var(--surface); border-radius:22px; border:1px solid var(--border-bright); padding:36px 32px; width:460px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.2); position:relative; max-height:90vh; overflow-y:auto;">
+        <button onclick="closeStudentProfileModal()" style="position:absolute; top:16px; right:16px; background:#eeebe4; border:none; border-radius:8px; width:32px; height:32px; cursor:pointer; font-size:16px; color:var(--text-muted);">✕</button>
+        <div style="display:flex; flex-direction:column; align-items:center; margin-bottom:24px;">
+          <div id="sp-avatar" style="width:72px; height:72px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:800; color:#fff; margin-bottom:12px; background:linear-gradient(135deg,var(--accent),var(--cyan));"></div>
+          <div id="sp-name" style="font-size:20px; font-weight:800; letter-spacing:-0.4px;"></div>
+          <div id="sp-role-badge" style="margin-top:6px;"></div>
+        </div>
+        <div style="background:#f8f6f2; border-radius:var(--radius); padding:18px; margin-bottom:16px;">
+          <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Student ID</span><span id="sp-id" style="font-family:var(--mono); color:var(--accent); font-weight:700; font-size:13px;"></span></div>
+          <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Email</span><span id="sp-email" style="font-size:13px;"></span></div>
+          <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Level</span><span id="sp-level" style="font-size:13px; font-weight:700; color:var(--purple);"></span></div>
+          <div style="display:flex; justify-content:space-between; padding:9px 0;"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Password</span><span id="sp-pass" style="font-family:var(--mono); font-size:13px; color:var(--text-dim);"></span></div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
+          <div style="background:#f0ede8; border-radius:var(--radius-sm); padding:12px; text-align:center;">
+            <div id="sp-courses" style="font-size:22px; font-weight:800; color:var(--accent); font-family:var(--mono);">—</div>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Courses</div>
+          </div>
+          <div style="background:#f0ede8; border-radius:var(--radius-sm); padding:12px; text-align:center;">
+            <div id="sp-payments" style="font-size:22px; font-weight:800; color:var(--green); font-family:var(--mono);">—</div>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Paid Months</div>
+          </div>
+          <div style="background:#f0ede8; border-radius:var(--radius-sm); padding:12px; text-align:center;">
+            <div id="sp-homeworks" style="font-size:22px; font-weight:800; color:var(--gold); font-family:var(--mono);">—</div>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Homeworks</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn-action" style="flex:1; margin-top:0;" id="sp-edit-btn">✏️ Edit Profile</button>
+          <button class="btn-action" style="flex:1; margin-top:0; background:#f0ede8; color:var(--purple); box-shadow:none; border:1px solid rgba(167,139,250,0.3);" id="sp-edit-level-btn">🎓 Change Level</button>
+          <button id="sp-delete-btn" style="flex:1; padding:11px 20px; background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.3); color:var(--red); border-radius:var(--radius-sm); cursor:pointer; font-weight:700; font-size:13px; font-family:var(--font);">🗑️ Delete Student</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN: CLASS ROUTINE -->
+    <section id="tab-admin-routine" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">Manage Class Routine</div>
+        <div class="page-subtitle">Assign, edit and delete weekly class schedule</div>
+      </div>
+      <div class="admin-form-card">
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Student ID</label>
+            <input type="text" id="routine-student-id" placeholder="e.g. 101" oninput="loadRoutinePreview(); fetchStudentName('routine-student-id','routine-student-name','routine-name-display')">
+            <div id="routine-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
+          </div>
+          <div class="form-group"><label>Student Name</label><input type="text" id="routine-student-name" placeholder="e.g. John Doe"></div>
+        </div>
+        <div class="grid-3">
+          <div class="form-group">
+            <label>Day</label>
+            <select id="routine-day">
+              <option>Saturday</option><option>Sunday</option><option>Monday</option>
+              <option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Time</label><input type="text" id="routine-time" placeholder="e.g. 09:00 AM - 10:30 AM"></div>
+          <div class="form-group"><label>Subject</label><input type="text" id="routine-subject" placeholder="e.g. Structured Programming"></div>
+        </div>
+        <button class="btn-action" onclick="uploadRoutine()">Add to Routine</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 Current Routine Entries <span id="routine-preview-id" style="color:var(--accent); font-family:var(--mono); font-size:12px;"></span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Day</th><th>Time</th><th>Subject</th><th>Action</th></tr></thead>
+            <tbody id="admin-routine-preview"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN: RESULTS -->
+    <section id="tab-admin-results" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">Publish Academic Results</div>
+        <div class="page-subtitle">Enter, update and delete grades for students</div>
+      </div>
+      <div class="admin-form-card">
+        <div class="grid-3">
+          <div class="form-group">
+            <label>Student ID</label>
+            <input type="text" id="res-student-id" placeholder="e.g. 101" oninput="loadResultsPreview(); fetchStudentName('res-student-id',null,'res-name-display')">
+            <div id="res-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
+          </div>
+          <div class="form-group"><label>Course Code</label><input type="text" id="res-code" placeholder="e.g. CSE-1212"></div>
+          <div class="form-group"><label>Course Title</label><input type="text" id="res-title" placeholder="e.g. Structured Programming"></div>
+        </div>
+        <div class="grid-3">
+          <div class="form-group"><label>Credit Hours</label><input type="number" id="res-credit" placeholder="3"></div>
+          <div class="form-group"><label>Grade</label><input type="text" id="res-grade" placeholder="A+"></div>
+          <div class="form-group"><label>GPA Value</label><input type="number" id="res-gpa" step="0.01" placeholder="4.00"></div>
+        </div>
+        <button class="btn-action" onclick="uploadResult()">Publish Grade</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 Published Results <span id="results-preview-id" style="color:var(--accent); font-family:var(--mono); font-size:12px;"></span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Code</th><th>Title</th><th>Credit</th><th>Grade</th><th>GPA</th><th>Action</th></tr></thead>
+            <tbody id="admin-results-preview"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN: ATTENDANCE -->
+    <section id="tab-admin-attendance" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">Manage Attendance</div>
+        <div class="page-subtitle">Update and delete student attendance by course</div>
+      </div>
+      <div class="admin-form-card">
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Student ID</label>
+            <input type="text" id="attn-student-id" placeholder="e.g. 101" oninput="loadAttendancePreview(); fetchStudentName('attn-student-id',null,'attn-name-display')">
+            <div id="attn-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
+          </div>
+          <div class="form-group"><label>Course Code</label><input type="text" id="attn-code" placeholder="e.g. CSE-1212"></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label>Total Classes Conducted</label><input type="number" id="attn-total" placeholder="30"></div>
+          <div class="form-group"><label>Classes Attended</label><input type="number" id="attn-present" placeholder="25"></div>
+        </div>
+        <button class="btn-action" onclick="uploadAttendance()">Update Attendance</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 Current Attendance <span id="attn-preview-id" style="color:var(--accent); font-family:var(--mono); font-size:12px;"></span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Course Code</th><th>Total</th><th>Attended</th><th>%</th><th>Action</th></tr></thead>
+            <tbody id="admin-attn-preview"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN: PAYMENTS -->
+    <section id="tab-admin-payments" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">Manage Payments</div>
+        <div class="page-subtitle">Update and delete month-wise payment status and dates</div>
+      </div>
+      <div class="admin-form-card">
+        <div class="grid-3">
+          <div class="form-group">
+            <label>Student ID</label>
+            <input type="text" id="pay-student-id" placeholder="e.g. 101" oninput="loadPaymentPreview(); fetchStudentName('pay-student-id',null,'pay-name-display')">
+            <div id="pay-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
+          </div>
+          <div class="form-group">
+            <label>Select Month</label>
+            <select id="pay-month">
+              <option>January</option><option>February</option><option>March</option><option>April</option>
+              <option>May</option><option>June</option><option>July</option><option>August</option>
+              <option>September</option><option>October</option><option>November</option><option>December</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="pay-status"><option value="Paid">Paid</option><option value="Pending">Pending</option><option value="Due">Due</option></select>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label>Payment Date</label><input type="text" id="pay-date" placeholder="e.g. 05/06/2026"></div>
+        </div>
+        <button class="btn-action" onclick="uploadPayment()">Update Payment Info</button>
+      </div>
+      <div class="card">
+        <div class="card-title">💳 Payment Records <span id="pay-preview-id" style="color:var(--accent); font-family:var(--mono); font-size:12px;"></span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Month</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="admin-pay-preview"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN: CLASS DATES -->
+    <section id="tab-admin-class-dates" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">Manage Class Dates</div>
+        <div class="page-subtitle">Enter and delete dates when classes were conducted</div>
+      </div>
+      <div class="admin-form-card">
+        <div class="grid-3">
+          <div class="form-group">
+            <label>Student ID</label>
+            <input type="text" id="class-student-id" placeholder="e.g. 101" oninput="loadClassDatesPreview(); fetchStudentName('class-student-id',null,'class-name-display')">
+            <div id="class-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
+          </div>
+          <div class="form-group">
+            <label>Select Month</label>
+            <select id="class-month">
+              <option>January</option><option>February</option><option>March</option><option>April</option>
+              <option>May</option><option>June</option><option>July</option><option>August</option>
+              <option>September</option><option>October</option><option>November</option><option>December</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Class Dates (Comma Separated)</label><input type="text" id="class-dates-input" placeholder="e.g. 01/06, 03/06, 05/06"></div>
+        </div>
+        <button class="btn-action" onclick="uploadClassDates()">Update Class Dates</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📅 Class Date Records <span id="classdate-preview-id" style="color:var(--accent); font-family:var(--mono); font-size:12px;"></span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Month</th><th>Dates Conducted</th><th>Action</th></tr></thead>
+            <tbody id="admin-classdate-preview"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN: HOMEWORK -->
+    <section id="tab-admin-homework" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">Assign Homework</div>
+        <div class="page-subtitle">Student-specific homework assignments</div>
+      </div>
+      <div class="admin-form-card">
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Student ID</label>
+            <input type="text" id="hw-student-id" placeholder="e.g. 101" oninput="loadHomeworkPreview(); fetchStudentName('hw-student-id',null,'hw-name-display')">
+            <div id="hw-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
+          </div>
+          <div class="form-group"><label>Course Code</label><input type="text" id="hw-code" placeholder="e.g. CSE-1212"></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label>Homework Description</label><input type="text" id="hw-desc" placeholder="Complete assignment 1"></div>
+          <div class="form-group"><label>Deadline</label><input type="text" id="hw-deadline" placeholder="e.g. 15/06/2026"></div>
+        </div>
+        <div class="form-group">
+          <label>Attach File (Optional — PDF/Image, max 2MB)</label>
+          <input type="file" id="hw-file" accept=".pdf,image/*" style="width:100%; background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); padding:10px 14px; font-family:var(--font); font-size:13.5px; color:var(--text); outline:none; cursor:pointer;">
+          <div id="hw-file-hint" style="font-size:11px; color:var(--text-muted); margin-top:4px;">File will be stored; students can download it from their Homework section.</div>
+        </div>
+        <div id="hw-upload-progress" style="display:none; margin-bottom:10px; padding:10px 14px; border-radius:var(--radius-sm); background:rgba(79,142,247,0.08); border:1px solid rgba(79,142,247,0.2); font-size:13px; color:var(--accent);">⏳ Uploading file...</div>
+        <button class="btn-action" onclick="uploadHomework()">Assign Homework</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📚 Assigned Homeworks <span id="hw-preview-id" style="color:var(--accent); font-family:var(--mono); font-size:12px;"></span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Course</th><th>Description</th><th>Deadline</th><th>File</th><th>Action</th></tr></thead>
+            <tbody id="admin-hw-preview"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN: LIBRARY -->
+    <section id="tab-admin-library" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">Manage Library</div>
+        <div class="page-subtitle">Add and remove books and academic resources</div>
+      </div>
+      <div class="admin-form-card">
+        <div class="grid-3">
+          <div class="form-group"><label>Resource / Book Title</label><input type="text" id="lib-title" placeholder="Introduction to C Algorithms"></div>
+          <div class="form-group"><label>Access Link / Location</label><input type="text" id="lib-link" placeholder="Drive link or leave blank if uploading PDF"></div>
+          <div class="form-group">
+            <label>Student Level</label>
+            <select id="lib-level">
+              <option value="All">All Levels</option>
+              <option value="SSC">SSC</option>
+              <option value="HSC">HSC</option>
+              <option value="University">University</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Upload PDF from Device (Optional — replaces link above, max 2MB)</label>
+          <input type="file" id="lib-pdf-file" accept=".pdf" style="width:100%; background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); padding:10px 14px; font-family:var(--font); font-size:13.5px; color:var(--text); outline:none; cursor:pointer;">
+          <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">If a PDF is selected, it overrides the link above. Students will get a download button.</div>
+        </div>
+        <div id="lib-upload-progress" style="display:none; margin-bottom:10px; padding:10px 14px; border-radius:var(--radius-sm); background:rgba(79,142,247,0.08); border:1px solid rgba(79,142,247,0.2); font-size:13px; color:var(--accent);">⏳ Uploading PDF...</div>
+        <button class="btn-action" onclick="uploadLibrary()">Add Library Resource</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📚 Library Resources</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Title</th><th>Level</th><th>Link</th><th>Action</th></tr></thead>
+            <tbody id="admin-library-preview"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN: NOTES -->
+    <section id="tab-admin-notes" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">Publish Notes & Drive Links</div>
+        <div class="page-subtitle">Upload notes or share Google Drive links</div>
+      </div>
+      <div class="admin-form-card">
+        <div class="grid-3">
+          <div class="form-group"><label>Topic / Note Title</label><input type="text" id="note-title" placeholder="e.g. Lecture 1 - Matrix Input"></div>
+          <div class="form-group">
+            <label>Material Type</label>
+            <select id="note-type">
+              <option value="PDF Document">PDF Upload Mode</option>
+              <option value="Google Drive Link">Google Drive Link</option>
+            </select>
+          </div>
+          <div class="form-group"><label>File Name / URL Path</label><input type="text" id="note-path" placeholder="https://drive.google.com/..."></div>
+        </div>
+        <div class="form-group" style="max-width:240px;">
+          <label>Student Level</label>
+          <select id="note-level">
+            <option value="All">All Levels</option>
+            <option value="SSC">SSC</option>
+            <option value="HSC">HSC</option>
+            <option value="University">University</option>
+          </select>
+        </div>
+        <button class="btn-action" onclick="uploadNote()">Publish Note</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📄 Published Notes</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Title</th><th>Level</th><th>Type</th><th>Path</th><th>Action</th></tr></thead>
+            <tbody id="admin-notes-preview"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN: NOTICES -->
+    <section id="tab-admin-notices" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">📢 Manage Notices</div>
+        <div class="page-subtitle">Post important announcements for all students</div>
+      </div>
+      <div class="admin-form-card">
+        <div class="grid-2">
+          <div class="form-group"><label>Notice Title</label><input type="text" id="notice-title" placeholder="e.g. Class Postponed on Friday"></div>
+          <div class="form-group">
+            <label>Priority</label>
+            <select id="notice-priority">
+              <option value="normal">Normal</option>
+              <option value="important">Important</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group"><label>Notice Body</label><textarea id="notice-body" placeholder="Write the full notice here..." style="width:100%; min-height:90px; background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); padding:12px 14px; font-family:var(--font); font-size:14px; color:var(--text); outline:none; resize:vertical; transition:border-color 0.2s;"></textarea></div>
+        <button class="btn-action" onclick="publishNotice()">📢 Publish Notice</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 Published Notices</div>
+        <div id="admin-notices-list"><div style="color:var(--text-muted); font-size:13px; padding:12px;">Loading...</div></div>
+      </div>
+    </section>
+
+    <!-- ADMIN: FILES -->
+    <section id="tab-admin-files" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">Upload Study Materials</div>
+        <div class="page-subtitle">Upload PDF files or publish file names for students</div>
+      </div>
+      <div class="admin-form-card">
+        <div class="card-title" style="margin-bottom:14px;">📄 Upload PDF from Device</div>
+        <div class="form-group"><label>Display Name for Students</label><input type="text" id="f-display-name" placeholder="e.g. Chapter 3 - Algebra Notes"></div>
+        <div class="form-group">
+          <label>Select PDF File</label>
+          <input type="file" id="f-pdf-input" accept=".pdf" style="width:100%; background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); padding:10px 14px; font-family:var(--font); font-size:13.5px; color:var(--text); outline:none; cursor:pointer;">
+          <div id="f-pdf-size-hint" style="font-size:11px; color:var(--text-muted); margin-top:4px;">Max file size: 2 MB. File is stored as a downloadable link for students.</div>
+        </div>
+        <div id="f-upload-progress" style="display:none; margin-bottom:10px; padding:10px 14px; border-radius:var(--radius-sm); background:rgba(79,142,247,0.08); border:1px solid rgba(79,142,247,0.2); font-size:13px; color:var(--accent);">⏳ Uploading...</div>
+        <button class="btn-action" onclick="uploadPdfFile()">⬆️ Upload PDF</button>
+        <div style="margin-top:18px; padding-top:18px; border-top:1px solid var(--border);">
+          <div class="card-title" style="margin-bottom:12px;">📝 Or Publish a Notice / File Name</div>
+          <div class="form-group"><label>File Name / Notification Title</label><input type="text" id="f-name" placeholder="e.g. Class Routine.pdf"></div>
+          <button class="btn-action" style="background:#eeebe4; color:var(--text-dim); box-shadow:none;" onclick="uploadFile()">Publish Title Only</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📂 Uploaded Files History</div>
+        <div id="admin-file-list"></div>
+      </div>
+    </section>
+
+    <!-- ADMIN: PASSWORD REQUESTS -->
+    <section id="tab-admin-passrequests" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">🔑 Password Reset Requests</div>
+        <div class="page-subtitle">Review and approve student password change requests</div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Student ID</th><th>Name</th><th>Requested Password</th><th>Time</th><th>Action</th></tr></thead>
+            <tbody id="passreq-table-body">
+              <tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:24px;">Loading requests...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN: SECRET REGISTRATION KEY -->
+    <section id="tab-admin-secretkey" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">🛡️ Registration Secret Key</div>
+        <div class="page-subtitle">Set the secret key that students must enter when creating an account</div>
+      </div>
+      <div class="admin-form-card" style="max-width:500px;">
+        <div class="card-title" style="margin-bottom:20px;">Current Active Key</div>
+        <div id="current-secret-display" style="background:#f0ede8; border:1px solid var(--border-bright); border-radius:var(--radius-sm); padding:14px 16px; margin-bottom:20px; font-family:var(--mono); color:var(--gold); font-size:16px; font-weight:700; letter-spacing:2px; word-break:break-all;">Loading...</div>
+        <div class="form-group">
+          <label>Set New Secret Key</label>
+          <input type="text" id="new-secret-key-input" placeholder="e.g. SKA-2026-XYZ">
+          <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">Share this key privately with each student. They'll need it to register.</div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn-action" onclick="saveSecretKey()">💾 Save Key</button>
+          <button class="btn-action" style="background:#eeebe4; color:var(--text-dim); box-shadow:none;" onclick="generateRandomKey()">🎲 Generate Random</button>
+        </div>
+      </div>
+
+      <!-- Approved Student IDs Panel -->
+      <div class="admin-form-card" style="max-width:560px;">
+        <div class="card-title" style="margin-bottom:6px;">📋 Approved Student IDs for Registration</div>
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:18px;">Only IDs in this list can be used to create a new account. Students pick from this list at signup.</div>
+        <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; margin-bottom:14px;">
+          <div class="form-group" style="margin-bottom:0; flex:1; min-width:140px;">
+            <label>Add Student ID</label>
+            <input type="text" id="approved-id-input" placeholder="e.g. 2024101" onkeydown="if(event.key==='Enter')addApprovedId()">
+          </div>
+          <button class="btn-action" style="margin-top:0; white-space:nowrap;" onclick="addApprovedId()">➕ Add ID</button>
+        </div>
+        <div id="approved-ids-list" style="display:flex; flex-wrap:wrap; gap:8px; min-height:40px; padding:4px 0;"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer style="margin-left: var(--sidebar-w); padding: 18px 36px; border-top: 1px solid var(--border); background: var(--surface); text-align: center; font-size: 12.5px; color: var(--text-muted); letter-spacing: 0.2px;">
+    © 2026 <strong style="color: var(--text-dim);">Skill Circle Academy</strong> &nbsp;|&nbsp; All Rights Reserved
+  </footer>
+</div>
+
+<!-- EDIT MODAL (Profile) -->
+<div id="edit-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-title" id="modal-title">Edit Profile</div>
+    <div class="form-group"><label>Full Name</label><input type="text" id="edit-name"></div>
+    <div class="form-group"><label>Email</label><input type="text" id="edit-email"></div>
+    <div class="modal-actions">
+      <button class="btn-action" onclick="saveProfile()">Save Changes</button>
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT CLASS DATES MODAL -->
+<div id="edit-classdate-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeClassDateEditModal()">
+  <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:420px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
+    <button onclick="closeClassDateEditModal()" style="position:absolute;top:14px;right:14px;background:#eeebe4;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+    <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Class Dates</div>
+    <input type="hidden" id="ecd-student-id">
+    <input type="hidden" id="ecd-old-month">
+    <div class="form-group">
+      <label>Month</label>
+      <select id="ecd-month">
+        <option>January</option><option>February</option><option>March</option><option>April</option>
+        <option>May</option><option>June</option><option>July</option><option>August</option>
+        <option>September</option><option>October</option><option>November</option><option>December</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Class Dates (Comma Separated)</label>
+      <input type="text" id="ecd-dates" placeholder="e.g. 01/06, 03/06, 05/06">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn-action" style="flex:1;" onclick="saveClassDateEdit()">💾 Save Changes</button>
+      <button class="btn-cancel" style="flex:1;" onclick="closeClassDateEditModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+<!-- EDIT ROUTINE MODAL -->
+<div id="edit-routine-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeRoutineEditModal()">
+  <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:420px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
+    <button onclick="closeRoutineEditModal()" style="position:absolute;top:14px;right:14px;background:#eeebe4;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+    <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Routine Entry</div>
+    <input type="hidden" id="er-routine-student-id">
+    <input type="hidden" id="er-routine-key">
+    <div class="form-group">
+      <label>Day</label>
+      <select id="er-routine-day">
+        <option>Saturday</option><option>Sunday</option><option>Monday</option>
+        <option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Time</label>
+      <input type="text" id="er-routine-time" placeholder="e.g. 09:00 AM - 10:30 AM">
+    </div>
+    <div class="form-group">
+      <label>Subject</label>
+      <input type="text" id="er-routine-subject" placeholder="e.g. Structured Programming">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn-action" style="flex:1;" onclick="saveRoutineEdit()">💾 Save Changes</button>
+      <button class="btn-cancel" style="flex:1;" onclick="closeRoutineEditModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="edit-payment-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closePaymentEditModal()">
+  <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:420px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
+    <button onclick="closePaymentEditModal()" style="position:absolute;top:14px;right:14px;background:#eeebe4;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+    <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Payment Record</div>
+    <input type="hidden" id="ep-student-id">
+    <input type="hidden" id="ep-old-month">
+    <div class="form-group">
+      <label>Month</label>
+      <select id="ep-month">
+        <option>January</option><option>February</option><option>March</option><option>April</option>
+        <option>May</option><option>June</option><option>July</option><option>August</option>
+        <option>September</option><option>October</option><option>November</option><option>December</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Payment Date</label>
+      <input type="text" id="ep-date" placeholder="e.g. 05/06/2026">
+    </div>
+    <div class="form-group">
+      <label>Status</label>
+      <select id="ep-status">
+        <option value="Paid">Paid</option>
+        <option value="Pending">Pending</option>
+        <option value="Due">Due</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn-action" style="flex:1;" onclick="savePaymentEdit()">💾 Save Changes</button>
+      <button class="btn-cancel" style="flex:1;" onclick="closePaymentEditModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT RESULT MODAL -->
+<div id="edit-result-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeResultEditModal()">
+  <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:460px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
+    <button onclick="closeResultEditModal()" style="position:absolute;top:14px;right:14px;background:#eeebe4;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+    <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Academic Result</div>
+    <input type="hidden" id="er-student-id">
+    <input type="hidden" id="er-old-key">
+    <div class="grid-2">
+      <div class="form-group"><label>Course Code</label><input type="text" id="er-code" placeholder="e.g. CSE-1212"></div>
+      <div class="form-group"><label>Course Title</label><input type="text" id="er-title" placeholder="e.g. Structured Programming"></div>
+    </div>
+    <div class="grid-3">
+      <div class="form-group"><label>Credit Hours</label><input type="number" id="er-credit" placeholder="3"></div>
+      <div class="form-group"><label>Grade</label><input type="text" id="er-grade" placeholder="A+"></div>
+      <div class="form-group"><label>GPA Value</label><input type="number" id="er-gpa" step="0.01" placeholder="4.00"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn-action" style="flex:1;" onclick="saveResultEdit()">💾 Save Changes</button>
+      <button class="btn-cancel" style="flex:1;" onclick="closeResultEditModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, set, get, child, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBVvR9NMvUNQR9buleNoCwNEcP82VwD168",
+    authDomain: "uni-portal-4f306.firebaseapp.com",
+    databaseURL: "https://uni-portal-4f306-default-rtdb.firebaseio.com",
+    projectId: "uni-portal-4f306",
+    storageBucket: "uni-portal-4f306.firebasestorage.app",
+    messagingSenderId: "479159209919",
+    appId: "1:479159209919:web:506bbed0f90201d7645b0a",
+    measurementId: "G-DVVD1GK3BY"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  let currentSession = null;
+  let editingId = null;
+
+  // ── Session Persistence — localStorage keeps session after refresh & browser close ──
+  const savedSession = localStorage.getItem('skillCircleSession');
+  if(savedSession) {
+    currentSession = JSON.parse(savedSession);
+    document.getElementById('login-page').style.display = 'none';
+    document.getElementById('portal-page').style.display = 'block';
+    if(currentSession.role === 'admin') {
+      document.getElementById('menu-admin').classList.remove('hidden');
+    } else {
+      document.getElementById('menu-admin').classList.add('hidden');
+    }
+    // Restore last active tab after all functions are defined
+    const lastTab = localStorage.getItem('skillCircleLastTab');
+    window.__pendingRestoreTab = lastTab || (currentSession.role === 'admin' ? 'admin-users' : 'dash');
+  }
+
+  const monthsList = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+  window.toggleAuth = (page) => {
+    document.getElementById('login-page').style.display = 'none';
+    document.getElementById('signup-page').style.display = 'none';
+    document.getElementById('forgot-page').style.display = 'none';
+    if(page === 'signup') { document.getElementById('signup-page').style.display = 'flex'; populateSignupIdDropdown(); }
+    else if(page === 'forgot') {
+      document.getElementById('forgot-page').style.display = 'flex';
+      document.getElementById('forgot-result').style.display = 'none';
+      document.getElementById('forgot-name').value = '';
+      document.getElementById('forgot-id').value = '';
+      document.getElementById('forgot-newpass').value = '';
+    }
+    else document.getElementById('login-page').style.display = 'flex';
+  };
+
+  window.handleForgotPassword = async () => {
+    const name = document.getElementById('forgot-name').value.trim();
+    const id = document.getElementById('forgot-id').value.trim();
+    const newpass = document.getElementById('forgot-newpass').value.trim();
+    const resultDiv = document.getElementById('forgot-result');
+
+    if(!name || !id || !newpass) return alert("Please fill in all fields!");
+    if(newpass.length < 4) return alert("New password must be at least 4 characters!");
+
+    // Verify student exists
+    const snapshot = await get(child(ref(db), `users/${id}`));
+    if(!snapshot.exists()) {
+      resultDiv.style.display = 'block';
+      resultDiv.style.background = 'rgba(248,113,113,0.1)';
+      resultDiv.style.border = '1px solid rgba(248,113,113,0.3)';
+      resultDiv.style.color = 'var(--red)';
+      resultDiv.innerHTML = '❌ No account found with this Student ID.';
+      return;
+    }
+    const userData = snapshot.val();
+    if(userData.name.toLowerCase() !== name.toLowerCase()) {
+      resultDiv.style.display = 'block';
+      resultDiv.style.background = 'rgba(248,113,113,0.1)';
+      resultDiv.style.border = '1px solid rgba(248,113,113,0.3)';
+      resultDiv.style.color = 'var(--red)';
+      resultDiv.innerHTML = '❌ Name does not match the records for this ID.';
+      return;
+    }
+
+    // Save request to Firebase
+    const reqKey = `${id}_${Date.now()}`;
+    await set(ref(db, `passRequests/${reqKey}`), {
+      studentId: id,
+      name: userData.name,
+      requestedPass: newpass,
+      time: new Date().toLocaleString('en-BD', { timeZone: 'Asia/Dhaka' }),
+      status: 'pending'
+    });
+
+    resultDiv.style.display = 'block';
+    resultDiv.style.background = 'rgba(52,211,153,0.1)';
+    resultDiv.style.border = '1px solid rgba(52,211,153,0.3)';
+    resultDiv.style.color = 'var(--green)';
+    resultDiv.innerHTML = `✅ Request sent successfully!<br><small style="color:var(--text-muted); display:block; margin-top:6px;">The admin will review your request and update your password shortly.</small>`;
+    document.getElementById('forgot-name').value = '';
+    document.getElementById('forgot-id').value = '';
+    document.getElementById('forgot-newpass').value = '';
+  };
+
+  window.handleSignUp = async () => {
+    const name = document.getElementById('signup-name').value.trim();
+    const id = document.getElementById('signup-id').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const pass = document.getElementById('signup-pass').value.trim();
+    const level = document.getElementById('signup-level').value;
+    const secret = document.getElementById('signup-secret').value.trim();
+
+    if(!name || !id || !email || !pass || !secret) return alert("Please fill all fields including the Secret Key!");
+    if(!level) return alert("Please select your student level (SSC / HSC / University)!");
+
+    // Verify selected ID is still in approved list (not snatched by someone else)
+    const approvedSnap = await get(child(ref(db), `config/approvedIds/${id}`));
+    if(!approvedSnap.exists()) return alert("❌ This Student ID is no longer available. Please reload and try again.");
+
+    // Validate secret key against admin-set key in Firebase
+    const keySnap = await get(child(ref(db), 'config/registrationKey'));
+    if(!keySnap.exists()) return alert("❌ Registration is currently disabled. Please contact the admin.");
+    const validKey = keySnap.val();
+    if(secret !== validKey) return alert("❌ Invalid Secret Key! Please get the correct key from your admin.");
+
+    const snapshot = await get(child(ref(db), `users/${id}`));
+    if(snapshot.exists()) return alert("This ID is already registered!");
+
+    await set(ref(db, 'users/' + id), { name, email, pass, role: 'user', level });
+    // Remove from approved list so it cannot be re-used by another person
+    await remove(ref(db, `config/approvedIds/${id}`));
+    alert("✅ Account created successfully!");
+    window.toggleAuth('login');
+    document.getElementById('login-id').value = id;
+  };
+
+  window.handleLogin = async () => {
+    const id = document.getElementById('login-id').value.trim();
+    const pass = document.getElementById('login-pass').value.trim();
+
+    if(!id || !pass) return alert("Fields cannot be empty!");
+
+    if(id === 'admin' && pass === 'admin123') {
+       const checkAdmin = await get(child(ref(db), 'users/admin'));
+       if(!checkAdmin.exists()){
+          await set(ref(db, 'users/admin'), { name: 'System Admin', email: 'admin@lu.com', pass: 'admin123', role: 'admin' });
+       }
+    }
+
+    const snapshot = await get(child(ref(db), `users/${id}`));
+    if (snapshot.exists()) {
+      const userData = snapshot.val();
+      if(userData.pass === pass) {
+        currentSession = { ...userData, id: id };
+        localStorage.setItem('skillCircleSession', JSON.stringify(currentSession));
+        document.getElementById('login-page').style.display = 'none';
+        document.getElementById('portal-page').style.display = 'block';
+        
+        if(currentSession.role === 'admin' || id === 'admin') {
+          document.getElementById('menu-admin').classList.remove('hidden');
+          window.switchTab('admin-users');
+        } else {
+          document.getElementById('menu-admin').classList.add('hidden');
+          window.switchTab('dash');
+        }
+        return;
+      }
+    }
+    alert("Wrong ID or Password!");
+  };
+
+  window.switchTab = (tabId) => {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    
+    document.getElementById('tab-' + tabId).classList.remove('hidden');
+    if(document.getElementById('nav-' + tabId)) document.getElementById('nav-' + tabId).classList.add('active');
+    localStorage.setItem('skillCircleLastTab', tabId);
+    
+    if(tabId === 'routine') loadStudentRoutine();
+    if(tabId === 'admin-routine') {};
+    if(tabId === 'admin-files') renderAdminFiles();
+    if(tabId === 'admin-library') loadAdminLibraryPreview();
+    if(tabId === 'admin-notes') loadAdminNotesPreview();
+    if(tabId === 'admin-users') renderUserTable();
+    if(tabId === 'admin-passrequests') loadPassRequests();
+    if(tabId === 'admin-secretkey') loadSecretKey();
+    if(tabId === 'profile') loadProfileData();
+    if(tabId === 'dash') initUserDash();
+    if(tabId === 'result') loadStudentResults();
+    if(tabId === 'attendance') loadStudentAttendance();
+    if(tabId === 'payment') loadStudentPayments();
+    if(tabId === 'class-dates') loadStudentClassDates();
+    if(tabId === 'homework') loadStudentHomeworks();
+    if(tabId === 'library') loadStudentLibrary();
+    if(tabId === 'notes') loadStudentNotes();
+    if(tabId === 'cgpa') initCGPACalculator();
+  };
+
+  async function loadStudentRoutine() {
+    const tbody = document.getElementById('routine-table-body');
+    const snapshot = await get(child(ref(db), `routine/${currentSession.id}`));
+    if(snapshot.exists()) {
+      const dayOrder = ["Saturday","Sunday","Monday","Tuesday","Wednesday","Thursday","Friday"];
+      const entries = Object.values(snapshot.val());
+      entries.sort((a, b) => dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day));
+      tbody.innerHTML = entries.map(r => `
+        <tr>
+          <td style="font-weight:600; color:var(--purple);">${r.day}</td>
+          <td style="font-family:var(--mono); color:var(--cyan); font-size:13px;">${r.time}</td>
+          <td style="font-weight:500;">${r.subject}</td>
+        </tr>
+      `).join('');
+    } else {
+      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:24px;">No routine assigned yet.</td></tr>`;
+    }
+  }
+
+  window.uploadRoutine = () => {
+    const sId = document.getElementById('routine-student-id').value.trim();
+    const name = document.getElementById('routine-student-name').value.trim();
+    const day = document.getElementById('routine-day').value;
+    const time = document.getElementById('routine-time').value.trim();
+    const subject = document.getElementById('routine-subject').value.trim();
+
+    if(!sId || !name || !time || !subject) return alert("All fields are required!");
+
+    const key = `${day}_${Date.now()}`;
+    set(ref(db, `routine/${sId}/${key}`), { day, time, subject, studentName: name })
+    .then(() => {
+      alert(`Routine entry added for ${name} (ID: ${sId})!`);
+      document.getElementById('routine-time').value = '';
+      document.getElementById('routine-subject').value = '';
+      loadRoutinePreview();
+    });
+  };
+
+  // ── Admin Preview Functions ──
+
+  window.loadRoutinePreview = async () => {
+    const sId = document.getElementById('routine-student-id').value.trim();
+    const tbody = document.getElementById('admin-routine-preview');
+    const label = document.getElementById('routine-preview-id');
+    if(!sId) { tbody.innerHTML = ''; label.innerText = ''; return; }
+    label.innerText = `for ID: ${sId}`;
+    const snapshot = await get(child(ref(db), `routine/${sId}`));
+    if(snapshot.exists()) {
+      const dayOrder = ["Saturday","Sunday","Monday","Tuesday","Wednesday","Thursday","Friday"];
+      const entries = Object.entries(snapshot.val()).sort((a,b) => dayOrder.indexOf(a[1].day) - dayOrder.indexOf(b[1].day));
+      tbody.innerHTML = entries.map(([key, r]) => `
+        <tr>
+          <td style="font-weight:600; color:var(--purple);">${r.day}</td>
+          <td style="font-family:var(--mono); color:var(--cyan); font-size:13px;">${r.time}</td>
+          <td>${r.subject}</td>
+          <td style="display:flex; gap:5px; flex-wrap:wrap;">
+            <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="openRoutineEditModal('${sId}','${key}','${r.day}','${r.time.replace(/'/g,"\\'")}','${r.subject.replace(/'/g,"\\'")}')">✏️ Edit</button>
+            <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('routine/${sId}/${key}', loadRoutinePreview)">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    } else {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:16px;">No routine found.</td></tr>`;
+    }
+  };
+
+  window.loadResultsPreview = async () => {
+    const sId = document.getElementById('res-student-id').value.trim();
+    const tbody = document.getElementById('admin-results-preview');
+    const label = document.getElementById('results-preview-id');
+    if(!sId) { tbody.innerHTML = ''; label.innerText = ''; return; }
+    label.innerText = `for ID: ${sId}`;
+    const snapshot = await get(child(ref(db), `results/${sId}`));
+    if(snapshot.exists()) {
+      tbody.innerHTML = Object.entries(snapshot.val()).map(([key, r]) => `
+        <tr>
+          <td style="font-family:var(--mono); color:var(--cyan); font-size:12px;">${r.code}</td>
+          <td>${r.title}</td>
+          <td>${r.credit}</td>
+          <td><span class="badge badge-user">${r.grade}</span></td>
+          <td style="color:var(--green); font-family:var(--mono);">${parseFloat(r.gpa).toFixed(2)}</td>
+          <td style="display:flex; gap:5px; flex-wrap:wrap;">
+            <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="openResultEditModal('${sId}','${key}','${r.code.replace(/'/g,"\\'")}','${r.title.replace(/'/g,"\\'")}','${r.credit}','${r.grade}','${r.gpa}')">✏️ Edit</button>
+            <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('results/${sId}/${key}', loadResultsPreview)">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    } else {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:16px;">No results found.</td></tr>`;
+    }
+  };
+
+  window.loadAttendancePreview = async () => {
+    const sId = document.getElementById('attn-student-id').value.trim();
+    const tbody = document.getElementById('admin-attn-preview');
+    const label = document.getElementById('attn-preview-id');
+    if(!sId) { tbody.innerHTML = ''; label.innerText = ''; return; }
+    label.innerText = `for ID: ${sId}`;
+    const snapshot = await get(child(ref(db), `attendance/${sId}`));
+    if(snapshot.exists()) {
+      tbody.innerHTML = Object.entries(snapshot.val()).map(([key, a]) => {
+        const pct = ((a.present/a.total)*100).toFixed(1);
+        const color = pct >= 75 ? 'var(--green)' : 'var(--red)';
+        return `
+          <tr>
+            <td style="font-family:var(--mono); color:var(--accent); font-weight:700;">${a.code}</td>
+            <td>${a.total}</td>
+            <td>${a.present}</td>
+            <td style="font-weight:700; color:${color};">${pct}%</td>
+            <td><button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('attendance/${sId}/${key}', loadAttendancePreview)">Delete</button></td>
+          </tr>
+        `;
+      }).join('');
+    } else {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:16px;">No attendance found.</td></tr>`;
+    }
+  };
+
+  window.loadHomeworkPreview = async () => {
+    const sId = document.getElementById('hw-student-id').value.trim();
+    const tbody = document.getElementById('admin-hw-preview');
+    const label = document.getElementById('hw-preview-id');
+    if(!sId) { tbody.innerHTML = ''; label.innerText = ''; return; }
+    label.innerText = `for ID: ${sId}`;
+    const snapshot = await get(child(ref(db), `homeworks/${sId}`));
+    if(snapshot.exists()) {
+      tbody.innerHTML = Object.entries(snapshot.val()).map(([key, h]) => {
+        const fileCell = h.fileData
+          ? `<a href="${h.fileData}" download="${h.fileName||'file'}" class="btn-sm" style="background:rgba(52,211,153,0.1);border-color:rgba(52,211,153,0.3);color:var(--green);">📎 ${h.fileName||'file'}</a>`
+          : `<span style="color:var(--text-muted); font-size:12px;">No file</span>`;
+        return `
+          <tr>
+            <td style="font-family:var(--mono); color:var(--accent);">${h.code}</td>
+            <td>${h.desc}</td>
+            <td style="color:var(--red);">${h.deadline}</td>
+            <td>${fileCell}</td>
+            <td><button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('homeworks/${sId}/${key}', loadHomeworkPreview)">Delete</button></td>
+          </tr>
+        `;
+      }).join('');
+    } else {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:16px;">No homework found.</td></tr>`;
+    }
+  };
+
+  window.deleteEntry = async (path, refreshFn) => {
+    if(!confirm("Are you sure you want to delete this entry?")) return;
+    await remove(ref(db, path));
+    refreshFn();
+  };
+
+  // ── Fetch student name as admin types an ID ──
+  window.fetchStudentName = async (inputId, nameInputId, displayId) => {
+    const id = document.getElementById(inputId).value.trim();
+    const display = document.getElementById(displayId);
+    if(!display) return;
+    if(!id) { display.innerText = ''; return; }
+    const snap = await get(child(ref(db), `users/${id}`));
+    if(snap.exists()) {
+      const u = snap.val();
+      const lvl = u.level ? ` · ${u.level}` : '';
+      display.innerText = `👤 ${u.name}${lvl}`;
+      display.style.color = 'var(--green)';
+      if(nameInputId) document.getElementById(nameInputId).value = u.name;
+    } else {
+      display.innerText = id.length >= 2 ? '⚠️ Student not found' : '';
+      display.style.color = 'var(--red)';
+      if(nameInputId) document.getElementById(nameInputId).value = '';
+    }
+  };
+
+  async function loadAdminLibraryPreview() {
+    const tbody = document.getElementById('admin-library-preview');
+    const snapshot = await get(child(ref(db), 'library'));
+    if(snapshot.exists()) {
+      tbody.innerHTML = Object.entries(snapshot.val()).map(([key, l]) => {
+        const lvl = l.level || 'All';
+        const levelBadgeColor = lvl === 'SSC' ? 'var(--green)' : lvl === 'HSC' ? 'var(--gold)' : lvl === 'University' ? 'var(--purple)' : 'var(--text-muted)';
+        return `
+        <tr>
+          <td style="font-weight:600;">${l.title}</td>
+          <td><span style="font-size:11px; font-weight:700; padding:3px 9px; border-radius:12px; background:rgba(0,0,0,0.06); color:${levelBadgeColor};">${lvl}</span></td>
+          <td style="color:var(--accent); font-size:12px; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${l.link}">${l.link}</td>
+          <td style="display:flex; gap:5px; flex-wrap:wrap;">
+            <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="editLibraryTitle('${key}','${l.title.replace(/'/g,"\\'")}')">✏️ Title</button>
+            <button class="btn-sm" style="background:rgba(251,191,36,0.1);border-color:rgba(251,191,36,0.3);color:var(--gold);" onclick="editLibraryLink('${key}','${l.link.replace(/'/g,"\\'")}')">🔗 Link</button>
+            <button class="btn-sm" style="background:rgba(79,142,247,0.08);border-color:rgba(79,142,247,0.25);color:var(--purple);" onclick="editLibraryLevel('${key}','${lvl}')">🎓 Level</button>
+            <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('library/${key}', loadAdminLibraryPreview)">Delete</button>
+          </td>
+        </tr>
+      `}).join('');
+    } else {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:16px;">No library resources found.</td></tr>`;
+    }
+  }
+  window.loadAdminLibraryPreview = loadAdminLibraryPreview;
+
+  window.editLibraryTitle = async (key, current) => {
+    const val = prompt('Edit resource title:', current);
+    if(val === null) return;
+    const trimmed = val.trim();
+    if(!trimmed) return alert('Title cannot be empty!');
+    await update(ref(db), { [`/library/${key}/title`]: trimmed });
+    loadAdminLibraryPreview();
+  };
+
+  window.editLibraryLink = async (key, current) => {
+    const val = prompt('Edit resource link / location:', current);
+    if(val === null) return;
+    const trimmed = val.trim();
+    if(!trimmed) return alert('Link cannot be empty!');
+    await update(ref(db), { [`/library/${key}/link`]: trimmed });
+    loadAdminLibraryPreview();
+  };
+
+  window.editLibraryLevel = async (key, current) => {
+    const levels = ['All', 'SSC', 'HSC', 'University'];
+    const options = levels.map((l, i) => `${i+1}. ${l}`).join('\n');
+    const input = prompt(`Select new level (enter number):\n${options}\n\nCurrent: ${current}`);
+    if(input === null) return;
+    const idx = parseInt(input) - 1;
+    if(isNaN(idx) || idx < 0 || idx >= levels.length) return alert('Invalid selection!');
+    await update(ref(db), { [`/library/${key}/level`]: levels[idx] });
+    loadAdminLibraryPreview();
+  };
+
+  async function loadAdminNotesPreview() {
+    const tbody = document.getElementById('admin-notes-preview');
+    const snapshot = await get(child(ref(db), 'notes'));
+    if(snapshot.exists()) {
+      tbody.innerHTML = Object.entries(snapshot.val()).map(([key, n]) => {
+        const levelBadgeColor = n.level === 'SSC' ? 'var(--green)' : n.level === 'HSC' ? 'var(--gold)' : n.level === 'University' ? 'var(--purple)' : 'var(--text-muted)';
+        return `
+        <tr>
+          <td style="font-weight:600;" id="note-title-cell-${key}">${n.title}</td>
+          <td><span style="font-size:11px; font-weight:700; padding:3px 9px; border-radius:12px; background:rgba(0,0,0,0.06); color:${levelBadgeColor};">${n.level || 'All'}</span></td>
+          <td><span class="badge badge-user">${n.type}</span></td>
+          <td style="font-size:12px; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${n.path}</td>
+          <td style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="editNoteTitle('${key}', '${n.title.replace(/'/g,"\\'")}')">✏️ Title</button>
+            <button class="btn-sm" style="background:rgba(167,139,250,0.1);border-color:rgba(167,139,250,0.3);color:var(--purple);" onclick="editNoteLevel('${key}','${n.level || 'All'}')">🎓 Level</button>
+            <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('notes/${key}', loadAdminNotesPreview)">Delete</button>
+          </td>
+        </tr>
+      `}).join('');
+    } else {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:16px;">No notes found.</td></tr>`;
+    }
+  }
+  window.loadAdminNotesPreview = loadAdminNotesPreview;
+
+  window.editNoteTitle = async (key, currentTitle) => {
+    const newTitle = prompt('Edit note name:', currentTitle);
+    if(newTitle === null) return;
+    const trimmed = newTitle.trim();
+    if(!trimmed) return alert('Note name cannot be empty!');
+    await update(ref(db), { [`/notes/${key}/title`]: trimmed });
+    loadAdminNotesPreview();
+  };
+
+  window.editNoteLevel = async (key, current) => {
+    const levels = ['All', 'SSC', 'HSC', 'University'];
+    const options = levels.map((l, i) => `${i+1}. ${l}`).join('\n');
+    const input = prompt(`Select new level (enter number):\n${options}\n\nCurrent: ${current}`);
+    if(input === null) return;
+    const idx = parseInt(input) - 1;
+    if(isNaN(idx) || idx < 0 || idx >= levels.length) return alert('Invalid selection!');
+    await update(ref(db), { [`/notes/${key}/level`]: levels[idx] });
+    loadAdminNotesPreview();
+  };
+
+  async function initUserDash() {
+    document.getElementById('user-name-display').innerText = currentSession.name;
+    const list = document.getElementById('file-list-user');
+    const snapshot = await get(child(ref(db), 'files'));
+    if(snapshot.exists()) {
+      list.innerHTML = Object.values(snapshot.val()).map(f => `<div class="notice-item">📄 ${f}</div>`).join('');
+    } else {
+      list.innerHTML = `<span style="color:var(--text-muted); font-size:13px;">No notices uploaded yet.</span>`;
+    }
+  }
+
+  async function loadStudentResults() {
+    const tbody = document.getElementById('result-table-body');
+    const snapshot = await get(child(ref(db), `results/${currentSession.id}`));
+    if(snapshot.exists()) {
+      tbody.innerHTML = Object.values(snapshot.val()).map(r => `
+        <tr>
+          <td style="font-family:var(--mono); color:var(--cyan); font-size:13px;">${r.code}</td>
+          <td style="font-weight:600;">${r.title}</td>
+          <td>${r.credit}</td>
+          <td><span class="badge badge-user">${r.grade}</span></td>
+          <td style="color:var(--green); font-weight:700; font-family:var(--mono);">${parseFloat(r.gpa).toFixed(2)}</td>
+        </tr>
+      `).join('');
+    } else {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:24px;">No results published yet.</td></tr>`;
+    }
+  }
+
+  async function loadStudentAttendance() {
+    const tbody = document.getElementById('attendance-table-body');
+    const snapshot = await get(child(ref(db), `attendance/${currentSession.id}`));
+    if(snapshot.exists()) {
+      tbody.innerHTML = Object.values(snapshot.val()).map(a => {
+        const percentage = ((a.present / a.total) * 100).toFixed(1);
+        const color = percentage >= 75 ? 'var(--green)' : 'var(--red)';
+        return `
+          <tr>
+            <td style="font-family:var(--mono); color:var(--accent); font-weight:700;">${a.code}</td>
+            <td>${a.total}</td>
+            <td>${a.present}</td>
+            <td style="font-weight:700; color:${color};">${percentage}%</td>
+          </tr>
+        `;
+      }).join('');
+    } else {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:24px;">No attendance data found.</td></tr>`;
+    }
+  }
+
+  async function loadStudentPayments() {
+    const tbody = document.getElementById('payment-table-body');
+    const snapshot = await get(child(ref(db), `payments/${currentSession.id}`));
+    const savedPayments = snapshot.exists() ? snapshot.val() : {};
+    
+    tbody.innerHTML = monthsList.map(month => {
+      const record = savedPayments[month] || {};
+      const status = record.status || "Pending";
+      const payDate = record.date || "Not set";
+      return `
+        <tr>
+          <td style="font-weight:600;">${month}</td>
+          <td style="color:var(--cyan); font-family:var(--mono); font-size:13px;">${payDate}</td>
+          <td><span class="badge badge-${status.toLowerCase()}">${status.toUpperCase()}</span></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  async function loadStudentClassDates() {
+    const tbody = document.getElementById('class-dates-table-body');
+    const snapshot = await get(child(ref(db), `classDates/${currentSession.id}`));
+    const savedDates = snapshot.exists() ? snapshot.val() : {};
+    
+    tbody.innerHTML = monthsList.map(month => {
+      const classes = savedDates[month] || "No classes registered";
+      return `
+        <tr>
+          <td style="font-weight:600;">${month}</td>
+          <td style="color:var(--gold); font-size:13px;">${classes}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  async function loadStudentHomeworks() {
+    const tbody = document.getElementById('homework-table-body');
+    const snapshot = await get(child(ref(db), `homeworks/${currentSession.id}`));
+    if(snapshot.exists()) {
+      tbody.innerHTML = Object.values(snapshot.val()).map(h => {
+        const fileCell = h.fileData
+          ? `<a href="${h.fileData}" download="${h.fileName||'homework-file'}" class="btn-sm" style="background:rgba(52,211,153,0.1);border-color:rgba(52,211,153,0.3);color:var(--green);">⬇️ Download</a>`
+          : `<span style="color:var(--text-muted); font-size:12px;">—</span>`;
+        return `
+          <tr>
+            <td style="font-family:var(--mono); color:var(--accent); font-weight:700;">${h.code}</td>
+            <td>${h.desc}</td>
+            <td style="color:var(--red); font-weight:600;">${h.deadline}</td>
+            <td>${fileCell}</td>
+          </tr>
+        `;
+      }).join('');
+    } else {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:24px;">No homework assigned yet.</td></tr>`;
+    }
+  }
+
+  async function loadStudentLibrary() {
+    const tbody = document.getElementById('library-table-body');
+    const snapshot = await get(child(ref(db), 'library'));
+    if(snapshot.exists()) {
+      const studentLevel = currentSession.level || null;
+      const isAdmin = currentSession.role === 'admin';
+      tbody.innerHTML = Object.values(snapshot.val()).filter(l => {
+        if(isAdmin) return true;
+        const lvl = l.level || 'All';
+        return lvl === 'All' || lvl === studentLevel;
+      }).map(l => {
+        let accessCell;
+        if(l.fileData) {
+          accessCell = `<a href="${l.fileData}" download="${l.fileName||'resource.pdf'}" class="btn-sm" style="background:rgba(52,211,153,0.1);border-color:rgba(52,211,153,0.3);color:var(--green);">⬇️ Download PDF</a>`;
+        } else if(l.link && l.link.startsWith('http')) {
+          accessCell = `<a href="${l.link}" target="_blank" class="btn-sm">🔗 Open Resource</a>`;
+        } else {
+          accessCell = `<span style="color:var(--text-muted);">${l.link||'—'}</span>`;
+        }
+        return `
+          <tr>
+            <td style="font-weight:600;">${l.title}</td>
+            <td>${accessCell}</td>
+          </tr>
+        `;
+      }).join('');
+    } else {
+      tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:var(--text-muted); padding:24px;">No library records found.</td></tr>`;
+    }
+  }
+
+  let allNotesCache = [];
+
+  async function loadStudentNotes() {
+    const tbody = document.getElementById('notes-table-body');
+    const countBadge = document.getElementById('notes-count-badge');
+    const noResult = document.getElementById('notes-no-result');
+    const searchInput = document.getElementById('notes-search-input');
+    const levelFilter = document.getElementById('notes-level-filter');
+    if(searchInput) searchInput.value = '';
+    if(noResult) noResult.style.display = 'none';
+
+    // Hide level filter for non-admin students; they only see their own level
+    const studentLevel = currentSession.level || null;
+    const isAdmin = currentSession.role === 'admin';
+    if(levelFilter) {
+      if(isAdmin) {
+        levelFilter.style.display = '';
+        levelFilter.value = 'all';
+      } else {
+        levelFilter.style.display = 'none';
+        levelFilter.value = 'all';
+      }
+    }
+
+    const snapshot = await get(child(ref(db), 'notes'));
+    if(snapshot.exists()) {
+      allNotesCache = Object.entries(snapshot.val()).map(([k, v]) => ({ ...v, _key: k }));
+      // For students, pre-filter to only their level + 'All' level notes
+      const viewable = isAdmin ? allNotesCache : allNotesCache.filter(n => {
+        const noteLevel = n.level || 'All';
+        return noteLevel === 'All' || noteLevel === studentLevel;
+      });
+      renderNotesRows(viewable);
+    } else {
+      allNotesCache = [];
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:24px;">No notes published yet.</td></tr>`;
+      if(countBadge) countBadge.innerText = '0 notes';
+    }
+  }
+
+  function renderNotesRows(notes) {
+    const tbody = document.getElementById('notes-table-body');
+    const countBadge = document.getElementById('notes-count-badge');
+    const noResult = document.getElementById('notes-no-result');
+    const tableWrap = document.getElementById('notes-table-wrap');
+    if(countBadge) countBadge.innerText = notes.length + ' note' + (notes.length !== 1 ? 's' : '');
+    if(notes.length === 0) {
+      tbody.innerHTML = '';
+      if(noResult) noResult.style.display = 'block';
+      if(tableWrap) tableWrap.style.display = 'none';
+    } else {
+      if(noResult) noResult.style.display = 'none';
+      if(tableWrap) tableWrap.style.display = '';
+      tbody.innerHTML = notes.map(n => {
+        const isUrl = n.path.startsWith('http');
+        const lvl = n.level || 'All';
+        const levelBadgeColor = lvl === 'SSC' ? 'var(--green)' : lvl === 'HSC' ? 'var(--gold)' : lvl === 'University' ? 'var(--purple)' : 'var(--text-muted)';
+        return `
+          <tr>
+            <td style="font-weight:600;">${n.title}</td>
+            <td><span style="font-size:11px; font-weight:700; padding:3px 9px; border-radius:12px; background:rgba(0,0,0,0.06); color:${levelBadgeColor};">${lvl}</span></td>
+            <td><span class="badge badge-user">${n.type}</span></td>
+            <td>${isUrl ? `<a href="${n.path}" target="_blank" class="btn-sm">Go To Link</a>` : `<span style="color:var(--green); font-family:var(--mono); font-size:12px;">📄 ${n.path}</span>`}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+  }
+
+  window.filterStudentNotes = () => {
+    const q = (document.getElementById('notes-search-input')?.value || '').trim().toLowerCase();
+    const lvl = document.getElementById('notes-level-filter')?.value || 'all';
+    const isAdmin = currentSession.role === 'admin';
+    const studentLevel = currentSession.level || null;
+
+    let filtered = allNotesCache;
+
+    // Students can only see their own level + 'All' level notes
+    if(!isAdmin && studentLevel) {
+      filtered = filtered.filter(n => {
+        const noteLevel = n.level || 'All';
+        return noteLevel === 'All' || noteLevel === studentLevel;
+      });
+    } else if(lvl !== 'all') {
+      // Admin can filter by any level
+      filtered = filtered.filter(n => (n.level || 'All') === lvl || (n.level || '') === 'All');
+    }
+
+    if(q) filtered = filtered.filter(n => n.title && n.title.toLowerCase().includes(q));
+    renderNotesRows(filtered);
+  };
+
+  window.changeStudentPassword = async () => {
+    const current = document.getElementById('cp-current').value.trim();
+    const newPass = document.getElementById('cp-new').value.trim();
+    const confirm = document.getElementById('cp-confirm').value.trim();
+    const resultDiv = document.getElementById('cp-result');
+
+    const showMsg = (msg, ok) => {
+      resultDiv.style.display = 'block';
+      resultDiv.style.background = ok ? 'rgba(52,211,153,0.1)' : 'rgba(248,113,113,0.1)';
+      resultDiv.style.border = ok ? '1px solid rgba(52,211,153,0.3)' : '1px solid rgba(248,113,113,0.3)';
+      resultDiv.style.color = ok ? 'var(--green)' : 'var(--red)';
+      resultDiv.innerHTML = msg;
+    };
+
+    if(!current || !newPass || !confirm) return showMsg('❌ Please fill in all fields.', false);
+    if(newPass.length < 4) return showMsg('❌ New password must be at least 4 characters.', false);
+    if(newPass !== confirm) return showMsg('❌ New passwords do not match.', false);
+
+    // Verify current password against Firebase
+    const snapshot = await get(child(ref(db), `users/${currentSession.id}`));
+    if(!snapshot.exists()) return showMsg('❌ Account not found.', false);
+    const userData = snapshot.val();
+    if(userData.pass !== current) return showMsg('❌ Current password is incorrect.', false);
+    if(current === newPass) return showMsg('❌ New password must be different from the current one.', false);
+
+    // Update password directly in Firebase
+    await update(ref(db), { [`/users/${currentSession.id}/pass`]: newPass });
+    currentSession.pass = newPass;
+    localStorage.setItem('skillCircleSession', JSON.stringify(currentSession));
+
+    document.getElementById('cp-current').value = '';
+    document.getElementById('cp-new').value = '';
+    document.getElementById('cp-confirm').value = '';
+    showMsg('✅ Password updated successfully!', true);
+  };
+
+  window.uploadAttendance = () => {
+    const sId = document.getElementById('attn-student-id').value.trim();
+    const code = document.getElementById('attn-code').value.trim();
+    const total = parseInt(document.getElementById('attn-total').value);
+    const present = parseInt(document.getElementById('attn-present').value);
+
+    if(!sId || !code || isNaN(total) || isNaN(present)) return alert("Please fill all attendance fields!");
+    if(present > total) return alert("Attended classes cannot be greater than total classes!");
+
+    const courseKey = code.replace('.', '_');
+    set(ref(db, `attendance/${sId}/${courseKey}`), { code, total, present })
+    .then(() => {
+      alert("Attendance updated successfully!");
+      document.getElementById('attn-code').value = '';
+      document.getElementById('attn-total').value = '';
+      document.getElementById('attn-present').value = '';
+      loadAttendancePreview();
+    });
+  };
+
+  window.uploadPayment = () => {
+    const sId = document.getElementById('pay-student-id').value.trim();
+    const month = document.getElementById('pay-month').value;
+    const status = document.getElementById('pay-status').value;
+    const date = document.getElementById('pay-date').value.trim() || "N/A";
+
+    if(!sId) return alert("Student ID is required!");
+
+    set(ref(db, `payments/${sId}/${month}`), { status, date })
+    .then(() => {
+      alert(`Payment status & date updated for ${month}!`);
+      loadPaymentPreview();
+    });
+  };
+
+  window.uploadClassDates = () => {
+    const sId = document.getElementById('class-student-id').value.trim();
+    const month = document.getElementById('class-month').value;
+    const classDates = document.getElementById('class-dates-input').value.trim() || "None Entered";
+
+    if(!sId) return alert("Student ID is required!");
+
+    set(ref(db, `classDates/${sId}/${month}`), classDates)
+    .then(() => {
+      alert(`Class conducted dates updated for ${month}!`);
+      document.getElementById('class-dates-input').value = '';
+      loadClassDatesPreview();
+    });
+  };
+
+  window.uploadHomework = async () => {
+    const sId = document.getElementById('hw-student-id').value.trim();
+    const code = document.getElementById('hw-code').value.trim();
+    const desc = document.getElementById('hw-desc').value.trim();
+    const deadline = document.getElementById('hw-deadline').value.trim();
+    const fileInput = document.getElementById('hw-file');
+    const file = fileInput && fileInput.files[0];
+
+    if(!sId || !code || !desc || !deadline) return alert("All homework fields are mandatory, including Student ID!");
+
+    const progress = document.getElementById('hw-upload-progress');
+    let fileData = null;
+    let fileName = null;
+
+    if(file) {
+      if(file.size > 2 * 1024 * 1024) return alert("File is too large! Max size is 2 MB.");
+      progress.style.display = 'block';
+      fileData = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = () => rej(new Error("File read failed"));
+        r.readAsDataURL(file);
+      });
+      fileName = file.name;
+      progress.style.display = 'none';
+    }
+
+    const entry = { code, desc, deadline };
+    if(fileData) { entry.fileData = fileData; entry.fileName = fileName; }
+
+    await set(ref(db, `homeworks/${sId}/` + Date.now()), entry);
+    alert(`Homework successfully assigned to Student ID: ${sId}`);
+    document.getElementById('hw-code').value = '';
+    document.getElementById('hw-desc').value = '';
+    document.getElementById('hw-deadline').value = '';
+    if(fileInput) fileInput.value = '';
+    loadHomeworkPreview();
+  };
+
+  window.uploadLibrary = async () => {
+    const title = document.getElementById('lib-title').value.trim();
+    const link = document.getElementById('lib-link').value.trim();
+    const level = document.getElementById('lib-level').value;
+    const fileInput = document.getElementById('lib-pdf-file');
+    const file = fileInput && fileInput.files[0];
+
+    if(!title) return alert("Resource title is required!");
+    if(!file && !link) return alert("Please provide a link or upload a PDF file!");
+
+    const progress = document.getElementById('lib-upload-progress');
+    let fileData = null;
+    let fileName = null;
+
+    if(file) {
+      if(file.size > 2 * 1024 * 1024) return alert("PDF is too large! Max size is 2 MB.");
+      progress.style.display = 'block';
+      fileData = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = () => rej(new Error("File read failed"));
+        r.readAsDataURL(file);
+      });
+      fileName = file.name;
+      progress.style.display = 'none';
+    }
+
+    const entry = { title, link: link || '', level };
+    if(fileData) { entry.fileData = fileData; entry.fileName = fileName; }
+
+    await set(ref(db, 'library/' + Date.now()), entry);
+    alert("Library resource added!");
+    document.getElementById('lib-title').value = '';
+    document.getElementById('lib-link').value = '';
+    if(fileInput) fileInput.value = '';
+    loadAdminLibraryPreview();
+  };
+
+  window.uploadNote = () => {
+    const title = document.getElementById('note-title').value.trim();
+    const type = document.getElementById('note-type').value;
+    const path = document.getElementById('note-path').value.trim();
+    const level = document.getElementById('note-level').value;
+
+    if(!title || !path) return alert("Note title and path are required!");
+
+    set(ref(db, 'notes/' + Date.now()), { title, type, path, level }).then(() => {
+      alert("Note published successfully!");
+      document.getElementById('note-title').value = '';
+      document.getElementById('note-path').value = '';
+      loadAdminNotesPreview();
+    });
+  };
+
+  // ── Dynamic CGPA Calculator ──
+  let cgpaCourseCount = 0;
+
+  function initCGPACalculator() {
+    const container = document.getElementById('cgpa-courses-container');
+    if(container && container.children.length === 0) {
+      addCourseRow(false);
+      addCourseRow(false);
+      addCourseRow(false);
+    }
+  }
+
+  window.addCourseRow = (isOptional) => {
+    cgpaCourseCount++;
+    const id = cgpaCourseCount;
+    const container = document.getElementById('cgpa-courses-container');
+    const row = document.createElement('div');
+    row.id = `cgpa-row-${id}`;
+    row.style.cssText = 'display:grid; grid-template-columns:1fr 100px 100px auto; gap:12px; align-items:end; margin-bottom:12px;';
+    row.innerHTML = `
+      <div class="form-group" style="margin-bottom:0;">
+        <label>Course Name ${isOptional ? '<span style="color:var(--purple); font-size:10px;">OPTIONAL</span>' : ''}</label>
+        <input type="text" placeholder="${isOptional ? 'Optional course...' : 'e.g. Structured Programming'}">
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>Credits</label>
+        <input type="number" min="1" max="6" step="1" placeholder="3" style="text-align:center;">
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>GPA ${isOptional ? '(optional)' : ''}</label>
+        <input type="number" min="0" max="4" step="0.01" placeholder="${isOptional ? 'Skip' : '4.00'}" style="text-align:center;" data-optional="${isOptional}">
+      </div>
+      <button onclick="removeCourseRow(${id})" style="padding:10px 12px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); color:var(--red); border-radius:var(--radius-sm); cursor:pointer; font-size:16px; flex-shrink:0; margin-bottom:0; height:42px;">✕</button>
+    `;
+    container.appendChild(row);
+  };
+
+  window.removeCourseRow = (id) => {
+    const row = document.getElementById(`cgpa-row-${id}`);
+    if(row) row.remove();
+  };
+
+  window.calculateCGPA = () => {
+    const container = document.getElementById('cgpa-courses-container');
+    const rows = container.querySelectorAll('[id^="cgpa-row-"]');
+    let totalWeighted = 0, totalCredits = 0;
+    let breakdown = [];
+    let hasError = false;
+
+    rows.forEach(row => {
+      const inputs = row.querySelectorAll('input');
+      const name = inputs[0].value.trim() || 'Course';
+      const creditVal = inputs[1].value.trim();
+      const gpaVal = inputs[2].value.trim();
+      const isOptional = inputs[2].dataset.optional === 'true';
+
+      if(isOptional && !gpaVal) return; // Skip empty optional courses
+
+      const credit = parseFloat(creditVal);
+      const gpa = parseFloat(gpaVal);
+
+      if(!creditVal || isNaN(credit) || credit <= 0) {
+        if(gpaVal) { alert(`Please enter valid credit hours for "${name}"`); hasError = true; }
+        return;
+      }
+      if(!gpaVal || isNaN(gpa)) {
+        if(!isOptional) { alert(`Please enter GPA for "${name}"`); hasError = true; }
+        return;
+      }
+      if(gpa < 0 || gpa > 4) { alert(`GPA must be between 0 and 4 for "${name}"`); hasError = true; return; }
+
+      totalWeighted += gpa * credit;
+      totalCredits += credit;
+      breakdown.push(`${name}: ${gpa.toFixed(2)} × ${credit}cr`);
+    });
+
+    if(hasError) return;
+    const cgpa = totalCredits > 0 ? (totalWeighted / totalCredits).toFixed(2) : '0.00';
+    document.getElementById('cgpa-display').innerText = cgpa;
+    const breakdownEl = document.getElementById('cgpa-breakdown');
+    if(breakdown.length > 0) {
+      breakdownEl.innerHTML = breakdown.join('<br>') + `<br><strong style="color:var(--text);">Total: ${totalCredits} credits</strong>`;
+    } else {
+      breakdownEl.innerHTML = '';
+    }
+  };
+
+  // ── Secret Key Management ──
+  async function loadSecretKey() {
+    const snap = await get(child(ref(db), 'config/registrationKey'));
+    const display = document.getElementById('current-secret-display');
+    if(display) display.innerText = snap.exists() ? snap.val() : '⚠️ No key set — registration is disabled';
+    loadApprovedIds();
+  }
+
+  window.saveSecretKey = async () => {
+    const val = document.getElementById('new-secret-key-input').value.trim();
+    if(!val) return alert("Please enter a key!");
+    await set(ref(db, 'config/registrationKey'), val);
+    document.getElementById('new-secret-key-input').value = '';
+    alert(`✅ Registration key updated to: ${val}`);
+    loadSecretKey();
+  };
+
+  window.generateRandomKey = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let key = 'SKA-';
+    for(let i = 0; i < 4; i++) key += chars[Math.floor(Math.random() * chars.length)];
+    key += '-';
+    for(let i = 0; i < 4; i++) key += chars[Math.floor(Math.random() * chars.length)];
+    document.getElementById('new-secret-key-input').value = key;
+  };
+
+  // ── Approved Student IDs Management ──
+  async function loadApprovedIds() {
+    const snap = await get(child(ref(db), 'config/approvedIds'));
+    const list = document.getElementById('approved-ids-list');
+    if(!list) return;
+    const ids = snap.exists() ? Object.keys(snap.val()) : [];
+    if(ids.length === 0) {
+      list.innerHTML = '<span style="color:var(--text-muted); font-size:13px; padding:6px 0;">No approved IDs yet. Add IDs above.</span>';
+    } else {
+      list.innerHTML = ids.map(id => `
+        <div style="display:inline-flex; align-items:center; gap:7px; background:rgba(79,142,247,0.1); border:1px solid rgba(79,142,247,0.25); border-radius:20px; padding:5px 12px; font-family:var(--mono); font-size:13px; font-weight:700; color:var(--accent);">
+          ${id}
+          <button onclick="removeApprovedId('${id}')" style="background:none; border:none; color:rgba(79,142,247,0.5); cursor:pointer; font-size:15px; line-height:1; padding:0; display:flex; align-items:center;" title="Remove">✕</button>
+        </div>
+      `).join('');
+    }
+  }
+
+  window.addApprovedId = async () => {
+    const val = document.getElementById('approved-id-input').value.trim();
+    if(!val) return alert("Please enter a Student ID!");
+    await set(ref(db, `config/approvedIds/${val}`), true);
+    document.getElementById('approved-id-input').value = '';
+    loadApprovedIds();
+  };
+
+  window.removeApprovedId = async (id) => {
+    await remove(ref(db, `config/approvedIds/${id}`));
+    loadApprovedIds();
+  };
+
+  // ── Populate approved IDs on signup page ──
+  async function populateSignupIdDropdown() {
+    const select = document.getElementById('signup-id');
+    const notice = document.getElementById('signup-id-notice');
+    if(!select) return;
+    select.innerHTML = '<option value="">Loading...</option>';
+
+    const [approvedSnap, usersSnap] = await Promise.all([
+      get(child(ref(db), 'config/approvedIds')),
+      get(child(ref(db), 'users'))
+    ]);
+
+    const approved = approvedSnap.exists() ? Object.keys(approvedSnap.val()) : [];
+    const registered = usersSnap.exists() ? Object.keys(usersSnap.val()) : [];
+    const available = approved.filter(id => !registered.includes(id));
+
+    if(available.length === 0) {
+      select.innerHTML = '<option value="">No available IDs — contact admin</option>';
+      if(notice) notice.style.color = 'var(--red)';
+    } else {
+      select.innerHTML = '<option value="">— Select your Student ID —</option>' +
+        available.map(id => `<option value="${id}">${id}</option>`).join('');
+      if(notice) notice.style.color = 'var(--text-muted)';
+    }
+  }
+
+  function loadProfileData() {
+    document.getElementById('p-name').innerText = currentSession.name;
+    document.getElementById('p-id').innerText = currentSession.id;
+    document.getElementById('p-email').innerText = currentSession.email;
+    const lvlEl = document.getElementById('p-level');
+    if(lvlEl) lvlEl.innerText = currentSession.level || 'Not Set';
+  }
+
+  window.openEditModal = async (targetId = null) => {
+    editingId = targetId || currentSession.id;
+    const snapshot = await get(child(ref(db), `users/${editingId}`));
+    if(snapshot.exists()) {
+      const user = snapshot.val();
+      document.getElementById('modal-title').innerText = targetId ? "Admin: Edit User" : "Edit My Profile";
+      document.getElementById('edit-name').value = user.name;
+      document.getElementById('edit-email').value = user.email;
+      document.getElementById('edit-modal').style.display = 'flex';
+    }
+  };
+
+  window.saveProfile = () => {
+    const newName = document.getElementById('edit-name').value.trim();
+    const newEmail = document.getElementById('edit-email').value.trim();
+    if(!newName || !newEmail) return alert("Fields cannot be empty!");
+    const updates = {};
+    updates[`/users/${editingId}/name`] = newName;
+    updates[`/users/${editingId}/email`] = newEmail;
+    update(ref(db), updates).then(() => {
+      if(editingId === currentSession.id) {
+        currentSession.name = newName;
+        currentSession.email = newEmail;
+        localStorage.setItem('skillCircleSession', JSON.stringify(currentSession));
+      }
+      alert("Profile updated successfully!");
+      window.closeModal();
+      if(currentSession.role === 'admin') renderUserTable(); else loadProfileData();
+    });
+  };
+
+  // ── All Users Data Cache ──
+  let allUsersCache = {};
+
+  async function renderUserTable() {
+    const grid = document.getElementById('student-cards-grid');
+    const noResult = document.getElementById('student-no-result');
+    const countBadge = document.getElementById('user-count-badge');
+    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:24px; color:var(--text-muted); font-size:13px;">Loading students...</div>';
+    const snapshot = await get(child(ref(db), 'users'));
+    if(!snapshot.exists()) {
+      grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:24px; color:var(--text-muted);">No users found.</div>';
+      return;
+    }
+    allUsersCache = snapshot.val();
+    renderStudentCards(allUsersCache);
+  }
+
+  function renderStudentCards(users) {
+    const grid = document.getElementById('student-cards-grid');
+    const noResult = document.getElementById('student-no-result');
+    const countBadge = document.getElementById('user-count-badge');
+    const keys = Object.keys(users);
+    countBadge.innerText = keys.length + ' student' + (keys.length !== 1 ? 's' : '');
+    if(keys.length === 0) {
+      grid.innerHTML = ''; noResult.style.display = 'block'; return;
+    }
+    noResult.style.display = 'none';
+    const avatarColors = [
+      'linear-gradient(135deg,#4f8ef7,#22d3ee)',
+      'linear-gradient(135deg,#a78bfa,#f472b6)',
+      'linear-gradient(135deg,#34d399,#22d3ee)',
+      'linear-gradient(135deg,#fbbf24,#f87171)',
+      'linear-gradient(135deg,#f87171,#a78bfa)',
+      'linear-gradient(135deg,#22d3ee,#34d399)',
+    ];
+    grid.innerHTML = keys.map((id, i) => {
+      const u = users[id];
+      const initials = u.name ? u.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase() : '??';
+      const color = avatarColors[i % avatarColors.length];
+      const roleColor = u.role === 'admin' ? 'var(--gold)' : 'var(--accent)';
+      return `
+        <div onclick="openStudentProfile('${id}')" style="background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:20px 16px; text-align:center; cursor:pointer; transition:all 0.18s; position:relative;" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(79,142,247,0.12)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='';this.style.boxShadow=''">
+          <div style="width:56px; height:56px; border-radius:50%; background:${color}; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800; color:#fff; margin:0 auto 12px;">${initials}</div>
+          <div style="font-weight:700; font-size:14px; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${u.name}</div>
+          <div style="font-family:var(--mono); font-size:12px; color:var(--accent); margin-bottom:6px;">#${id}</div>
+          <span style="font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px; background:rgba(79,142,247,0.1); color:${roleColor}; border:1px solid rgba(79,142,247,0.2); text-transform:uppercase;">${u.role}</span>
+          ${u.level ? `<div style="margin-top:6px; font-size:10px; font-weight:700; color:var(--purple); background:rgba(167,139,250,0.1); border:1px solid rgba(167,139,250,0.2); border-radius:12px; padding:2px 8px; display:inline-block;">${u.level}</div>` : ''}
+          <div style="position:absolute; top:10px; right:10px; width:8px; height:8px; border-radius:50%; background:var(--green);"></div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  window.filterStudentCards = () => {
+    const q = document.getElementById('user-search-input').value.trim().toLowerCase();
+    if(!q) { renderStudentCards(allUsersCache); return; }
+    const filtered = {};
+    Object.keys(allUsersCache).forEach(id => {
+      const u = allUsersCache[id];
+      if(id.toLowerCase().includes(q) || (u.name && u.name.toLowerCase().includes(q))) {
+        filtered[id] = u;
+      }
+    });
+    renderStudentCards(filtered);
+  };
+
+  window.openStudentProfile = async (userId) => {
+    const snap = await get(child(ref(db), `users/${userId}`));
+    if(!snap.exists()) return;
+    const u = snap.val();
+    const initials = u.name ? u.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase() : '??';
+    document.getElementById('sp-avatar').innerText = initials;
+    document.getElementById('sp-name').innerText = u.name;
+    document.getElementById('sp-id').innerText = userId;
+    document.getElementById('sp-email').innerText = u.email;
+    const spLevel = document.getElementById('sp-level');
+    if(spLevel) spLevel.innerText = u.level || 'Not Set';
+    document.getElementById('sp-pass').innerText = u.pass;
+    document.getElementById('sp-role-badge').innerHTML = `<span class="badge badge-${u.role}">${u.role.toUpperCase()}</span>`;
+
+    // Load stats
+    const [resSnap, paySnap, hwSnap] = await Promise.all([
+      get(child(ref(db), `results/${userId}`)),
+      get(child(ref(db), `payments/${userId}`)),
+      get(child(ref(db), `homeworks/${userId}`))
+    ]);
+    document.getElementById('sp-courses').innerText = resSnap.exists() ? Object.keys(resSnap.val()).length : 0;
+    const paidMonths = paySnap.exists() ? Object.values(paySnap.val()).filter(p => p.status === 'Paid').length : 0;
+    document.getElementById('sp-payments').innerText = paidMonths;
+    document.getElementById('sp-homeworks').innerText = hwSnap.exists() ? Object.keys(hwSnap.val()).length : 0;
+
+    // Wire buttons
+    document.getElementById('sp-edit-btn').onclick = () => { closeStudentProfileModal(); openEditModal(userId); };
+    document.getElementById('sp-delete-btn').style.display = userId === 'admin' ? 'none' : '';
+    document.getElementById('sp-delete-btn').onclick = () => adminDeleteUser(userId);
+    document.getElementById('sp-edit-level-btn').onclick = () => editStudentLevel(userId, u.level || '');
+
+    const modal = document.getElementById('student-profile-modal');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeStudentProfileModal = () => {
+    document.getElementById('student-profile-modal').style.display = 'none';
+    document.body.style.overflow = '';
+  };
+
+  window.editStudentLevel = async (userId, current) => {
+    const levels = ['', 'SSC', 'HSC', 'University'];
+    const labels = ['Not Set', 'SSC', 'HSC', 'University'];
+    const options = labels.map((l, i) => `${i+1}. ${l}`).join('\n');
+    const input = prompt(`Change student level (enter number):\n${options}\n\nCurrent: ${current || 'Not Set'}`);
+    if(input === null) return;
+    const idx = parseInt(input) - 1;
+    if(isNaN(idx) || idx < 0 || idx >= levels.length) return alert('Invalid selection!');
+    await update(ref(db), { [`/users/${userId}/level`]: levels[idx] });
+    const spLevel = document.getElementById('sp-level');
+    if(spLevel) spLevel.innerText = labels[idx];
+    // Update cache
+    if(allUsersCache[userId]) allUsersCache[userId].level = levels[idx];
+    renderStudentCards(allUsersCache);
+    alert(`✅ Level updated to: ${labels[idx]}`);
+  };
+
+  window.adminDeleteUser = async (userId) => {
+    if(!confirm(`Delete student "${userId}"? This cannot be undone.`)) return;
+    await remove(ref(db, `users/${userId}`));
+    closeStudentProfileModal();
+    delete allUsersCache[userId];
+    renderStudentCards(allUsersCache);
+    const badge = document.getElementById('user-count-badge');
+    const keys = Object.keys(allUsersCache);
+    badge.innerText = keys.length + ' student' + (keys.length !== 1 ? 's' : '');
+  };
+
+  window.adminAddStudent = async () => {
+    const name = document.getElementById('new-student-name').value.trim();
+    const id = document.getElementById('new-student-id').value.trim();
+    const email = document.getElementById('new-student-email').value.trim();
+    const pass = document.getElementById('new-student-pass').value.trim();
+    const role = document.getElementById('new-student-role').value;
+    const level = document.getElementById('new-student-level').value || '';
+
+    if(!name || !id || !email || !pass) return alert("Please fill all fields to add a new student!");
+
+    const snapshot = await get(child(ref(db), `users/${id}`));
+    if(snapshot.exists()) return alert(`❌ ID "${id}" is already registered!`);
+
+    await set(ref(db, 'users/' + id), { name, email, pass, role, level });
+    alert(`✅ Account created for ${name} (ID: ${id})!`);
+    document.getElementById('new-student-name').value = '';
+    document.getElementById('new-student-id').value = '';
+    document.getElementById('new-student-email').value = '';
+    document.getElementById('new-student-pass').value = '';
+    renderUserTable();
+  };
+
+  window.uploadResult = () => {
+    const sId = document.getElementById('res-student-id').value.trim();
+    const code = document.getElementById('res-code').value.trim();
+    const title = document.getElementById('res-title').value.trim();
+    const credit = document.getElementById('res-credit').value.trim();
+    const grade = document.getElementById('res-grade').value.trim();
+    const gpa = document.getElementById('res-gpa').value.trim();
+
+    if(!sId || !code || !title || !credit || !grade || !gpa) return alert("All fields are required!");
+    const resultKey = code.replace('.', '_');
+    set(ref(db, `results/${sId}/${resultKey}`), { code, title, credit, grade, gpa }).then(() => {
+      alert("Grade published successfully!");
+      loadResultsPreview();
+    });
+  };
+
+  window.uploadPdfFile = async () => {
+    const displayName = document.getElementById('f-display-name').value.trim();
+    const fileInput = document.getElementById('f-pdf-input');
+    const file = fileInput && fileInput.files[0];
+    const progress = document.getElementById('f-upload-progress');
+
+    if(!displayName) return alert("Please enter a display name for the file!");
+    if(!file) return alert("Please select a PDF file to upload!");
+    if(file.size > 2 * 1024 * 1024) return alert("File too large! Max size is 2 MB.");
+
+    progress.style.display = 'block';
+    const fileData = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = () => rej(new Error("Read failed"));
+      r.readAsDataURL(file);
+    });
+    progress.style.display = 'none';
+
+    const key = Date.now();
+    await set(ref(db, `files/${key}`), { name: displayName, fileData, fileName: file.name, type: 'pdf' });
+    document.getElementById('f-display-name').value = '';
+    fileInput.value = '';
+    alert("✅ PDF uploaded successfully!");
+    renderAdminFiles();
+  };
+
+  window.uploadFile = () => {
+    const fName = document.getElementById('f-name').value.trim();
+    if(!fName) return alert("Enter a file name!");
+    set(ref(db, 'files/' + Date.now()), fName).then(() => {
+      document.getElementById('f-name').value = '';
+      alert("Notice published!");
+      renderAdminFiles();
+    });
+  };
+
+  async function renderAdminFiles() {
+    const snapshot = await get(child(ref(db), 'files'));
+    const fileList = document.getElementById('admin-file-list');
+    if(snapshot.exists()) {
+      fileList.innerHTML = Object.entries(snapshot.val()).map(([key, f]) => `
+        <div class="file-history-item" style="justify-content:space-between;">
+          <span>✅ ${f}</span>
+          <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red); flex-shrink:0;" onclick="deleteEntry('files/${key}', renderAdminFiles)">Delete</button>
+        </div>
+      `).join('');
+    } else {
+      fileList.innerHTML = `<span style="color:var(--text-muted); font-size:13px; padding:12px; display:block;">No files uploaded yet.</span>`;
+    }
+  }
+
+  window.closeModal = () => { document.getElementById('edit-modal').style.display = 'none'; };
+
+  // ── Payment Edit Modal ──
+  window.openPaymentEditModal = (sId, month, date, status) => {
+    document.getElementById('ep-student-id').value = sId;
+    document.getElementById('ep-old-month').value = month;
+    const monthSel = document.getElementById('ep-month');
+    for(let i = 0; i < monthSel.options.length; i++) {
+      if(monthSel.options[i].value === month) { monthSel.selectedIndex = i; break; }
+    }
+    document.getElementById('ep-date').value = date;
+    document.getElementById('ep-status').value = status;
+    document.getElementById('edit-payment-modal').style.display = 'flex';
+  };
+
+  window.closePaymentEditModal = () => {
+    document.getElementById('edit-payment-modal').style.display = 'none';
+  };
+
+  // ── Routine Edit Modal ──
+  window.openRoutineEditModal = (sId, key, day, time, subject) => {
+    document.getElementById('er-routine-student-id').value = sId;
+    document.getElementById('er-routine-key').value = key;
+    const daySel = document.getElementById('er-routine-day');
+    for(let i = 0; i < daySel.options.length; i++) {
+      if(daySel.options[i].value === day) { daySel.selectedIndex = i; break; }
+    }
+    document.getElementById('er-routine-time').value = time;
+    document.getElementById('er-routine-subject').value = subject;
+    document.getElementById('edit-routine-modal').style.display = 'flex';
+  };
+
+  window.closeRoutineEditModal = () => {
+    document.getElementById('edit-routine-modal').style.display = 'none';
+  };
+
+  window.saveRoutineEdit = async () => {
+    const sId = document.getElementById('er-routine-student-id').value;
+    const key = document.getElementById('er-routine-key').value;
+    const day = document.getElementById('er-routine-day').value;
+    const time = document.getElementById('er-routine-time').value.trim();
+    const subject = document.getElementById('er-routine-subject').value.trim();
+    if(!time || !subject) return alert('Time and Subject are required!');
+    await update(ref(db), { [`/routine/${sId}/${key}/day`]: day, [`/routine/${sId}/${key}/time`]: time, [`/routine/${sId}/${key}/subject`]: subject });
+    closeRoutineEditModal();
+    loadRoutinePreview();
+  };
+
+  // ── Class Date Edit Modal ──
+  window.openClassDateEditModal = (sId, month, dates) => {
+    document.getElementById('ecd-student-id').value = sId;
+    document.getElementById('ecd-old-month').value = month;
+    const monthSel = document.getElementById('ecd-month');
+    for(let i = 0; i < monthSel.options.length; i++) {
+      if(monthSel.options[i].value === month) { monthSel.selectedIndex = i; break; }
+    }
+    document.getElementById('ecd-dates').value = dates;
+    document.getElementById('edit-classdate-modal').style.display = 'flex';
+  };
+
+  window.closeClassDateEditModal = () => {
+    document.getElementById('edit-classdate-modal').style.display = 'none';
+  };
+
+  window.saveClassDateEdit = async () => {
+    const sId = document.getElementById('ecd-student-id').value;
+    const oldMonth = document.getElementById('ecd-old-month').value;
+    const newMonth = document.getElementById('ecd-month').value;
+    const dates = document.getElementById('ecd-dates').value.trim();
+    if(!dates) return alert('Please enter the class dates!');
+    if(oldMonth !== newMonth) {
+      await remove(ref(db, `classDates/${sId}/${oldMonth}`));
+    }
+    await set(ref(db, `classDates/${sId}/${newMonth}`), dates);
+    closeClassDateEditModal();
+    loadClassDatesPreview();
+  };
+
+  window.savePaymentEdit = async () => {
+    const sId = document.getElementById('ep-student-id').value;
+    const oldMonth = document.getElementById('ep-old-month').value;
+    const newMonth = document.getElementById('ep-month').value;
+    const date = document.getElementById('ep-date').value.trim() || 'N/A';
+    const status = document.getElementById('ep-status').value;
+
+    // If month changed, delete old and write new; otherwise just update
+    if(oldMonth !== newMonth) {
+      await remove(ref(db, `payments/${sId}/${oldMonth}`));
+    }
+    await set(ref(db, `payments/${sId}/${newMonth}`), { status, date });
+    closePaymentEditModal();
+    loadPaymentPreview();
+  };
+
+  // ── Result Edit Modal ──
+  window.openResultEditModal = (sId, key, code, title, credit, grade, gpa) => {
+    document.getElementById('er-student-id').value = sId;
+    document.getElementById('er-old-key').value = key;
+    document.getElementById('er-code').value = code;
+    document.getElementById('er-title').value = title;
+    document.getElementById('er-credit').value = credit;
+    document.getElementById('er-grade').value = grade;
+    document.getElementById('er-gpa').value = gpa;
+    document.getElementById('edit-result-modal').style.display = 'flex';
+  };
+
+  window.closeResultEditModal = () => {
+    document.getElementById('edit-result-modal').style.display = 'none';
+  };
+
+  window.saveResultEdit = async () => {
+    const sId = document.getElementById('er-student-id').value;
+    const oldKey = document.getElementById('er-old-key').value;
+    const code = document.getElementById('er-code').value.trim();
+    const title = document.getElementById('er-title').value.trim();
+    const credit = document.getElementById('er-credit').value.trim();
+    const grade = document.getElementById('er-grade').value.trim();
+    const gpa = document.getElementById('er-gpa').value.trim();
+
+    if(!code || !title || !credit || !grade || !gpa) return alert('All fields are required!');
+
+    const newKey = code.replace(/\./g, '_');
+    // If the key (course code) changed, remove old entry
+    if(oldKey !== newKey) {
+      await remove(ref(db, `results/${sId}/${oldKey}`));
+    }
+    await set(ref(db, `results/${sId}/${newKey}`), { code, title, credit, grade, gpa });
+    closeResultEditModal();
+    loadResultsPreview();
+  };
+
+  // ── Payment Preview ──
+  window.loadPaymentPreview = async () => {
+    const sId = document.getElementById('pay-student-id').value.trim();
+    const tbody = document.getElementById('admin-pay-preview');
+    const label = document.getElementById('pay-preview-id');
+    if(!sId) { tbody.innerHTML = ''; label.innerText = ''; return; }
+    label.innerText = `for ID: ${sId}`;
+    const snapshot = await get(child(ref(db), `payments/${sId}`));
+    const savedPayments = snapshot.exists() ? snapshot.val() : {};
+    const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const entries = months.filter(m => savedPayments[m]);
+    if(entries.length > 0) {
+      tbody.innerHTML = entries.map(month => {
+        const rec = savedPayments[month];
+        return `
+          <tr>
+            <td style="font-weight:600;">${month}</td>
+            <td style="font-family:var(--mono); color:var(--cyan); font-size:13px;">${rec.date || 'N/A'}</td>
+            <td><span class="badge badge-${(rec.status||'pending').toLowerCase()}">${(rec.status||'Pending').toUpperCase()}</span></td>
+            <td style="display:flex; gap:5px; flex-wrap:wrap;">
+              <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="openPaymentEditModal('${sId}','${month}','${rec.date||''}','${rec.status||'Pending'}')">✏️ Edit</button>
+              <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('payments/${sId}/${month}', loadPaymentPreview)">Delete</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    } else {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:16px;">No payment records found for this ID.</td></tr>`;
+    }
+  };
+
+  // ── Class Dates Preview ──
+  window.loadClassDatesPreview = async () => {
+    const sId = document.getElementById('class-student-id').value.trim();
+    const tbody = document.getElementById('admin-classdate-preview');
+    const label = document.getElementById('classdate-preview-id');
+    if(!sId) { tbody.innerHTML = ''; label.innerText = ''; return; }
+    label.innerText = `for ID: ${sId}`;
+    const snapshot = await get(child(ref(db), `classDates/${sId}`));
+    const saved = snapshot.exists() ? snapshot.val() : {};
+    const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const entries = months.filter(m => saved[m]);
+    if(entries.length > 0) {
+      tbody.innerHTML = entries.map(month => `
+        <tr>
+          <td style="font-weight:600;">${month}</td>
+          <td style="color:var(--gold); font-size:13px;">${saved[month]}</td>
+          <td style="display:flex; gap:5px; flex-wrap:wrap;">
+            <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="openClassDateEditModal('${sId}','${month}','${(saved[month]||'').replace(/'/g,"\\'")}')">✏️ Edit</button>
+            <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('classDates/${sId}/${month}', loadClassDatesPreview)">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    } else {
+      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:16px;">No class date records found for this ID.</td></tr>`;
+    }
+  };
+
+  // ── Password Requests ──
+  async function loadPassRequests() {
+    const tbody = document.getElementById('passreq-table-body');
+    const snapshot = await get(child(ref(db), 'passRequests'));
+    if(!snapshot.exists()) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:24px;">No password reset requests.</td></tr>`;
+      return;
+    }
+    const requests = snapshot.val();
+    tbody.innerHTML = Object.entries(requests).map(([key, req]) => `
+      <tr>
+        <td style="font-family:var(--mono); color:var(--accent); font-weight:700;">${req.studentId}</td>
+        <td style="font-weight:500;">${req.name}</td>
+        <td style="font-family:var(--mono); color:var(--gold);">${req.requestedPass}</td>
+        <td style="color:var(--text-muted); font-size:12px;">${req.time}</td>
+        <td style="display:flex; gap:6px; flex-wrap:wrap;">
+          <button class="btn-sm" style="background:rgba(52,211,153,0.12);border-color:rgba(52,211,153,0.3);color:var(--green);" onclick="approvePassRequest('${key}', '${req.studentId}', '${req.requestedPass}')">✅ Approve</button>
+          <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('passRequests/${key}', loadPassRequests)">❌ Reject</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+  window.loadPassRequests = loadPassRequests;
+
+  window.approvePassRequest = async (reqKey, studentId, newPass) => {
+    if(!confirm(`Approve password reset for Student ID: ${studentId}?\nNew password will be set to: ${newPass}`)) return;
+    const updates = {};
+    updates[`/users/${studentId}/pass`] = newPass;
+    await update(ref(db), updates);
+    await remove(ref(db, `passRequests/${reqKey}`));
+    alert(`✅ Password updated for Student ID: ${studentId}`);
+    loadPassRequests();
+  };
+
+  window.handleLogout = () => {
+    localStorage.removeItem('skillCircleSession');
+    localStorage.removeItem('skillCircleLastTab');
+    currentSession = null;
+    document.getElementById('portal-page').style.display = 'none';
+    document.getElementById('login-page').style.display = 'flex';
+    document.getElementById('login-id').value = '';
+    document.getElementById('login-pass').value = '';
+  };
+
+  // ── Restore last tab after all functions defined ──
+  if(window.__pendingRestoreTab) {
+    window.switchTab(window.__pendingRestoreTab);
+    window.__pendingRestoreTab = null;
+  }
+
+  // Mobile sidebar toggle
+  function checkMobile() {
+    const topbar = document.getElementById('mobile-topbar');
+    if(window.innerWidth <= 768) topbar.style.display = 'flex';
+    else { topbar.style.display = 'none'; closeSidebar(); }
+  }
+  window.toggleSidebar = () => {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const btn = document.getElementById('hamburger-btn');
+    const isOpen = sidebar.classList.toggle('open');
+    btn.classList.toggle('open');
+    if(isOpen) {
+      overlay.style.display = 'block';
+      requestAnimationFrame(() => overlay.classList.add('visible'));
+    } else {
+      overlay.classList.remove('visible');
+      setTimeout(() => { overlay.style.display = 'none'; }, 250);
+    }
+  };
+  window.closeSidebar = () => {
+    document.querySelector('.sidebar').classList.remove('open');
+    document.getElementById('hamburger-btn').classList.remove('open');
+    const overlay = document.getElementById('sidebar-overlay');
+    overlay.classList.remove('visible');
+    setTimeout(() => { overlay.style.display = 'none'; }, 250);
+  };
+  // Auto-close sidebar on nav click (mobile)
+  // Use event delegation on sidebar so it works for all nav items including dynamically shown ones
+  document.querySelector('.sidebar').addEventListener('click', (e) => {
+    const navItem = e.target.closest('.nav-item');
+    if(navItem && window.innerWidth <= 768) {
+      setTimeout(() => closeSidebar(), 80);
+    }
+  });
+  window.addEventListener('resize', checkMobile);
+  checkMobile();
+</script>
+</body>
+</html>
