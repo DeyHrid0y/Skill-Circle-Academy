@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <head>
-   
-    
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Skill Circle Academy — Student & Admin Dashboard</title>
@@ -378,6 +375,7 @@
   .badge-user { background: rgba(79,142,247,0.12); color: var(--accent); border: 1px solid rgba(79,142,247,0.2); }
   .badge-paid { background: rgba(52,211,153,0.12); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
   .badge-pending { background: rgba(248,113,113,0.12); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+  .badge-due { background: rgba(251,191,36,0.12); color: var(--gold); border: 1px solid rgba(251,191,36,0.2); }
 
   /* ===== TABLE ===== */
   .table-wrap {
@@ -714,6 +712,15 @@
     <div class="form-group"><label>Email</label><input type="email" id="signup-email" placeholder="example@lu.com"></div>
     <div class="form-group"><label>Password</label><input type="password" id="signup-pass" placeholder="••••••••"></div>
     <div class="form-group">
+      <label>Student Level</label>
+      <select id="signup-level">
+        <option value="">— Select your level —</option>
+        <option value="SSC">SSC</option>
+        <option value="HSC">HSC</option>
+        <option value="University">University</option>
+      </select>
+    </div>
+    <div class="form-group">
       <label>🔑 Registration Secret Key</label>
       <input type="password" id="signup-secret" placeholder="Enter key provided by admin">
       <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">This key is provided by your admin. Without it, registration is not allowed.</div>
@@ -741,6 +748,7 @@
       <div class="nav-item" id="nav-class-dates" onclick="switchTab('class-dates')"><span class="nav-dot"></span>Classes Held Dates</div>
       <div class="nav-item" id="nav-homework" onclick="switchTab('homework')"><span class="nav-dot"></span>Homework</div>
       <div class="nav-item" id="nav-library" onclick="switchTab('library')"><span class="nav-dot"></span>Library Resources</div>
+      <div class="nav-item" id="nav-notices" onclick="switchTab('notices')"><span class="nav-dot"></span>📢 Notices</div>
       <div class="nav-item" id="nav-notes" onclick="switchTab('notes')"><span class="nav-dot"></span>Class Notes & PDFs</div>
       <div class="nav-item" id="nav-cgpa" onclick="switchTab('cgpa')"><span class="nav-dot"></span>CGPA Calculator</div>
       <div class="nav-item" id="nav-profile" onclick="switchTab('profile')"><span class="nav-dot"></span>My Profile</div>
@@ -757,6 +765,7 @@
       <div class="nav-item" id="nav-admin-homework" onclick="switchTab('admin-homework')"><span class="nav-dot"></span>Manage Homework</div>
       <div class="nav-item" id="nav-admin-library" onclick="switchTab('admin-library')"><span class="nav-dot"></span>Manage Library</div>
       <div class="nav-item" id="nav-admin-notes" onclick="switchTab('admin-notes')"><span class="nav-dot"></span>Upload Notes / Drive</div>
+      <div class="nav-item" id="nav-admin-notices" onclick="switchTab('admin-notices')"><span class="nav-dot"></span>📢 Manage Notices</div>
       <div class="nav-item" id="nav-admin-files" onclick="switchTab('admin-files')"><span class="nav-dot"></span>Upload Files</div>
       <div class="nav-item" id="nav-admin-passrequests" onclick="switchTab('admin-passrequests')"><span class="nav-dot"></span>🔑 Password Requests</div>
       <div class="nav-item" id="nav-admin-secretkey" onclick="switchTab('admin-secretkey')"><span class="nav-dot"></span>🛡️ Registration Key</div>
@@ -883,7 +892,7 @@
       <div class="card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Course Code</th><th>Homework Details</th><th>Deadline</th></tr></thead>
+            <thead><tr><th>Course Code</th><th>Homework Details</th><th>Deadline</th><th>File</th></tr></thead>
             <tbody id="homework-table-body"></tbody>
           </table>
         </div>
@@ -906,6 +915,17 @@
       </div>
     </section>
 
+    <!-- NOTICES (Student) -->
+    <section id="tab-notices" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">📢 Notices</div>
+        <div class="page-subtitle">Important announcements from the academy</div>
+      </div>
+      <div id="notices-student-list">
+        <div style="text-align:center; padding:32px; color:var(--text-muted); font-size:14px;">Loading notices...</div>
+      </div>
+    </section>
+
     <!-- NOTES -->
     <section id="tab-notes" class="tab-content hidden">
       <div class="page-header">
@@ -918,12 +938,18 @@
             <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:15px; pointer-events:none;">🔍</span>
             <input type="text" id="notes-search-input" placeholder="Search by note name..." oninput="filterStudentNotes()" style="width:100%; padding:10px 14px 10px 36px; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); background:#f8f6f2; font-family:var(--font); font-size:13.5px; color:var(--text); outline:none; transition:border-color 0.2s, box-shadow 0.2s;">
           </div>
+          <select id="notes-level-filter" onchange="filterStudentNotes()" style="padding:10px 14px; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); background:#f8f6f2; font-family:var(--font); font-size:13.5px; color:var(--text); outline:none;">
+            <option value="all">All Levels</option>
+            <option value="SSC">SSC</option>
+            <option value="HSC">HSC</option>
+            <option value="University">University</option>
+          </select>
           <span id="notes-count-badge" style="font-size:12px; color:var(--text-muted); background:#f0ede8; padding:5px 12px; border-radius:20px; white-space:nowrap;"></span>
         </div>
         <div id="notes-no-result" style="display:none; text-align:center; padding:32px; color:var(--text-muted); font-size:14px;">No notes match your search.</div>
         <div class="table-wrap" id="notes-table-wrap">
           <table>
-            <thead><tr><th>Topic / Note Name</th><th>Type</th><th>Action</th></tr></thead>
+            <thead><tr><th>Topic / Note Name</th><th>Level</th><th>Type</th><th>Action</th></tr></thead>
             <tbody id="notes-table-body"></tbody>
           </table>
         </div>
@@ -972,6 +998,10 @@
           <span class="profile-info-label">Email</span>
           <span class="profile-info-value" id="p-email">—</span>
         </div>
+        <div class="profile-info-item">
+          <span class="profile-info-label">Student Level</span>
+          <span class="profile-info-value" id="p-level" style="color:var(--purple); font-weight:700;">—</span>
+        </div>
         <button class="btn-action" style="margin-top: 16px;" onclick="openEditModal()">Edit Profile</button>
       </div>
 
@@ -1013,12 +1043,23 @@
           <div class="form-group"><label>Email</label><input type="email" id="new-student-email" placeholder="student@lu.com"></div>
           <div class="form-group"><label>Initial Password</label><input type="text" id="new-student-pass" placeholder="Set a password"></div>
         </div>
-        <div class="form-group" style="max-width:240px;">
-          <label>Role</label>
-          <select id="new-student-role">
-            <option value="user">Student</option>
-            <option value="admin">Admin</option>
-          </select>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Role</label>
+            <select id="new-student-role">
+              <option value="user">Student</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Student Level</label>
+            <select id="new-student-level">
+              <option value="">— Select Level —</option>
+              <option value="SSC">SSC</option>
+              <option value="HSC">HSC</option>
+              <option value="University">University</option>
+            </select>
+          </div>
         </div>
         <button class="btn-action" onclick="adminAddStudent()">➕ Create Account</button>
       </div>
@@ -1049,6 +1090,7 @@
         <div style="background:#f8f6f2; border-radius:var(--radius); padding:18px; margin-bottom:16px;">
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Student ID</span><span id="sp-id" style="font-family:var(--mono); color:var(--accent); font-weight:700; font-size:13px;"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Email</span><span id="sp-email" style="font-size:13px;"></span></div>
+          <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Level</span><span id="sp-level" style="font-size:13px; font-weight:700; color:var(--purple);"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0;"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Password</span><span id="sp-pass" style="font-family:var(--mono); font-size:13px; color:var(--text-dim);"></span></div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
@@ -1067,6 +1109,7 @@
         </div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button class="btn-action" style="flex:1; margin-top:0;" id="sp-edit-btn">✏️ Edit Profile</button>
+          <button class="btn-action" style="flex:1; margin-top:0; background:#f0ede8; color:var(--purple); box-shadow:none; border:1px solid rgba(167,139,250,0.3);" id="sp-edit-level-btn">🎓 Change Level</button>
           <button id="sp-delete-btn" style="flex:1; padding:11px 20px; background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.3); color:var(--red); border-radius:var(--radius-sm); cursor:pointer; font-weight:700; font-size:13px; font-family:var(--font);">🗑️ Delete Student</button>
         </div>
       </div>
@@ -1080,7 +1123,11 @@
       </div>
       <div class="admin-form-card">
         <div class="grid-2">
-          <div class="form-group"><label>Student ID</label><input type="text" id="routine-student-id" placeholder="e.g. 101" oninput="loadRoutinePreview()"></div>
+          <div class="form-group">
+            <label>Student ID</label>
+            <input type="text" id="routine-student-id" placeholder="e.g. 101" oninput="loadRoutinePreview(); fetchStudentName('routine-student-id','routine-student-name','routine-name-display')">
+            <div id="routine-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
+          </div>
           <div class="form-group"><label>Student Name</label><input type="text" id="routine-student-name" placeholder="e.g. John Doe"></div>
         </div>
         <div class="grid-3">
@@ -1115,7 +1162,11 @@
       </div>
       <div class="admin-form-card">
         <div class="grid-3">
-          <div class="form-group"><label>Student ID</label><input type="text" id="res-student-id" placeholder="e.g. 101" oninput="loadResultsPreview()"></div>
+          <div class="form-group">
+            <label>Student ID</label>
+            <input type="text" id="res-student-id" placeholder="e.g. 101" oninput="loadResultsPreview(); fetchStudentName('res-student-id',null,'res-name-display')">
+            <div id="res-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
+          </div>
           <div class="form-group"><label>Course Code</label><input type="text" id="res-code" placeholder="e.g. CSE-1212"></div>
           <div class="form-group"><label>Course Title</label><input type="text" id="res-title" placeholder="e.g. Structured Programming"></div>
         </div>
@@ -1145,7 +1196,11 @@
       </div>
       <div class="admin-form-card">
         <div class="grid-2">
-          <div class="form-group"><label>Student ID</label><input type="text" id="attn-student-id" placeholder="e.g. 101" oninput="loadAttendancePreview()"></div>
+          <div class="form-group">
+            <label>Student ID</label>
+            <input type="text" id="attn-student-id" placeholder="e.g. 101" oninput="loadAttendancePreview(); fetchStudentName('attn-student-id',null,'attn-name-display')">
+            <div id="attn-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
+          </div>
           <div class="form-group"><label>Course Code</label><input type="text" id="attn-code" placeholder="e.g. CSE-1212"></div>
         </div>
         <div class="grid-2">
@@ -1173,7 +1228,11 @@
       </div>
       <div class="admin-form-card">
         <div class="grid-3">
-          <div class="form-group"><label>Student ID</label><input type="text" id="pay-student-id" placeholder="e.g. 101" oninput="loadPaymentPreview()"></div>
+          <div class="form-group">
+            <label>Student ID</label>
+            <input type="text" id="pay-student-id" placeholder="e.g. 101" oninput="loadPaymentPreview(); fetchStudentName('pay-student-id',null,'pay-name-display')">
+            <div id="pay-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
+          </div>
           <div class="form-group">
             <label>Select Month</label>
             <select id="pay-month">
@@ -1184,7 +1243,7 @@
           </div>
           <div class="form-group">
             <label>Status</label>
-            <select id="pay-status"><option value="Paid">Paid</option><option value="Pending">Pending</option></select>
+            <select id="pay-status"><option value="Paid">Paid</option><option value="Pending">Pending</option><option value="Due">Due</option></select>
           </div>
         </div>
         <div class="grid-2">
@@ -1211,7 +1270,11 @@
       </div>
       <div class="admin-form-card">
         <div class="grid-3">
-          <div class="form-group"><label>Student ID</label><input type="text" id="class-student-id" placeholder="e.g. 101" oninput="loadClassDatesPreview()"></div>
+          <div class="form-group">
+            <label>Student ID</label>
+            <input type="text" id="class-student-id" placeholder="e.g. 101" oninput="loadClassDatesPreview(); fetchStudentName('class-student-id',null,'class-name-display')">
+            <div id="class-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
+          </div>
           <div class="form-group">
             <label>Select Month</label>
             <select id="class-month">
@@ -1243,20 +1306,30 @@
       </div>
       <div class="admin-form-card">
         <div class="grid-2">
-          <div class="form-group"><label>Student ID</label><input type="text" id="hw-student-id" placeholder="e.g. 101" oninput="loadHomeworkPreview()"></div>
+          <div class="form-group">
+            <label>Student ID</label>
+            <input type="text" id="hw-student-id" placeholder="e.g. 101" oninput="loadHomeworkPreview(); fetchStudentName('hw-student-id',null,'hw-name-display')">
+            <div id="hw-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
+          </div>
           <div class="form-group"><label>Course Code</label><input type="text" id="hw-code" placeholder="e.g. CSE-1212"></div>
         </div>
         <div class="grid-2">
           <div class="form-group"><label>Homework Description</label><input type="text" id="hw-desc" placeholder="Complete assignment 1"></div>
           <div class="form-group"><label>Deadline</label><input type="text" id="hw-deadline" placeholder="e.g. 15/06/2026"></div>
         </div>
+        <div class="form-group">
+          <label>Attach File (Optional — PDF/Image, max 2MB)</label>
+          <input type="file" id="hw-file" accept=".pdf,image/*" style="width:100%; background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); padding:10px 14px; font-family:var(--font); font-size:13.5px; color:var(--text); outline:none; cursor:pointer;">
+          <div id="hw-file-hint" style="font-size:11px; color:var(--text-muted); margin-top:4px;">File will be stored; students can download it from their Homework section.</div>
+        </div>
+        <div id="hw-upload-progress" style="display:none; margin-bottom:10px; padding:10px 14px; border-radius:var(--radius-sm); background:rgba(79,142,247,0.08); border:1px solid rgba(79,142,247,0.2); font-size:13px; color:var(--accent);">⏳ Uploading file...</div>
         <button class="btn-action" onclick="uploadHomework()">Assign Homework</button>
       </div>
       <div class="card">
         <div class="card-title">📚 Assigned Homeworks <span id="hw-preview-id" style="color:var(--accent); font-family:var(--mono); font-size:12px;"></span></div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Course</th><th>Description</th><th>Deadline</th><th>Action</th></tr></thead>
+            <thead><tr><th>Course</th><th>Description</th><th>Deadline</th><th>File</th><th>Action</th></tr></thead>
             <tbody id="admin-hw-preview"></tbody>
           </table>
         </div>
@@ -1270,17 +1343,32 @@
         <div class="page-subtitle">Add and remove books and academic resources</div>
       </div>
       <div class="admin-form-card">
-        <div class="grid-2">
+        <div class="grid-3">
           <div class="form-group"><label>Resource / Book Title</label><input type="text" id="lib-title" placeholder="Introduction to C Algorithms"></div>
-          <div class="form-group"><label>Access Link / Location</label><input type="text" id="lib-link" placeholder="Drive link or Shelf B"></div>
+          <div class="form-group"><label>Access Link / Location</label><input type="text" id="lib-link" placeholder="Drive link or leave blank if uploading PDF"></div>
+          <div class="form-group">
+            <label>Student Level</label>
+            <select id="lib-level">
+              <option value="All">All Levels</option>
+              <option value="SSC">SSC</option>
+              <option value="HSC">HSC</option>
+              <option value="University">University</option>
+            </select>
+          </div>
         </div>
+        <div class="form-group">
+          <label>Upload PDF from Device (Optional — replaces link above, max 2MB)</label>
+          <input type="file" id="lib-pdf-file" accept=".pdf" style="width:100%; background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); padding:10px 14px; font-family:var(--font); font-size:13.5px; color:var(--text); outline:none; cursor:pointer;">
+          <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">If a PDF is selected, it overrides the link above. Students will get a download button.</div>
+        </div>
+        <div id="lib-upload-progress" style="display:none; margin-bottom:10px; padding:10px 14px; border-radius:var(--radius-sm); background:rgba(79,142,247,0.08); border:1px solid rgba(79,142,247,0.2); font-size:13px; color:var(--accent);">⏳ Uploading PDF...</div>
         <button class="btn-action" onclick="uploadLibrary()">Add Library Resource</button>
       </div>
       <div class="card">
         <div class="card-title">📚 Library Resources</div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Title</th><th>Link</th><th>Action</th></tr></thead>
+            <thead><tr><th>Title</th><th>Level</th><th>Link</th><th>Action</th></tr></thead>
             <tbody id="admin-library-preview"></tbody>
           </table>
         </div>
@@ -1305,16 +1393,52 @@
           </div>
           <div class="form-group"><label>File Name / URL Path</label><input type="text" id="note-path" placeholder="https://drive.google.com/..."></div>
         </div>
+        <div class="form-group" style="max-width:240px;">
+          <label>Student Level</label>
+          <select id="note-level">
+            <option value="All">All Levels</option>
+            <option value="SSC">SSC</option>
+            <option value="HSC">HSC</option>
+            <option value="University">University</option>
+          </select>
+        </div>
         <button class="btn-action" onclick="uploadNote()">Publish Note</button>
       </div>
       <div class="card">
         <div class="card-title">📄 Published Notes</div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Title</th><th>Type</th><th>Path</th><th>Action</th></tr></thead>
+            <thead><tr><th>Title</th><th>Level</th><th>Type</th><th>Path</th><th>Action</th></tr></thead>
             <tbody id="admin-notes-preview"></tbody>
           </table>
         </div>
+      </div>
+    </section>
+
+    <!-- ADMIN: NOTICES -->
+    <section id="tab-admin-notices" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">📢 Manage Notices</div>
+        <div class="page-subtitle">Post important announcements for all students</div>
+      </div>
+      <div class="admin-form-card">
+        <div class="grid-2">
+          <div class="form-group"><label>Notice Title</label><input type="text" id="notice-title" placeholder="e.g. Class Postponed on Friday"></div>
+          <div class="form-group">
+            <label>Priority</label>
+            <select id="notice-priority">
+              <option value="normal">Normal</option>
+              <option value="important">Important</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group"><label>Notice Body</label><textarea id="notice-body" placeholder="Write the full notice here..." style="width:100%; min-height:90px; background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); padding:12px 14px; font-family:var(--font); font-size:14px; color:var(--text); outline:none; resize:vertical; transition:border-color 0.2s;"></textarea></div>
+        <button class="btn-action" onclick="publishNotice()">📢 Publish Notice</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 Published Notices</div>
+        <div id="admin-notices-list"><div style="color:var(--text-muted); font-size:13px; padding:12px;">Loading...</div></div>
       </div>
     </section>
 
@@ -1322,11 +1446,23 @@
     <section id="tab-admin-files" class="tab-content hidden">
       <div class="page-header">
         <div class="page-title">Upload Study Materials</div>
-        <div class="page-subtitle">Publish notices and file names for students</div>
+        <div class="page-subtitle">Upload PDF files or publish file names for students</div>
       </div>
       <div class="admin-form-card">
-        <div class="form-group"><label>File Name / Notification Title</label><input type="text" id="f-name" placeholder="e.g. Class Routine.pdf"></div>
-        <button class="btn-action" onclick="uploadFile()">Upload Now</button>
+        <div class="card-title" style="margin-bottom:14px;">📄 Upload PDF from Device</div>
+        <div class="form-group"><label>Display Name for Students</label><input type="text" id="f-display-name" placeholder="e.g. Chapter 3 - Algebra Notes"></div>
+        <div class="form-group">
+          <label>Select PDF File</label>
+          <input type="file" id="f-pdf-input" accept=".pdf" style="width:100%; background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); padding:10px 14px; font-family:var(--font); font-size:13.5px; color:var(--text); outline:none; cursor:pointer;">
+          <div id="f-pdf-size-hint" style="font-size:11px; color:var(--text-muted); margin-top:4px;">Max file size: 2 MB. File is stored as a downloadable link for students.</div>
+        </div>
+        <div id="f-upload-progress" style="display:none; margin-bottom:10px; padding:10px 14px; border-radius:var(--radius-sm); background:rgba(79,142,247,0.08); border:1px solid rgba(79,142,247,0.2); font-size:13px; color:var(--accent);">⏳ Uploading...</div>
+        <button class="btn-action" onclick="uploadPdfFile()">⬆️ Upload PDF</button>
+        <div style="margin-top:18px; padding-top:18px; border-top:1px solid var(--border);">
+          <div class="card-title" style="margin-bottom:12px;">📝 Or Publish a Notice / File Name</div>
+          <div class="form-group"><label>File Name / Notification Title</label><input type="text" id="f-name" placeholder="e.g. Class Routine.pdf"></div>
+          <button class="btn-action" style="background:#eeebe4; color:var(--text-dim); box-shadow:none;" onclick="uploadFile()">Publish Title Only</button>
+        </div>
       </div>
       <div class="card">
         <div class="card-title">📂 Uploaded Files History</div>
@@ -1395,7 +1531,7 @@
   </footer>
 </div>
 
-<!-- EDIT MODAL -->
+<!-- EDIT MODAL (Profile) -->
 <div id="edit-modal" class="modal">
   <div class="modal-content">
     <div class="modal-title" id="modal-title">Edit Profile</div>
@@ -1408,12 +1544,121 @@
   </div>
 </div>
 
+<!-- EDIT CLASS DATES MODAL -->
+<div id="edit-classdate-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeClassDateEditModal()">
+  <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:420px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
+    <button onclick="closeClassDateEditModal()" style="position:absolute;top:14px;right:14px;background:#eeebe4;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+    <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Class Dates</div>
+    <input type="hidden" id="ecd-student-id">
+    <input type="hidden" id="ecd-old-month">
+    <div class="form-group">
+      <label>Month</label>
+      <select id="ecd-month">
+        <option>January</option><option>February</option><option>March</option><option>April</option>
+        <option>May</option><option>June</option><option>July</option><option>August</option>
+        <option>September</option><option>October</option><option>November</option><option>December</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Class Dates (Comma Separated)</label>
+      <input type="text" id="ecd-dates" placeholder="e.g. 01/06, 03/06, 05/06">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn-action" style="flex:1;" onclick="saveClassDateEdit()">💾 Save Changes</button>
+      <button class="btn-cancel" style="flex:1;" onclick="closeClassDateEditModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+<!-- EDIT ROUTINE MODAL -->
+<div id="edit-routine-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeRoutineEditModal()">
+  <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:420px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
+    <button onclick="closeRoutineEditModal()" style="position:absolute;top:14px;right:14px;background:#eeebe4;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+    <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Routine Entry</div>
+    <input type="hidden" id="er-routine-student-id">
+    <input type="hidden" id="er-routine-key">
+    <div class="form-group">
+      <label>Day</label>
+      <select id="er-routine-day">
+        <option>Saturday</option><option>Sunday</option><option>Monday</option>
+        <option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Time</label>
+      <input type="text" id="er-routine-time" placeholder="e.g. 09:00 AM - 10:30 AM">
+    </div>
+    <div class="form-group">
+      <label>Subject</label>
+      <input type="text" id="er-routine-subject" placeholder="e.g. Structured Programming">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn-action" style="flex:1;" onclick="saveRoutineEdit()">💾 Save Changes</button>
+      <button class="btn-cancel" style="flex:1;" onclick="closeRoutineEditModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="edit-payment-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closePaymentEditModal()">
+  <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:420px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
+    <button onclick="closePaymentEditModal()" style="position:absolute;top:14px;right:14px;background:#eeebe4;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+    <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Payment Record</div>
+    <input type="hidden" id="ep-student-id">
+    <input type="hidden" id="ep-old-month">
+    <div class="form-group">
+      <label>Month</label>
+      <select id="ep-month">
+        <option>January</option><option>February</option><option>March</option><option>April</option>
+        <option>May</option><option>June</option><option>July</option><option>August</option>
+        <option>September</option><option>October</option><option>November</option><option>December</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Payment Date</label>
+      <input type="text" id="ep-date" placeholder="e.g. 05/06/2026">
+    </div>
+    <div class="form-group">
+      <label>Status</label>
+      <select id="ep-status">
+        <option value="Paid">Paid</option>
+        <option value="Pending">Pending</option>
+        <option value="Due">Due</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn-action" style="flex:1;" onclick="savePaymentEdit()">💾 Save Changes</button>
+      <button class="btn-cancel" style="flex:1;" onclick="closePaymentEditModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT RESULT MODAL -->
+<div id="edit-result-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeResultEditModal()">
+  <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:460px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
+    <button onclick="closeResultEditModal()" style="position:absolute;top:14px;right:14px;background:#eeebe4;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+    <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Academic Result</div>
+    <input type="hidden" id="er-student-id">
+    <input type="hidden" id="er-old-key">
+    <div class="grid-2">
+      <div class="form-group"><label>Course Code</label><input type="text" id="er-code" placeholder="e.g. CSE-1212"></div>
+      <div class="form-group"><label>Course Title</label><input type="text" id="er-title" placeholder="e.g. Structured Programming"></div>
+    </div>
+    <div class="grid-3">
+      <div class="form-group"><label>Credit Hours</label><input type="number" id="er-credit" placeholder="3"></div>
+      <div class="form-group"><label>Grade</label><input type="text" id="er-grade" placeholder="A+"></div>
+      <div class="form-group"><label>GPA Value</label><input type="number" id="er-gpa" step="0.01" placeholder="4.00"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn-action" style="flex:1;" onclick="saveResultEdit()">💾 Save Changes</button>
+      <button class="btn-cancel" style="flex:1;" onclick="closeResultEditModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getDatabase, ref, set, get, child, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
   const firebaseConfig = {
-    apiKey: "AIzaSyBVvR9NMvUNQR9buleNoCwNEcP82VwD168",
     authDomain: "uni-portal-4f306.firebaseapp.com",
     databaseURL: "https://uni-portal-4f306-default-rtdb.firebaseio.com",
     projectId: "uni-portal-4f306",
@@ -1516,9 +1761,11 @@
     const id = document.getElementById('signup-id').value.trim();
     const email = document.getElementById('signup-email').value.trim();
     const pass = document.getElementById('signup-pass').value.trim();
+    const level = document.getElementById('signup-level').value;
     const secret = document.getElementById('signup-secret').value.trim();
 
     if(!name || !id || !email || !pass || !secret) return alert("Please fill all fields including the Secret Key!");
+    if(!level) return alert("Please select your student level (SSC / HSC / University)!");
 
     // Verify selected ID is still in approved list (not snatched by someone else)
     const approvedSnap = await get(child(ref(db), `config/approvedIds/${id}`));
@@ -1533,7 +1780,7 @@
     const snapshot = await get(child(ref(db), `users/${id}`));
     if(snapshot.exists()) return alert("This ID is already registered!");
 
-    await set(ref(db, 'users/' + id), { name, email, pass, role: 'user' });
+    await set(ref(db, 'users/' + id), { name, email, pass, role: 'user', level });
     // Remove from approved list so it cannot be re-used by another person
     await remove(ref(db, `config/approvedIds/${id}`));
     alert("✅ Account created successfully!");
@@ -1659,7 +1906,10 @@
           <td style="font-weight:600; color:var(--purple);">${r.day}</td>
           <td style="font-family:var(--mono); color:var(--cyan); font-size:13px;">${r.time}</td>
           <td>${r.subject}</td>
-          <td><button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('routine/${sId}/${key}', loadRoutinePreview)">Delete</button></td>
+          <td style="display:flex; gap:5px; flex-wrap:wrap;">
+            <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="openRoutineEditModal('${sId}','${key}','${r.day}','${r.time.replace(/'/g,"\\'")}','${r.subject.replace(/'/g,"\\'")}')">✏️ Edit</button>
+            <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('routine/${sId}/${key}', loadRoutinePreview)">Delete</button>
+          </td>
         </tr>
       `).join('');
     } else {
@@ -1682,7 +1932,10 @@
           <td>${r.credit}</td>
           <td><span class="badge badge-user">${r.grade}</span></td>
           <td style="color:var(--green); font-family:var(--mono);">${parseFloat(r.gpa).toFixed(2)}</td>
-          <td><button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('results/${sId}/${key}', loadResultsPreview)">Delete</button></td>
+          <td style="display:flex; gap:5px; flex-wrap:wrap;">
+            <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="openResultEditModal('${sId}','${key}','${r.code.replace(/'/g,"\\'")}','${r.title.replace(/'/g,"\\'")}','${r.credit}','${r.grade}','${r.gpa}')">✏️ Edit</button>
+            <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('results/${sId}/${key}', loadResultsPreview)">Delete</button>
+          </td>
         </tr>
       `).join('');
     } else {
@@ -1724,16 +1977,22 @@
     label.innerText = `for ID: ${sId}`;
     const snapshot = await get(child(ref(db), `homeworks/${sId}`));
     if(snapshot.exists()) {
-      tbody.innerHTML = Object.entries(snapshot.val()).map(([key, h]) => `
-        <tr>
-          <td style="font-family:var(--mono); color:var(--accent);">${h.code}</td>
-          <td>${h.desc}</td>
-          <td style="color:var(--red);">${h.deadline}</td>
-          <td><button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('homeworks/${sId}/${key}', loadHomeworkPreview)">Delete</button></td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = Object.entries(snapshot.val()).map(([key, h]) => {
+        const fileCell = h.fileData
+          ? `<a href="${h.fileData}" download="${h.fileName||'file'}" class="btn-sm" style="background:rgba(52,211,153,0.1);border-color:rgba(52,211,153,0.3);color:var(--green);">📎 ${h.fileName||'file'}</a>`
+          : `<span style="color:var(--text-muted); font-size:12px;">No file</span>`;
+        return `
+          <tr>
+            <td style="font-family:var(--mono); color:var(--accent);">${h.code}</td>
+            <td>${h.desc}</td>
+            <td style="color:var(--red);">${h.deadline}</td>
+            <td>${fileCell}</td>
+            <td><button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('homeworks/${sId}/${key}', loadHomeworkPreview)">Delete</button></td>
+          </tr>
+        `;
+      }).join('');
     } else {
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:16px;">No homework found.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:16px;">No homework found.</td></tr>`;
     }
   };
 
@@ -1743,40 +2002,125 @@
     refreshFn();
   };
 
+  // ── Fetch student name as admin types an ID ──
+  window.fetchStudentName = async (inputId, nameInputId, displayId) => {
+    const id = document.getElementById(inputId).value.trim();
+    const display = document.getElementById(displayId);
+    if(!display) return;
+    if(!id) { display.innerText = ''; return; }
+    const snap = await get(child(ref(db), `users/${id}`));
+    if(snap.exists()) {
+      const u = snap.val();
+      const lvl = u.level ? ` · ${u.level}` : '';
+      display.innerText = `👤 ${u.name}${lvl}`;
+      display.style.color = 'var(--green)';
+      if(nameInputId) document.getElementById(nameInputId).value = u.name;
+    } else {
+      display.innerText = id.length >= 2 ? '⚠️ Student not found' : '';
+      display.style.color = 'var(--red)';
+      if(nameInputId) document.getElementById(nameInputId).value = '';
+    }
+  };
+
   async function loadAdminLibraryPreview() {
     const tbody = document.getElementById('admin-library-preview');
     const snapshot = await get(child(ref(db), 'library'));
     if(snapshot.exists()) {
-      tbody.innerHTML = Object.entries(snapshot.val()).map(([key, l]) => `
+      tbody.innerHTML = Object.entries(snapshot.val()).map(([key, l]) => {
+        const lvl = l.level || 'All';
+        const levelBadgeColor = lvl === 'SSC' ? 'var(--green)' : lvl === 'HSC' ? 'var(--gold)' : lvl === 'University' ? 'var(--purple)' : 'var(--text-muted)';
+        return `
         <tr>
           <td style="font-weight:600;">${l.title}</td>
-          <td style="color:var(--accent); font-size:12px; max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.link}</td>
-          <td><button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('library/${key}', loadAdminLibraryPreview)">Delete</button></td>
+          <td><span style="font-size:11px; font-weight:700; padding:3px 9px; border-radius:12px; background:rgba(0,0,0,0.06); color:${levelBadgeColor};">${lvl}</span></td>
+          <td style="color:var(--accent); font-size:12px; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${l.link}">${l.link}</td>
+          <td style="display:flex; gap:5px; flex-wrap:wrap;">
+            <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="editLibraryTitle('${key}','${l.title.replace(/'/g,"\\'")}')">✏️ Title</button>
+            <button class="btn-sm" style="background:rgba(251,191,36,0.1);border-color:rgba(251,191,36,0.3);color:var(--gold);" onclick="editLibraryLink('${key}','${l.link.replace(/'/g,"\\'")}')">🔗 Link</button>
+            <button class="btn-sm" style="background:rgba(79,142,247,0.08);border-color:rgba(79,142,247,0.25);color:var(--purple);" onclick="editLibraryLevel('${key}','${lvl}')">🎓 Level</button>
+            <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('library/${key}', loadAdminLibraryPreview)">Delete</button>
+          </td>
         </tr>
-      `).join('');
+      `}).join('');
     } else {
-      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:16px;">No library resources found.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:16px;">No library resources found.</td></tr>`;
     }
   }
   window.loadAdminLibraryPreview = loadAdminLibraryPreview;
+
+  window.editLibraryTitle = async (key, current) => {
+    const val = prompt('Edit resource title:', current);
+    if(val === null) return;
+    const trimmed = val.trim();
+    if(!trimmed) return alert('Title cannot be empty!');
+    await update(ref(db), { [`/library/${key}/title`]: trimmed });
+    loadAdminLibraryPreview();
+  };
+
+  window.editLibraryLink = async (key, current) => {
+    const val = prompt('Edit resource link / location:', current);
+    if(val === null) return;
+    const trimmed = val.trim();
+    if(!trimmed) return alert('Link cannot be empty!');
+    await update(ref(db), { [`/library/${key}/link`]: trimmed });
+    loadAdminLibraryPreview();
+  };
+
+  window.editLibraryLevel = async (key, current) => {
+    const levels = ['All', 'SSC', 'HSC', 'University'];
+    const options = levels.map((l, i) => `${i+1}. ${l}`).join('\n');
+    const input = prompt(`Select new level (enter number):\n${options}\n\nCurrent: ${current}`);
+    if(input === null) return;
+    const idx = parseInt(input) - 1;
+    if(isNaN(idx) || idx < 0 || idx >= levels.length) return alert('Invalid selection!');
+    await update(ref(db), { [`/library/${key}/level`]: levels[idx] });
+    loadAdminLibraryPreview();
+  };
 
   async function loadAdminNotesPreview() {
     const tbody = document.getElementById('admin-notes-preview');
     const snapshot = await get(child(ref(db), 'notes'));
     if(snapshot.exists()) {
-      tbody.innerHTML = Object.entries(snapshot.val()).map(([key, n]) => `
+      tbody.innerHTML = Object.entries(snapshot.val()).map(([key, n]) => {
+        const levelBadgeColor = n.level === 'SSC' ? 'var(--green)' : n.level === 'HSC' ? 'var(--gold)' : n.level === 'University' ? 'var(--purple)' : 'var(--text-muted)';
+        return `
         <tr>
-          <td style="font-weight:600;">${n.title}</td>
+          <td style="font-weight:600;" id="note-title-cell-${key}">${n.title}</td>
+          <td><span style="font-size:11px; font-weight:700; padding:3px 9px; border-radius:12px; background:rgba(0,0,0,0.06); color:${levelBadgeColor};">${n.level || 'All'}</span></td>
           <td><span class="badge badge-user">${n.type}</span></td>
           <td style="font-size:12px; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${n.path}</td>
-          <td><button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('notes/${key}', loadAdminNotesPreview)">Delete</button></td>
+          <td style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="editNoteTitle('${key}', '${n.title.replace(/'/g,"\\'")}')">✏️ Title</button>
+            <button class="btn-sm" style="background:rgba(167,139,250,0.1);border-color:rgba(167,139,250,0.3);color:var(--purple);" onclick="editNoteLevel('${key}','${n.level || 'All'}')">🎓 Level</button>
+            <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('notes/${key}', loadAdminNotesPreview)">Delete</button>
+          </td>
         </tr>
-      `).join('');
+      `}).join('');
     } else {
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:16px;">No notes found.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:16px;">No notes found.</td></tr>`;
     }
   }
   window.loadAdminNotesPreview = loadAdminNotesPreview;
+
+  window.editNoteTitle = async (key, currentTitle) => {
+    const newTitle = prompt('Edit note name:', currentTitle);
+    if(newTitle === null) return;
+    const trimmed = newTitle.trim();
+    if(!trimmed) return alert('Note name cannot be empty!');
+    await update(ref(db), { [`/notes/${key}/title`]: trimmed });
+    loadAdminNotesPreview();
+  };
+
+  window.editNoteLevel = async (key, current) => {
+    const levels = ['All', 'SSC', 'HSC', 'University'];
+    const options = levels.map((l, i) => `${i+1}. ${l}`).join('\n');
+    const input = prompt(`Select new level (enter number):\n${options}\n\nCurrent: ${current}`);
+    if(input === null) return;
+    const idx = parseInt(input) - 1;
+    if(isNaN(idx) || idx < 0 || idx >= levels.length) return alert('Invalid selection!');
+    await update(ref(db), { [`/notes/${key}/level`]: levels[idx] });
+    loadAdminNotesPreview();
+  };
 
   async function initUserDash() {
     document.getElementById('user-name-display').innerText = currentSession.name;
@@ -1867,15 +2211,21 @@
     const tbody = document.getElementById('homework-table-body');
     const snapshot = await get(child(ref(db), `homeworks/${currentSession.id}`));
     if(snapshot.exists()) {
-      tbody.innerHTML = Object.values(snapshot.val()).map(h => `
-        <tr>
-          <td style="font-family:var(--mono); color:var(--accent); font-weight:700;">${h.code}</td>
-          <td>${h.desc}</td>
-          <td style="color:var(--red); font-weight:600;">${h.deadline}</td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = Object.values(snapshot.val()).map(h => {
+        const fileCell = h.fileData
+          ? `<a href="${h.fileData}" download="${h.fileName||'homework-file'}" class="btn-sm" style="background:rgba(52,211,153,0.1);border-color:rgba(52,211,153,0.3);color:var(--green);">⬇️ Download</a>`
+          : `<span style="color:var(--text-muted); font-size:12px;">—</span>`;
+        return `
+          <tr>
+            <td style="font-family:var(--mono); color:var(--accent); font-weight:700;">${h.code}</td>
+            <td>${h.desc}</td>
+            <td style="color:var(--red); font-weight:600;">${h.deadline}</td>
+            <td>${fileCell}</td>
+          </tr>
+        `;
+      }).join('');
     } else {
-      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:24px;">No homework assigned yet.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:24px;">No homework assigned yet.</td></tr>`;
     }
   }
 
@@ -1883,12 +2233,25 @@
     const tbody = document.getElementById('library-table-body');
     const snapshot = await get(child(ref(db), 'library'));
     if(snapshot.exists()) {
-      tbody.innerHTML = Object.values(snapshot.val()).map(l => {
-        const isLink = l.link.startsWith('http');
+      const studentLevel = currentSession.level || null;
+      const isAdmin = currentSession.role === 'admin';
+      tbody.innerHTML = Object.values(snapshot.val()).filter(l => {
+        if(isAdmin) return true;
+        const lvl = l.level || 'All';
+        return lvl === 'All' || lvl === studentLevel;
+      }).map(l => {
+        let accessCell;
+        if(l.fileData) {
+          accessCell = `<a href="${l.fileData}" download="${l.fileName||'resource.pdf'}" class="btn-sm" style="background:rgba(52,211,153,0.1);border-color:rgba(52,211,153,0.3);color:var(--green);">⬇️ Download PDF</a>`;
+        } else if(l.link && l.link.startsWith('http')) {
+          accessCell = `<a href="${l.link}" target="_blank" class="btn-sm">🔗 Open Resource</a>`;
+        } else {
+          accessCell = `<span style="color:var(--text-muted);">${l.link||'—'}</span>`;
+        }
         return `
           <tr>
             <td style="font-weight:600;">${l.title}</td>
-            <td>${isLink ? `<a href="${l.link}" target="_blank" class="btn-sm">🔗 Open Resource</a>` : `<span style="color:var(--text-muted);">${l.link}</span>`}</td>
+            <td>${accessCell}</td>
           </tr>
         `;
       }).join('');
@@ -1904,15 +2267,35 @@
     const countBadge = document.getElementById('notes-count-badge');
     const noResult = document.getElementById('notes-no-result');
     const searchInput = document.getElementById('notes-search-input');
+    const levelFilter = document.getElementById('notes-level-filter');
     if(searchInput) searchInput.value = '';
     if(noResult) noResult.style.display = 'none';
+
+    // Hide level filter for non-admin students; they only see their own level
+    const studentLevel = currentSession.level || null;
+    const isAdmin = currentSession.role === 'admin';
+    if(levelFilter) {
+      if(isAdmin) {
+        levelFilter.style.display = '';
+        levelFilter.value = 'all';
+      } else {
+        levelFilter.style.display = 'none';
+        levelFilter.value = 'all';
+      }
+    }
+
     const snapshot = await get(child(ref(db), 'notes'));
     if(snapshot.exists()) {
-      allNotesCache = Object.values(snapshot.val());
-      renderNotesRows(allNotesCache);
+      allNotesCache = Object.entries(snapshot.val()).map(([k, v]) => ({ ...v, _key: k }));
+      // For students, pre-filter to only their level + 'All' level notes
+      const viewable = isAdmin ? allNotesCache : allNotesCache.filter(n => {
+        const noteLevel = n.level || 'All';
+        return noteLevel === 'All' || noteLevel === studentLevel;
+      });
+      renderNotesRows(viewable);
     } else {
       allNotesCache = [];
-      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:24px;">No notes published yet.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:24px;">No notes published yet.</td></tr>`;
       if(countBadge) countBadge.innerText = '0 notes';
     }
   }
@@ -1932,9 +2315,12 @@
       if(tableWrap) tableWrap.style.display = '';
       tbody.innerHTML = notes.map(n => {
         const isUrl = n.path.startsWith('http');
+        const lvl = n.level || 'All';
+        const levelBadgeColor = lvl === 'SSC' ? 'var(--green)' : lvl === 'HSC' ? 'var(--gold)' : lvl === 'University' ? 'var(--purple)' : 'var(--text-muted)';
         return `
           <tr>
             <td style="font-weight:600;">${n.title}</td>
+            <td><span style="font-size:11px; font-weight:700; padding:3px 9px; border-radius:12px; background:rgba(0,0,0,0.06); color:${levelBadgeColor};">${lvl}</span></td>
             <td><span class="badge badge-user">${n.type}</span></td>
             <td>${isUrl ? `<a href="${n.path}" target="_blank" class="btn-sm">Go To Link</a>` : `<span style="color:var(--green); font-family:var(--mono); font-size:12px;">📄 ${n.path}</span>`}</td>
           </tr>
@@ -1944,9 +2330,25 @@
   }
 
   window.filterStudentNotes = () => {
-    const q = document.getElementById('notes-search-input').value.trim().toLowerCase();
-    if(!q) { renderNotesRows(allNotesCache); return; }
-    const filtered = allNotesCache.filter(n => n.title && n.title.toLowerCase().includes(q));
+    const q = (document.getElementById('notes-search-input')?.value || '').trim().toLowerCase();
+    const lvl = document.getElementById('notes-level-filter')?.value || 'all';
+    const isAdmin = currentSession.role === 'admin';
+    const studentLevel = currentSession.level || null;
+
+    let filtered = allNotesCache;
+
+    // Students can only see their own level + 'All' level notes
+    if(!isAdmin && studentLevel) {
+      filtered = filtered.filter(n => {
+        const noteLevel = n.level || 'All';
+        return noteLevel === 'All' || noteLevel === studentLevel;
+      });
+    } else if(lvl !== 'all') {
+      // Admin can filter by any level
+      filtered = filtered.filter(n => (n.level || 'All') === lvl || (n.level || '') === 'All');
+    }
+
+    if(q) filtered = filtered.filter(n => n.title && n.title.toLowerCase().includes(q));
     renderNotesRows(filtered);
   };
 
@@ -2036,45 +2438,92 @@
     });
   };
 
-  window.uploadHomework = () => {
+  window.uploadHomework = async () => {
     const sId = document.getElementById('hw-student-id').value.trim();
     const code = document.getElementById('hw-code').value.trim();
     const desc = document.getElementById('hw-desc').value.trim();
     const deadline = document.getElementById('hw-deadline').value.trim();
+    const fileInput = document.getElementById('hw-file');
+    const file = fileInput && fileInput.files[0];
 
     if(!sId || !code || !desc || !deadline) return alert("All homework fields are mandatory, including Student ID!");
 
-    set(ref(db, `homeworks/${sId}/` + Date.now()), { code, desc, deadline }).then(() => {
-      alert(`Homework successfully assigned to Student ID: ${sId}`);
-      document.getElementById('hw-code').value = '';
-      document.getElementById('hw-desc').value = '';
-      document.getElementById('hw-deadline').value = '';
-      loadHomeworkPreview();
-    });
+    const progress = document.getElementById('hw-upload-progress');
+    let fileData = null;
+    let fileName = null;
+
+    if(file) {
+      if(file.size > 2 * 1024 * 1024) return alert("File is too large! Max size is 2 MB.");
+      progress.style.display = 'block';
+      fileData = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = () => rej(new Error("File read failed"));
+        r.readAsDataURL(file);
+      });
+      fileName = file.name;
+      progress.style.display = 'none';
+    }
+
+    const entry = { code, desc, deadline };
+    if(fileData) { entry.fileData = fileData; entry.fileName = fileName; }
+
+    await set(ref(db, `homeworks/${sId}/` + Date.now()), entry);
+    alert(`Homework successfully assigned to Student ID: ${sId}`);
+    document.getElementById('hw-code').value = '';
+    document.getElementById('hw-desc').value = '';
+    document.getElementById('hw-deadline').value = '';
+    if(fileInput) fileInput.value = '';
+    loadHomeworkPreview();
   };
 
-  window.uploadLibrary = () => {
+  window.uploadLibrary = async () => {
     const title = document.getElementById('lib-title').value.trim();
     const link = document.getElementById('lib-link').value.trim();
+    const level = document.getElementById('lib-level').value;
+    const fileInput = document.getElementById('lib-pdf-file');
+    const file = fileInput && fileInput.files[0];
 
-    if(!title || !link) return alert("All library fields are required!");
+    if(!title) return alert("Resource title is required!");
+    if(!file && !link) return alert("Please provide a link or upload a PDF file!");
 
-    set(ref(db, 'library/' + Date.now()), { title, link }).then(() => {
-      alert("Library resource updated!");
-      document.getElementById('lib-title').value = '';
-      document.getElementById('lib-link').value = '';
-      loadAdminLibraryPreview();
-    });
+    const progress = document.getElementById('lib-upload-progress');
+    let fileData = null;
+    let fileName = null;
+
+    if(file) {
+      if(file.size > 2 * 1024 * 1024) return alert("PDF is too large! Max size is 2 MB.");
+      progress.style.display = 'block';
+      fileData = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = () => rej(new Error("File read failed"));
+        r.readAsDataURL(file);
+      });
+      fileName = file.name;
+      progress.style.display = 'none';
+    }
+
+    const entry = { title, link: link || '', level };
+    if(fileData) { entry.fileData = fileData; entry.fileName = fileName; }
+
+    await set(ref(db, 'library/' + Date.now()), entry);
+    alert("Library resource added!");
+    document.getElementById('lib-title').value = '';
+    document.getElementById('lib-link').value = '';
+    if(fileInput) fileInput.value = '';
+    loadAdminLibraryPreview();
   };
 
   window.uploadNote = () => {
     const title = document.getElementById('note-title').value.trim();
     const type = document.getElementById('note-type').value;
     const path = document.getElementById('note-path').value.trim();
+    const level = document.getElementById('note-level').value;
 
     if(!title || !path) return alert("Note title and path are required!");
 
-    set(ref(db, 'notes/' + Date.now()), { title, type, path }).then(() => {
+    set(ref(db, 'notes/' + Date.now()), { title, type, path, level }).then(() => {
       alert("Note published successfully!");
       document.getElementById('note-title').value = '';
       document.getElementById('note-path').value = '';
@@ -2256,6 +2705,8 @@
     document.getElementById('p-name').innerText = currentSession.name;
     document.getElementById('p-id').innerText = currentSession.id;
     document.getElementById('p-email').innerText = currentSession.email;
+    const lvlEl = document.getElementById('p-level');
+    if(lvlEl) lvlEl.innerText = currentSession.level || 'Not Set';
   }
 
   window.openEditModal = async (targetId = null) => {
@@ -2335,6 +2786,7 @@
           <div style="font-weight:700; font-size:14px; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${u.name}</div>
           <div style="font-family:var(--mono); font-size:12px; color:var(--accent); margin-bottom:6px;">#${id}</div>
           <span style="font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px; background:rgba(79,142,247,0.1); color:${roleColor}; border:1px solid rgba(79,142,247,0.2); text-transform:uppercase;">${u.role}</span>
+          ${u.level ? `<div style="margin-top:6px; font-size:10px; font-weight:700; color:var(--purple); background:rgba(167,139,250,0.1); border:1px solid rgba(167,139,250,0.2); border-radius:12px; padding:2px 8px; display:inline-block;">${u.level}</div>` : ''}
           <div style="position:absolute; top:10px; right:10px; width:8px; height:8px; border-radius:50%; background:var(--green);"></div>
         </div>
       `;
@@ -2363,6 +2815,8 @@
     document.getElementById('sp-name').innerText = u.name;
     document.getElementById('sp-id').innerText = userId;
     document.getElementById('sp-email').innerText = u.email;
+    const spLevel = document.getElementById('sp-level');
+    if(spLevel) spLevel.innerText = u.level || 'Not Set';
     document.getElementById('sp-pass').innerText = u.pass;
     document.getElementById('sp-role-badge').innerHTML = `<span class="badge badge-${u.role}">${u.role.toUpperCase()}</span>`;
 
@@ -2381,6 +2835,7 @@
     document.getElementById('sp-edit-btn').onclick = () => { closeStudentProfileModal(); openEditModal(userId); };
     document.getElementById('sp-delete-btn').style.display = userId === 'admin' ? 'none' : '';
     document.getElementById('sp-delete-btn').onclick = () => adminDeleteUser(userId);
+    document.getElementById('sp-edit-level-btn').onclick = () => editStudentLevel(userId, u.level || '');
 
     const modal = document.getElementById('student-profile-modal');
     modal.style.display = 'flex';
@@ -2390,6 +2845,23 @@
   window.closeStudentProfileModal = () => {
     document.getElementById('student-profile-modal').style.display = 'none';
     document.body.style.overflow = '';
+  };
+
+  window.editStudentLevel = async (userId, current) => {
+    const levels = ['', 'SSC', 'HSC', 'University'];
+    const labels = ['Not Set', 'SSC', 'HSC', 'University'];
+    const options = labels.map((l, i) => `${i+1}. ${l}`).join('\n');
+    const input = prompt(`Change student level (enter number):\n${options}\n\nCurrent: ${current || 'Not Set'}`);
+    if(input === null) return;
+    const idx = parseInt(input) - 1;
+    if(isNaN(idx) || idx < 0 || idx >= levels.length) return alert('Invalid selection!');
+    await update(ref(db), { [`/users/${userId}/level`]: levels[idx] });
+    const spLevel = document.getElementById('sp-level');
+    if(spLevel) spLevel.innerText = labels[idx];
+    // Update cache
+    if(allUsersCache[userId]) allUsersCache[userId].level = levels[idx];
+    renderStudentCards(allUsersCache);
+    alert(`✅ Level updated to: ${labels[idx]}`);
   };
 
   window.adminDeleteUser = async (userId) => {
@@ -2409,13 +2881,14 @@
     const email = document.getElementById('new-student-email').value.trim();
     const pass = document.getElementById('new-student-pass').value.trim();
     const role = document.getElementById('new-student-role').value;
+    const level = document.getElementById('new-student-level').value || '';
 
     if(!name || !id || !email || !pass) return alert("Please fill all fields to add a new student!");
 
     const snapshot = await get(child(ref(db), `users/${id}`));
     if(snapshot.exists()) return alert(`❌ ID "${id}" is already registered!`);
 
-    await set(ref(db, 'users/' + id), { name, email, pass, role });
+    await set(ref(db, 'users/' + id), { name, email, pass, role, level });
     alert(`✅ Account created for ${name} (ID: ${id})!`);
     document.getElementById('new-student-name').value = '';
     document.getElementById('new-student-id').value = '';
@@ -2438,6 +2911,33 @@
       alert("Grade published successfully!");
       loadResultsPreview();
     });
+  };
+
+  window.uploadPdfFile = async () => {
+    const displayName = document.getElementById('f-display-name').value.trim();
+    const fileInput = document.getElementById('f-pdf-input');
+    const file = fileInput && fileInput.files[0];
+    const progress = document.getElementById('f-upload-progress');
+
+    if(!displayName) return alert("Please enter a display name for the file!");
+    if(!file) return alert("Please select a PDF file to upload!");
+    if(file.size > 2 * 1024 * 1024) return alert("File too large! Max size is 2 MB.");
+
+    progress.style.display = 'block';
+    const fileData = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = () => rej(new Error("Read failed"));
+      r.readAsDataURL(file);
+    });
+    progress.style.display = 'none';
+
+    const key = Date.now();
+    await set(ref(db, `files/${key}`), { name: displayName, fileData, fileName: file.name, type: 'pdf' });
+    document.getElementById('f-display-name').value = '';
+    fileInput.value = '';
+    alert("✅ PDF uploaded successfully!");
+    renderAdminFiles();
   };
 
   window.uploadFile = () => {
@@ -2467,6 +2967,135 @@
 
   window.closeModal = () => { document.getElementById('edit-modal').style.display = 'none'; };
 
+  // ── Payment Edit Modal ──
+  window.openPaymentEditModal = (sId, month, date, status) => {
+    document.getElementById('ep-student-id').value = sId;
+    document.getElementById('ep-old-month').value = month;
+    const monthSel = document.getElementById('ep-month');
+    for(let i = 0; i < monthSel.options.length; i++) {
+      if(monthSel.options[i].value === month) { monthSel.selectedIndex = i; break; }
+    }
+    document.getElementById('ep-date').value = date;
+    document.getElementById('ep-status').value = status;
+    document.getElementById('edit-payment-modal').style.display = 'flex';
+  };
+
+  window.closePaymentEditModal = () => {
+    document.getElementById('edit-payment-modal').style.display = 'none';
+  };
+
+  // ── Routine Edit Modal ──
+  window.openRoutineEditModal = (sId, key, day, time, subject) => {
+    document.getElementById('er-routine-student-id').value = sId;
+    document.getElementById('er-routine-key').value = key;
+    const daySel = document.getElementById('er-routine-day');
+    for(let i = 0; i < daySel.options.length; i++) {
+      if(daySel.options[i].value === day) { daySel.selectedIndex = i; break; }
+    }
+    document.getElementById('er-routine-time').value = time;
+    document.getElementById('er-routine-subject').value = subject;
+    document.getElementById('edit-routine-modal').style.display = 'flex';
+  };
+
+  window.closeRoutineEditModal = () => {
+    document.getElementById('edit-routine-modal').style.display = 'none';
+  };
+
+  window.saveRoutineEdit = async () => {
+    const sId = document.getElementById('er-routine-student-id').value;
+    const key = document.getElementById('er-routine-key').value;
+    const day = document.getElementById('er-routine-day').value;
+    const time = document.getElementById('er-routine-time').value.trim();
+    const subject = document.getElementById('er-routine-subject').value.trim();
+    if(!time || !subject) return alert('Time and Subject are required!');
+    await update(ref(db), { [`/routine/${sId}/${key}/day`]: day, [`/routine/${sId}/${key}/time`]: time, [`/routine/${sId}/${key}/subject`]: subject });
+    closeRoutineEditModal();
+    loadRoutinePreview();
+  };
+
+  // ── Class Date Edit Modal ──
+  window.openClassDateEditModal = (sId, month, dates) => {
+    document.getElementById('ecd-student-id').value = sId;
+    document.getElementById('ecd-old-month').value = month;
+    const monthSel = document.getElementById('ecd-month');
+    for(let i = 0; i < monthSel.options.length; i++) {
+      if(monthSel.options[i].value === month) { monthSel.selectedIndex = i; break; }
+    }
+    document.getElementById('ecd-dates').value = dates;
+    document.getElementById('edit-classdate-modal').style.display = 'flex';
+  };
+
+  window.closeClassDateEditModal = () => {
+    document.getElementById('edit-classdate-modal').style.display = 'none';
+  };
+
+  window.saveClassDateEdit = async () => {
+    const sId = document.getElementById('ecd-student-id').value;
+    const oldMonth = document.getElementById('ecd-old-month').value;
+    const newMonth = document.getElementById('ecd-month').value;
+    const dates = document.getElementById('ecd-dates').value.trim();
+    if(!dates) return alert('Please enter the class dates!');
+    if(oldMonth !== newMonth) {
+      await remove(ref(db, `classDates/${sId}/${oldMonth}`));
+    }
+    await set(ref(db, `classDates/${sId}/${newMonth}`), dates);
+    closeClassDateEditModal();
+    loadClassDatesPreview();
+  };
+
+  window.savePaymentEdit = async () => {
+    const sId = document.getElementById('ep-student-id').value;
+    const oldMonth = document.getElementById('ep-old-month').value;
+    const newMonth = document.getElementById('ep-month').value;
+    const date = document.getElementById('ep-date').value.trim() || 'N/A';
+    const status = document.getElementById('ep-status').value;
+
+    // If month changed, delete old and write new; otherwise just update
+    if(oldMonth !== newMonth) {
+      await remove(ref(db, `payments/${sId}/${oldMonth}`));
+    }
+    await set(ref(db, `payments/${sId}/${newMonth}`), { status, date });
+    closePaymentEditModal();
+    loadPaymentPreview();
+  };
+
+  // ── Result Edit Modal ──
+  window.openResultEditModal = (sId, key, code, title, credit, grade, gpa) => {
+    document.getElementById('er-student-id').value = sId;
+    document.getElementById('er-old-key').value = key;
+    document.getElementById('er-code').value = code;
+    document.getElementById('er-title').value = title;
+    document.getElementById('er-credit').value = credit;
+    document.getElementById('er-grade').value = grade;
+    document.getElementById('er-gpa').value = gpa;
+    document.getElementById('edit-result-modal').style.display = 'flex';
+  };
+
+  window.closeResultEditModal = () => {
+    document.getElementById('edit-result-modal').style.display = 'none';
+  };
+
+  window.saveResultEdit = async () => {
+    const sId = document.getElementById('er-student-id').value;
+    const oldKey = document.getElementById('er-old-key').value;
+    const code = document.getElementById('er-code').value.trim();
+    const title = document.getElementById('er-title').value.trim();
+    const credit = document.getElementById('er-credit').value.trim();
+    const grade = document.getElementById('er-grade').value.trim();
+    const gpa = document.getElementById('er-gpa').value.trim();
+
+    if(!code || !title || !credit || !grade || !gpa) return alert('All fields are required!');
+
+    const newKey = code.replace(/\./g, '_');
+    // If the key (course code) changed, remove old entry
+    if(oldKey !== newKey) {
+      await remove(ref(db, `results/${sId}/${oldKey}`));
+    }
+    await set(ref(db, `results/${sId}/${newKey}`), { code, title, credit, grade, gpa });
+    closeResultEditModal();
+    loadResultsPreview();
+  };
+
   // ── Payment Preview ──
   window.loadPaymentPreview = async () => {
     const sId = document.getElementById('pay-student-id').value.trim();
@@ -2486,7 +3115,10 @@
             <td style="font-weight:600;">${month}</td>
             <td style="font-family:var(--mono); color:var(--cyan); font-size:13px;">${rec.date || 'N/A'}</td>
             <td><span class="badge badge-${(rec.status||'pending').toLowerCase()}">${(rec.status||'Pending').toUpperCase()}</span></td>
-            <td><button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('payments/${sId}/${month}', loadPaymentPreview)">Delete</button></td>
+            <td style="display:flex; gap:5px; flex-wrap:wrap;">
+              <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="openPaymentEditModal('${sId}','${month}','${rec.date||''}','${rec.status||'Pending'}')">✏️ Edit</button>
+              <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('payments/${sId}/${month}', loadPaymentPreview)">Delete</button>
+            </td>
           </tr>
         `;
       }).join('');
@@ -2511,7 +3143,10 @@
         <tr>
           <td style="font-weight:600;">${month}</td>
           <td style="color:var(--gold); font-size:13px;">${saved[month]}</td>
-          <td><button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('classDates/${sId}/${month}', loadClassDatesPreview)">Delete</button></td>
+          <td style="display:flex; gap:5px; flex-wrap:wrap;">
+            <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="openClassDateEditModal('${sId}','${month}','${(saved[month]||'').replace(/'/g,"\\'")}')">✏️ Edit</button>
+            <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('classDates/${sId}/${month}', loadClassDatesPreview)">Delete</button>
+          </td>
         </tr>
       `).join('');
     } else {
