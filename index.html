@@ -769,6 +769,8 @@
       <div class="nav-item" id="nav-admin-files" onclick="switchTab('admin-files')"><span class="nav-dot"></span>Upload Files</div>
       <div class="nav-item" id="nav-admin-passrequests" onclick="switchTab('admin-passrequests')"><span class="nav-dot"></span>🔑 Password Requests</div>
       <div class="nav-item" id="nav-admin-secretkey" onclick="switchTab('admin-secretkey')"><span class="nav-dot"></span>🛡️ Registration Key</div>
+      <div class="nav-item" id="nav-admin-income" onclick="switchTab('admin-income')"><span class="nav-dot"></span>📊 Monthly Income</div>
+      <div class="nav-item" id="nav-admin-expenses" onclick="switchTab('admin-expenses')"><span class="nav-dot"></span>💰 Monthly Expenses</div>
     </div>
 
     <div class="sidebar-footer">
@@ -855,12 +857,25 @@
     <section id="tab-payment" class="tab-content hidden">
       <div class="page-header">
         <div class="page-title">Payment Tracker</div>
-        <div class="page-subtitle">Month-wise payment history and status</div>
+        <div class="page-subtitle">Year &amp; month-wise payment history and status</div>
+      </div>
+      <div class="card" style="padding:16px 20px 10px;">
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <label style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.8px;">Filter Year</label>
+          <select id="pay-filter-year" onchange="loadStudentPayments()" style="background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); padding:8px 12px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; min-width:110px;">
+            <option value="">— All Years —</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+            <option value="2028">2028</option>
+            <option value="2029">2029</option>
+            <option value="2030">2030</option>
+          </select>
+        </div>
       </div>
       <div class="card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Month</th><th>Payment Date</th><th>Status</th></tr></thead>
+            <thead><tr><th>Year</th><th>Month</th><th>Payment Date</th><th>Tuition Fee (৳)</th><th>Status</th></tr></thead>
             <tbody id="payment-table-body"></tbody>
           </table>
         </div>
@@ -871,12 +886,25 @@
     <section id="tab-class-dates" class="tab-content hidden">
       <div class="page-header">
         <div class="page-title">Classes Conducted</div>
-        <div class="page-subtitle">Dates of classes held each month</div>
+        <div class="page-subtitle">Year &amp; month-wise dates of classes held</div>
+      </div>
+      <div class="card" style="padding:16px 20px 10px;">
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <label style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.8px;">Filter Year</label>
+          <select id="classdate-filter-year" onchange="loadStudentClassDates()" style="background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); padding:8px 12px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; min-width:110px;">
+            <option value="">— All Years —</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+            <option value="2028">2028</option>
+            <option value="2029">2029</option>
+            <option value="2030">2030</option>
+          </select>
+        </div>
       </div>
       <div class="card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Month</th><th>Conducted Dates</th></tr></thead>
+            <thead><tr><th>Year</th><th>Month</th><th>Conducted Dates</th></tr></thead>
             <tbody id="class-dates-table-body"></tbody>
           </table>
         </div>
@@ -1224,7 +1252,7 @@
     <section id="tab-admin-payments" class="tab-content hidden">
       <div class="page-header">
         <div class="page-title">Manage Payments</div>
-        <div class="page-subtitle">Update and delete month-wise payment status and dates</div>
+        <div class="page-subtitle">Update and delete year &amp; month-wise payment status and dates</div>
       </div>
       <div class="admin-form-card">
         <div class="grid-3">
@@ -1232,6 +1260,16 @@
             <label>Student ID</label>
             <input type="text" id="pay-student-id" placeholder="e.g. 101" oninput="loadPaymentPreview(); fetchStudentName('pay-student-id',null,'pay-name-display')">
             <div id="pay-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
+          </div>
+          <div class="form-group">
+            <label>Select Year</label>
+            <select id="pay-year">
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+              <option value="2029">2029</option>
+              <option value="2030">2030</option>
+            </select>
           </div>
           <div class="form-group">
             <label>Select Month</label>
@@ -1248,6 +1286,7 @@
         </div>
         <div class="grid-2">
           <div class="form-group"><label>Payment Date</label><input type="text" id="pay-date" placeholder="e.g. 05/06/2026"></div>
+          <div class="form-group"><label>Tuition Fee Amount (৳)</label><input type="number" id="pay-amount" placeholder="e.g. 3000" min="0"></div>
         </div>
         <button class="btn-action" onclick="uploadPayment()">Update Payment Info</button>
       </div>
@@ -1255,7 +1294,7 @@
         <div class="card-title">💳 Payment Records <span id="pay-preview-id" style="color:var(--accent); font-family:var(--mono); font-size:12px;"></span></div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Month</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+            <thead><tr><th>Year</th><th>Month</th><th>Date</th><th>Amount (৳)</th><th>Status</th><th>Action</th></tr></thead>
             <tbody id="admin-pay-preview"></tbody>
           </table>
         </div>
@@ -1266,7 +1305,7 @@
     <section id="tab-admin-class-dates" class="tab-content hidden">
       <div class="page-header">
         <div class="page-title">Manage Class Dates</div>
-        <div class="page-subtitle">Enter and delete dates when classes were conducted</div>
+        <div class="page-subtitle">Enter and delete year &amp; month-wise class conducted dates</div>
       </div>
       <div class="admin-form-card">
         <div class="grid-3">
@@ -1274,6 +1313,16 @@
             <label>Student ID</label>
             <input type="text" id="class-student-id" placeholder="e.g. 101" oninput="loadClassDatesPreview(); fetchStudentName('class-student-id',null,'class-name-display')">
             <div id="class-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
+          </div>
+          <div class="form-group">
+            <label>Select Year</label>
+            <select id="class-year">
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+              <option value="2029">2029</option>
+              <option value="2030">2030</option>
+            </select>
           </div>
           <div class="form-group">
             <label>Select Month</label>
@@ -1291,7 +1340,7 @@
         <div class="card-title">📅 Class Date Records <span id="classdate-preview-id" style="color:var(--accent); font-family:var(--mono); font-size:12px;"></span></div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Month</th><th>Dates Conducted</th><th>Action</th></tr></thead>
+            <thead><tr><th>Year</th><th>Month</th><th>Dates Conducted</th><th>Action</th></tr></thead>
             <tbody id="admin-classdate-preview"></tbody>
           </table>
         </div>
@@ -1523,12 +1572,234 @@
       </div>
     </section>
 
+    <!-- ADMIN: MONTHLY INCOME -->
+    <section id="tab-admin-income" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">📊 Monthly Income Report</div>
+        <div class="page-subtitle">Search total tuition fee income for any month across all students</div>
+      </div>
+      <div class="admin-form-card">
+        <div class="grid-2" style="max-width:640px;">
+          <div class="form-group">
+            <label>Select Year</label>
+            <select id="income-year">
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+              <option value="2029">2029</option>
+              <option value="2030">2030</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Select Month</label>
+            <select id="income-month">
+              <option>January</option><option>February</option><option>March</option><option>April</option>
+              <option>May</option><option>June</option><option>July</option><option>August</option>
+              <option>September</option><option>October</option><option>November</option><option>December</option>
+            </select>
+          </div>
+          <div class="form-group" style="display:flex; align-items:flex-end; grid-column: span 2;">
+            <button class="btn-action" style="width:100%; margin-top:0;" onclick="loadMonthlyIncome()">📊 Generate Report</button>
+          </div>
+        </div>
+      </div>
+      <div id="income-result-area" style="display:none;">
+        <div class="grid-3" style="margin-bottom:20px;">
+          <div style="background:linear-gradient(135deg,rgba(52,211,153,0.12),rgba(52,211,153,0.05));border:1px solid rgba(52,211,153,0.25);border-radius:var(--radius);padding:22px 20px;text-align:center;">
+            <div id="income-total" style="font-size:26px;font-weight:800;color:var(--green);font-family:var(--mono);">৳0</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Total Income (Paid)</div>
+          </div>
+          <div style="background:linear-gradient(135deg,rgba(79,142,247,0.12),rgba(79,142,247,0.05));border:1px solid rgba(79,142,247,0.25);border-radius:var(--radius);padding:22px 20px;text-align:center;">
+            <div id="income-paid-count" style="font-size:26px;font-weight:800;color:var(--accent);font-family:var(--mono);">0</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Students Paid</div>
+          </div>
+          <div style="background:linear-gradient(135deg,rgba(248,113,113,0.12),rgba(248,113,113,0.05));border:1px solid rgba(248,113,113,0.25);border-radius:var(--radius);padding:22px 20px;text-align:center;">
+            <div id="income-pending-count" style="font-size:26px;font-weight:800;color:var(--red);font-family:var(--mono);">0</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Pending / Due</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">💳 Payment Breakdown — <span id="income-month-label" style="color:var(--accent); font-family:var(--mono);"></span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Student ID</th><th>Name</th><th>Amount (৳)</th><th>Payment Date</th><th>Status</th></tr></thead>
+              <tbody id="income-breakdown-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN: MONTHLY EXPENSES -->
+    <section id="tab-admin-expenses" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">💰 Monthly Expenses</div>
+        <div class="page-subtitle">Track academy expenses by category, amount and date</div>
+      </div>
+
+      <!-- Add Expense Form -->
+      <div class="admin-form-card">
+        <div class="card-title" style="margin-bottom:16px;">➕ Add New Expense</div>
+        <div class="grid-3">
+          <div class="form-group">
+            <label>Expense Category</label>
+            <select id="exp-category" onchange="handleExpCategoryChange(this)">
+              <option value="">— Select Category —</option>
+            </select>
+            <!-- Inline custom category input -->
+            <div id="exp-custom-category-wrap" style="display:none; margin-top:8px;">
+              <div style="display:flex; gap:6px; align-items:center;">
+                <input type="text" id="exp-custom-category-input" placeholder="নতুন category-র নাম লিখুন…"
+                  style="flex:1; background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); padding:10px 13px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; transition:border-color 0.2s, box-shadow 0.2s;"
+                  onkeydown="if(event.key==='Enter')saveInlineExpCategory()"
+                  onfocus="this.style.borderColor='var(--accent)'; this.style.boxShadow='0 0 0 3px var(--accent-glow)'"
+                  onblur="this.style.borderColor='rgba(0,0,0,0.13)'; this.style.boxShadow=''">
+                <button onclick="saveInlineExpCategory()"
+                  style="padding:9px 16px; background:var(--accent); border:none; color:#fff; border-radius:var(--radius-sm); cursor:pointer; font-weight:700; font-size:12px; font-family:var(--font); white-space:nowrap; flex-shrink:0;">
+                  ✓ Save
+                </button>
+                <button onclick="cancelInlineExpCategory()"
+                  style="padding:9px 11px; background:#eeebe4; border:1px solid rgba(0,0,0,0.1); color:var(--text-dim); border-radius:var(--radius-sm); cursor:pointer; font-size:13px; font-family:var(--font); flex-shrink:0;">
+                  ✕
+                </button>
+              </div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">Enter চাপুন বা ✓ Save ক্লিক করুন — category save হয়ে auto-select হবে।</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Cost Amount (৳)</label>
+            <input type="number" id="exp-amount" placeholder="e.g. 5000" min="0" step="0.01">
+          </div>
+          <div class="form-group">
+            <label>Expense Date</label>
+            <input type="date" id="exp-date">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Note / Description (Optional)</label>
+          <input type="text" id="exp-note" placeholder="e.g. June rent paid to landlord">
+        </div>
+        <button class="btn-action" onclick="addExpense()">➕ Add Expense</button>
+      </div>
+
+
+
+      <!-- Filter & Summary -->
+      <div class="admin-form-card" style="background:linear-gradient(135deg,rgba(248,113,113,0.06),rgba(251,191,36,0.04)); border-color:rgba(248,113,113,0.15);">
+        <div class="card-title" style="margin-bottom:14px;">🔍 Filter &amp; Summary</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr auto; gap:14px; align-items:flex-end;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Filter by Year</label>
+            <select id="exp-filter-year" onchange="loadExpenses()">
+              <option value="">— All Years —</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+              <option value="2028">2028</option>
+              <option value="2029">2029</option>
+              <option value="2030">2030</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Filter by Month</label>
+            <select id="exp-filter-month" onchange="loadExpenses()">
+              <option value="">— All Months —</option>
+              <option value="January">January</option><option value="February">February</option>
+              <option value="March">March</option><option value="April">April</option>
+              <option value="May">May</option><option value="June">June</option>
+              <option value="July">July</option><option value="August">August</option>
+              <option value="September">September</option><option value="October">October</option>
+              <option value="November">November</option><option value="December">December</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Filter by Category</label>
+            <select id="exp-filter-category" onchange="loadExpenses()">
+              <option value="">— All Categories —</option>
+            </select>
+          </div>
+          <div style="margin-bottom:0;">
+            <button class="btn-action" style="margin-top:0; background:#eeebe4; color:var(--text-dim); box-shadow:none; border:1px solid rgba(0,0,0,0.1);" onclick="clearExpenseFilters()">✕ Clear Filters</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="grid-3" style="margin-bottom:20px;" id="exp-summary-cards">
+        <div style="background:linear-gradient(135deg,rgba(248,113,113,0.12),rgba(248,113,113,0.05));border:1px solid rgba(248,113,113,0.25);border-radius:var(--radius);padding:20px 22px;text-align:center;">
+          <div id="exp-summary-total" style="font-size:24px;font-weight:800;color:var(--red);font-family:var(--mono);">৳0</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Total Expenses</div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(79,142,247,0.12),rgba(79,142,247,0.05));border:1px solid rgba(79,142,247,0.25);border-radius:var(--radius);padding:20px 22px;text-align:center;">
+          <div id="exp-summary-count" style="font-size:24px;font-weight:800;color:var(--accent);font-family:var(--mono);">0</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Total Entries</div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(251,191,36,0.05));border:1px solid rgba(251,191,36,0.25);border-radius:var(--radius);padding:20px 22px;text-align:center;">
+          <div id="exp-summary-label" style="font-size:13px;font-weight:700;color:var(--gold);font-family:var(--mono); word-break:break-word; line-height:1.4;">—</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Current Filter</div>
+        </div>
+      </div>
+
+      <!-- Expense Table -->
+      <div class="card">
+        <div class="card-title">📋 Expense Records <span id="exp-table-label" style="color:var(--text-muted); font-size:12px; font-weight:500; margin-left:4px;"></span></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Amount (৳)</th>
+                <th>Note</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="expense-table-body">
+              <tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:24px;">Loading expenses...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <!-- FOOTER -->
   <footer style="margin-left: var(--sidebar-w); padding: 18px 36px; border-top: 1px solid var(--border); background: var(--surface); text-align: center; font-size: 12.5px; color: var(--text-muted); letter-spacing: 0.2px;">
     © 2026 <strong style="color: var(--text-dim);">Skill Circle Academy</strong> &nbsp;|&nbsp; All Rights Reserved
   </footer>
+</div>
+
+<!-- EDIT EXPENSE MODAL -->
+<div id="edit-expense-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeExpenseEditModal()">
+  <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:460px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
+    <button onclick="closeExpenseEditModal()" style="position:absolute;top:14px;right:14px;background:#eeebe4;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+    <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Expense Entry</div>
+    <input type="hidden" id="ee-key">
+    <div class="form-group">
+      <label>Expense Category</label>
+      <select id="ee-category">
+        <!-- populated dynamically -->
+      </select>
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Cost Amount (৳)</label>
+        <input type="number" id="ee-amount" placeholder="e.g. 5000" min="0" step="0.01">
+      </div>
+      <div class="form-group">
+        <label>Expense Date</label>
+        <input type="date" id="ee-date">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Note / Description</label>
+      <input type="text" id="ee-note" placeholder="Optional note">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn-action" style="flex:1;" onclick="saveExpenseEdit()">💾 Save Changes</button>
+      <button class="btn-cancel" style="flex:1;" onclick="closeExpenseEditModal()">Cancel</button>
+    </div>
+  </div>
 </div>
 
 <!-- EDIT MODAL (Profile) -->
@@ -1550,14 +1821,26 @@
     <button onclick="closeClassDateEditModal()" style="position:absolute;top:14px;right:14px;background:#eeebe4;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
     <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Class Dates</div>
     <input type="hidden" id="ecd-student-id">
-    <input type="hidden" id="ecd-old-month">
-    <div class="form-group">
-      <label>Month</label>
-      <select id="ecd-month">
-        <option>January</option><option>February</option><option>March</option><option>April</option>
-        <option>May</option><option>June</option><option>July</option><option>August</option>
-        <option>September</option><option>October</option><option>November</option><option>December</option>
-      </select>
+    <input type="hidden" id="ecd-old-key">
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Year</label>
+        <select id="ecd-year">
+          <option value="2026">2026</option>
+          <option value="2027">2027</option>
+          <option value="2028">2028</option>
+          <option value="2029">2029</option>
+          <option value="2030">2030</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Month</label>
+        <select id="ecd-month">
+          <option>January</option><option>February</option><option>March</option><option>April</option>
+          <option>May</option><option>June</option><option>July</option><option>August</option>
+          <option>September</option><option>October</option><option>November</option><option>December</option>
+        </select>
+      </div>
     </div>
     <div class="form-group">
       <label>Class Dates (Comma Separated)</label>
@@ -1603,18 +1886,34 @@
     <button onclick="closePaymentEditModal()" style="position:absolute;top:14px;right:14px;background:#eeebe4;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
     <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Payment Record</div>
     <input type="hidden" id="ep-student-id">
-    <input type="hidden" id="ep-old-month">
-    <div class="form-group">
-      <label>Month</label>
-      <select id="ep-month">
-        <option>January</option><option>February</option><option>March</option><option>April</option>
-        <option>May</option><option>June</option><option>July</option><option>August</option>
-        <option>September</option><option>October</option><option>November</option><option>December</option>
-      </select>
+    <input type="hidden" id="ep-old-key">
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Year</label>
+        <select id="ep-year">
+          <option value="2026">2026</option>
+          <option value="2027">2027</option>
+          <option value="2028">2028</option>
+          <option value="2029">2029</option>
+          <option value="2030">2030</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Month</label>
+        <select id="ep-month">
+          <option>January</option><option>February</option><option>March</option><option>April</option>
+          <option>May</option><option>June</option><option>July</option><option>August</option>
+          <option>September</option><option>October</option><option>November</option><option>December</option>
+        </select>
+      </div>
     </div>
     <div class="form-group">
       <label>Payment Date</label>
       <input type="text" id="ep-date" placeholder="e.g. 05/06/2026">
+    </div>
+    <div class="form-group">
+      <label>Tuition Fee Amount (৳)</label>
+      <input type="number" id="ep-amount" placeholder="e.g. 3000" min="0">
     </div>
     <div class="form-group">
       <label>Status</label>
@@ -1839,6 +2138,8 @@
     if(tabId === 'admin-users') renderUserTable();
     if(tabId === 'admin-passrequests') loadPassRequests();
     if(tabId === 'admin-secretkey') loadSecretKey();
+    if(tabId === 'admin-income') { document.getElementById('income-result-area').style.display='none'; }
+    if(tabId === 'admin-expenses') { if(window._initExpensesTab) window._initExpensesTab(); else loadExpenses(); }
     if(tabId === 'profile') loadProfileData();
     if(tabId === 'dash') initUserDash();
     if(tabId === 'result') loadStudentResults();
@@ -2174,17 +2475,45 @@
 
   async function loadStudentPayments() {
     const tbody = document.getElementById('payment-table-body');
+    const filterYear = document.getElementById('pay-filter-year')?.value || '';
     const snapshot = await get(child(ref(db), `payments/${currentSession.id}`));
     const savedPayments = snapshot.exists() ? snapshot.val() : {};
-    
-    tbody.innerHTML = monthsList.map(month => {
-      const record = savedPayments[month] || {};
-      const status = record.status || "Pending";
-      const payDate = record.date || "Not set";
+
+    // Build entries supporting both new {year_month: {year,month,...}} and legacy {month: {...}}
+    let entries = Object.entries(savedPayments).map(([key, rec]) => {
+      if(typeof rec === 'object' && rec !== null) {
+        const year  = rec.year  || (key.includes('_') ? key.split('_')[0] : '—');
+        const month = rec.month || (key.includes('_') ? key.split('_')[1] : key);
+        return { year, month, ...rec };
+      }
+      return null;
+    }).filter(Boolean);
+
+    if(filterYear) entries = entries.filter(e => e.year === filterYear);
+
+    const monthOrder = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    entries.sort((a,b) => {
+      if(b.year !== a.year) return (b.year||'').localeCompare(a.year||'');
+      return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
+    });
+
+    if(entries.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:24px;">No payment records found${filterYear ? ' for '+filterYear : ''}.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = entries.map(e => {
+      const status = e.status || "Pending";
+      const payDate = e.date || "Not set";
+      const amtDisplay = e.amount
+        ? `<span style="font-family:var(--mono); color:var(--gold); font-weight:700;">৳ ${parseFloat(e.amount).toLocaleString('en-BD')}</span>`
+        : `<span style="color:var(--text-muted);">—</span>`;
       return `
         <tr>
-          <td style="font-weight:600;">${month}</td>
+          <td style="font-family:var(--mono); color:var(--purple); font-weight:700;">${e.year||'—'}</td>
+          <td style="font-weight:600;">${e.month||'—'}</td>
           <td style="color:var(--cyan); font-family:var(--mono); font-size:13px;">${payDate}</td>
+          <td>${amtDisplay}</td>
           <td><span class="badge badge-${status.toLowerCase()}">${status.toUpperCase()}</span></td>
         </tr>
       `;
@@ -2193,18 +2522,39 @@
 
   async function loadStudentClassDates() {
     const tbody = document.getElementById('class-dates-table-body');
+    const filterYear = document.getElementById('classdate-filter-year')?.value || '';
     const snapshot = await get(child(ref(db), `classDates/${currentSession.id}`));
     const savedDates = snapshot.exists() ? snapshot.val() : {};
-    
-    tbody.innerHTML = monthsList.map(month => {
-      const classes = savedDates[month] || "No classes registered";
-      return `
-        <tr>
-          <td style="font-weight:600;">${month}</td>
-          <td style="color:var(--gold); font-size:13px;">${classes}</td>
-        </tr>
-      `;
-    }).join('');
+
+    let entries = Object.entries(savedDates).map(([key, val]) => {
+      if(typeof val === 'string') {
+        return { year: '—', month: key, dates: val };
+      }
+      const year  = val.year  || (key.includes('_') ? key.split('_')[0] : '—');
+      const month = val.month || (key.includes('_') ? key.split('_')[1] : key);
+      return { year, month, dates: val.dates || '' };
+    });
+
+    if(filterYear) entries = entries.filter(e => e.year === filterYear);
+
+    const monthOrder = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    entries.sort((a,b) => {
+      if(b.year !== a.year) return (b.year||'').localeCompare(a.year||'');
+      return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
+    });
+
+    if(entries.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:24px;">No class date records found${filterYear ? ' for '+filterYear : ''}.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = entries.map(e => `
+      <tr>
+        <td style="font-family:var(--mono); color:var(--purple); font-weight:700;">${e.year}</td>
+        <td style="font-weight:600;">${e.month}</td>
+        <td style="color:var(--gold); font-size:13px;">${e.dates || 'No classes registered'}</td>
+      </tr>
+    `).join('');
   }
 
   async function loadStudentHomeworks() {
@@ -2410,29 +2760,35 @@
 
   window.uploadPayment = () => {
     const sId = document.getElementById('pay-student-id').value.trim();
+    const year = document.getElementById('pay-year').value;
     const month = document.getElementById('pay-month').value;
     const status = document.getElementById('pay-status').value;
     const date = document.getElementById('pay-date').value.trim() || "N/A";
+    const amount = document.getElementById('pay-amount').value.trim() || "0";
 
     if(!sId) return alert("Student ID is required!");
 
-    set(ref(db, `payments/${sId}/${month}`), { status, date })
+    const key = `${year}_${month}`;
+    set(ref(db, `payments/${sId}/${key}`), { status, date, amount, year, month })
     .then(() => {
-      alert(`Payment status & date updated for ${month}!`);
+      alert(`Payment status updated for ${month} ${year}!`);
+      document.getElementById('pay-amount').value = '';
       loadPaymentPreview();
     });
   };
 
   window.uploadClassDates = () => {
     const sId = document.getElementById('class-student-id').value.trim();
+    const year = document.getElementById('class-year').value;
     const month = document.getElementById('class-month').value;
     const classDates = document.getElementById('class-dates-input').value.trim() || "None Entered";
 
     if(!sId) return alert("Student ID is required!");
 
-    set(ref(db, `classDates/${sId}/${month}`), classDates)
+    const key = `${year}_${month}`;
+    set(ref(db, `classDates/${sId}/${key}`), { dates: classDates, year, month })
     .then(() => {
-      alert(`Class conducted dates updated for ${month}!`);
+      alert(`Class conducted dates updated for ${month} ${year}!`);
       document.getElementById('class-dates-input').value = '';
       loadClassDatesPreview();
     });
@@ -2968,15 +3324,17 @@
   window.closeModal = () => { document.getElementById('edit-modal').style.display = 'none'; };
 
   // ── Payment Edit Modal ──
-  window.openPaymentEditModal = (sId, month, date, status) => {
+  window.openPaymentEditModal = (sId, key, year, month, date, status, amount) => {
     document.getElementById('ep-student-id').value = sId;
-    document.getElementById('ep-old-month').value = month;
+    document.getElementById('ep-old-key').value = key;
+    document.getElementById('ep-year').value = year || '2026';
     const monthSel = document.getElementById('ep-month');
     for(let i = 0; i < monthSel.options.length; i++) {
       if(monthSel.options[i].value === month) { monthSel.selectedIndex = i; break; }
     }
     document.getElementById('ep-date').value = date;
     document.getElementById('ep-status').value = status;
+    document.getElementById('ep-amount').value = amount || '';
     document.getElementById('edit-payment-modal').style.display = 'flex';
   };
 
@@ -3014,9 +3372,10 @@
   };
 
   // ── Class Date Edit Modal ──
-  window.openClassDateEditModal = (sId, month, dates) => {
+  window.openClassDateEditModal = (sId, key, year, month, dates) => {
     document.getElementById('ecd-student-id').value = sId;
-    document.getElementById('ecd-old-month').value = month;
+    document.getElementById('ecd-old-key').value = key;
+    document.getElementById('ecd-year').value = year || '2026';
     const monthSel = document.getElementById('ecd-month');
     for(let i = 0; i < monthSel.options.length; i++) {
       if(monthSel.options[i].value === month) { monthSel.selectedIndex = i; break; }
@@ -3031,30 +3390,34 @@
 
   window.saveClassDateEdit = async () => {
     const sId = document.getElementById('ecd-student-id').value;
-    const oldMonth = document.getElementById('ecd-old-month').value;
+    const oldKey = document.getElementById('ecd-old-key').value;
+    const year = document.getElementById('ecd-year').value;
     const newMonth = document.getElementById('ecd-month').value;
     const dates = document.getElementById('ecd-dates').value.trim();
     if(!dates) return alert('Please enter the class dates!');
-    if(oldMonth !== newMonth) {
-      await remove(ref(db, `classDates/${sId}/${oldMonth}`));
+    const newKey = `${year}_${newMonth}`;
+    if(oldKey !== newKey) {
+      await remove(ref(db, `classDates/${sId}/${oldKey}`));
     }
-    await set(ref(db, `classDates/${sId}/${newMonth}`), dates);
+    await set(ref(db, `classDates/${sId}/${newKey}`), { dates, year, month: newMonth });
     closeClassDateEditModal();
     loadClassDatesPreview();
   };
 
   window.savePaymentEdit = async () => {
     const sId = document.getElementById('ep-student-id').value;
-    const oldMonth = document.getElementById('ep-old-month').value;
+    const oldKey = document.getElementById('ep-old-key').value;
+    const year = document.getElementById('ep-year').value;
     const newMonth = document.getElementById('ep-month').value;
     const date = document.getElementById('ep-date').value.trim() || 'N/A';
     const status = document.getElementById('ep-status').value;
+    const amount = document.getElementById('ep-amount').value.trim() || '0';
 
-    // If month changed, delete old and write new; otherwise just update
-    if(oldMonth !== newMonth) {
-      await remove(ref(db, `payments/${sId}/${oldMonth}`));
+    const newKey = `${year}_${newMonth}`;
+    if(oldKey !== newKey) {
+      await remove(ref(db, `payments/${sId}/${oldKey}`));
     }
-    await set(ref(db, `payments/${sId}/${newMonth}`), { status, date });
+    await set(ref(db, `payments/${sId}/${newKey}`), { status, date, amount, year, month: newMonth });
     closePaymentEditModal();
     loadPaymentPreview();
   };
@@ -3105,25 +3468,37 @@
     label.innerText = `for ID: ${sId}`;
     const snapshot = await get(child(ref(db), `payments/${sId}`));
     const savedPayments = snapshot.exists() ? snapshot.val() : {};
-    const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-    const entries = months.filter(m => savedPayments[m]);
+    // Collect all entries; support both new `year_month` keys and legacy `month` keys
+    const entries = Object.entries(savedPayments).map(([key, rec]) => {
+      const year  = rec.year  || (key.includes('_') ? key.split('_')[0] : '—');
+      const month = rec.month || (key.includes('_') ? key.split('_')[1] : key);
+      return { key, year, month, ...rec };
+    });
+    // Sort by year desc then month order
+    const monthOrder = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    entries.sort((a,b) => {
+      if(b.year !== a.year) return (b.year||'').localeCompare(a.year||'');
+      return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
+    });
     if(entries.length > 0) {
-      tbody.innerHTML = entries.map(month => {
-        const rec = savedPayments[month];
+      tbody.innerHTML = entries.map(rec => {
+        const amt = rec.amount ? `৳ ${parseFloat(rec.amount).toLocaleString('en-BD')}` : '—';
         return `
           <tr>
-            <td style="font-weight:600;">${month}</td>
+            <td style="font-family:var(--mono); color:var(--purple); font-weight:700;">${rec.year||'—'}</td>
+            <td style="font-weight:600;">${rec.month||'—'}</td>
             <td style="font-family:var(--mono); color:var(--cyan); font-size:13px;">${rec.date || 'N/A'}</td>
+            <td style="font-family:var(--mono); color:var(--gold); font-weight:700;">${amt}</td>
             <td><span class="badge badge-${(rec.status||'pending').toLowerCase()}">${(rec.status||'Pending').toUpperCase()}</span></td>
             <td style="display:flex; gap:5px; flex-wrap:wrap;">
-              <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="openPaymentEditModal('${sId}','${month}','${rec.date||''}','${rec.status||'Pending'}')">✏️ Edit</button>
-              <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('payments/${sId}/${month}', loadPaymentPreview)">Delete</button>
+              <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="openPaymentEditModal('${sId}','${rec.key}','${rec.year||'2026'}','${rec.month||'January'}','${rec.date||''}','${rec.status||'Pending'}','${rec.amount||''}')">✏️ Edit</button>
+              <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('payments/${sId}/${rec.key}', loadPaymentPreview)">Delete</button>
             </td>
           </tr>
         `;
       }).join('');
     } else {
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:16px;">No payment records found for this ID.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:16px;">No payment records found for this ID.</td></tr>`;
     }
   };
 
@@ -3136,21 +3511,35 @@
     label.innerText = `for ID: ${sId}`;
     const snapshot = await get(child(ref(db), `classDates/${sId}`));
     const saved = snapshot.exists() ? snapshot.val() : {};
-    const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-    const entries = months.filter(m => saved[m]);
+    // Support both new object format {dates, year, month} and legacy string format
+    const entries = Object.entries(saved).map(([key, val]) => {
+      if(typeof val === 'string') {
+        // legacy: key is month name, val is date string
+        return { key, year: '—', month: key, dates: val };
+      }
+      const year  = val.year  || (key.includes('_') ? key.split('_')[0] : '—');
+      const month = val.month || (key.includes('_') ? key.split('_')[1] : key);
+      return { key, year, month, dates: val.dates || val };
+    });
+    const monthOrder = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    entries.sort((a,b) => {
+      if(b.year !== a.year) return (b.year||'').localeCompare(a.year||'');
+      return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
+    });
     if(entries.length > 0) {
-      tbody.innerHTML = entries.map(month => `
+      tbody.innerHTML = entries.map(e => `
         <tr>
-          <td style="font-weight:600;">${month}</td>
-          <td style="color:var(--gold); font-size:13px;">${saved[month]}</td>
+          <td style="font-family:var(--mono); color:var(--purple); font-weight:700;">${e.year}</td>
+          <td style="font-weight:600;">${e.month}</td>
+          <td style="color:var(--gold); font-size:13px;">${e.dates}</td>
           <td style="display:flex; gap:5px; flex-wrap:wrap;">
-            <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="openClassDateEditModal('${sId}','${month}','${(saved[month]||'').replace(/'/g,"\\'")}')">✏️ Edit</button>
-            <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('classDates/${sId}/${month}', loadClassDatesPreview)">Delete</button>
+            <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="openClassDateEditModal('${sId}','${e.key}','${e.year}','${e.month}','${(e.dates||'').replace(/'/g,"\\'")}')">✏️ Edit</button>
+            <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('classDates/${sId}/${e.key}', loadClassDatesPreview)">Delete</button>
           </td>
         </tr>
       `).join('');
     } else {
-      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:16px;">No class date records found for this ID.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:16px;">No class date records found for this ID.</td></tr>`;
     }
   };
 
@@ -3177,6 +3566,86 @@
     `).join('');
   }
   window.loadPassRequests = loadPassRequests;
+
+  // ── Monthly Income Report ──
+  window.loadMonthlyIncome = async () => {
+    const month = document.getElementById('income-month').value;
+    const year  = document.getElementById('income-year')?.value || '';
+    const resultArea = document.getElementById('income-result-area');
+    const tbody = document.getElementById('income-breakdown-table');
+
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:24px;">⏳ Loading data...</td></tr>`;
+    resultArea.style.display = 'block';
+
+    const [usersSnap, paymentsSnap] = await Promise.all([
+      get(child(ref(db), 'users')),
+      get(child(ref(db), 'payments'))
+    ]);
+
+    const users = usersSnap.exists() ? usersSnap.val() : {};
+    const payments = paymentsSnap.exists() ? paymentsSnap.val() : {};
+
+    let totalIncome = 0;
+    let paidCount = 0;
+    let pendingCount = 0;
+    let rows = [];
+
+    Object.entries(payments).forEach(([studentId, studentPayments]) => {
+      const monthRecord = studentPayments[month];
+      if(!monthRecord) return;
+
+      // If year filter is set, filter by year stored in payment record (or from date)
+      if(year) {
+        const recYear = monthRecord.year || (monthRecord.date ? monthRecord.date.slice(-4) : '');
+        if(recYear && recYear !== year) return;
+      }
+
+      const studentData = users[studentId] || {};
+      const name = studentData.name || 'Unknown';
+      const status = monthRecord.status || 'Pending';
+      const date = monthRecord.date || 'N/A';
+      const amount = parseFloat(monthRecord.amount) || 0;
+
+      if(status === 'Paid') {
+        paidCount++;
+        totalIncome += amount;
+      } else {
+        pendingCount++;
+      }
+      rows.push({ studentId, name, amount, date, status });
+    });
+
+    // Sort: Paid first, then others alphabetically by ID
+    rows.sort((a, b) => {
+      if(a.status === 'Paid' && b.status !== 'Paid') return -1;
+      if(a.status !== 'Paid' && b.status === 'Paid') return 1;
+      return a.studentId.localeCompare(b.studentId);
+    });
+
+    document.getElementById('income-total').textContent = `৳${totalIncome.toLocaleString('en-BD')}`;
+    document.getElementById('income-paid-count').textContent = paidCount;
+    document.getElementById('income-pending-count').textContent = pendingCount;
+    document.getElementById('income-month-label').textContent = year ? `${month} ${year}` : month;
+
+    if(rows.length > 0) {
+      tbody.innerHTML = rows.map(row => {
+        const amtDisplay = row.amount > 0
+          ? `<span style="font-family:var(--mono); color:var(--gold); font-weight:700;">৳${row.amount.toLocaleString('en-BD')}</span>`
+          : `<span style="color:var(--text-muted);">—</span>`;
+        return `
+          <tr>
+            <td style="font-family:var(--mono); color:var(--accent); font-weight:700;">${row.studentId}</td>
+            <td style="font-weight:600;">${row.name}</td>
+            <td>${amtDisplay}</td>
+            <td style="font-family:var(--mono); color:var(--cyan); font-size:13px;">${row.date}</td>
+            <td><span class="badge badge-${row.status.toLowerCase()}">${row.status.toUpperCase()}</span></td>
+          </tr>
+        `;
+      }).join('');
+    } else {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:24px;">No payment records found for ${month}.</td></tr>`;
+    }
+  };
 
   window.approvePassRequest = async (reqKey, studentId, newPass) => {
     if(!confirm(`Approve password reset for Student ID: ${studentId}?\nNew password will be set to: ${newPass}`)) return;
@@ -3241,6 +3710,281 @@
   });
   window.addEventListener('resize', checkMobile);
   checkMobile();
+  // ═══════════════════════════════════════════════════
+  //  MONTHLY EXPENSES MODULE
+  // ═══════════════════════════════════════════════════
+
+  // Built-in default categories (always present)
+  const DEFAULT_EXP_CATEGORIES = [
+    { name: 'Mess Cost',              icon: '🍽️' },
+    { name: 'Transportation',         icon: '🚗' },
+    { name: 'Internet',               icon: '📶' },
+    { name: 'Mobile',                 icon: '📱' },
+    { name: 'University Tuition Fee', icon: '🎓' },
+  ];
+
+  // In-memory merged category list (default + custom from Firebase)
+  let allExpCategories = [...DEFAULT_EXP_CATEGORIES];
+
+  function getExpIcon(cat) {
+    const found = allExpCategories.find(c => c.name === cat);
+    return found ? found.icon : '💡';
+  }
+
+  // ── Populate all category dropdowns ──
+  function populateExpCategoryDropdowns(selectedValue = '') {
+    const configs = [
+      { id: 'exp-category',        isFilter: false, addCustom: true  },
+      { id: 'exp-filter-category', isFilter: true,  addCustom: false },
+      { id: 'ee-category',         isFilter: false, addCustom: false },
+    ];
+    configs.forEach(({ id, isFilter, addCustom }) => {
+      const sel = document.getElementById(id);
+      if(!sel) return;
+      const prevVal = sel.value || selectedValue;
+      sel.innerHTML = isFilter
+        ? '<option value="">— All Categories —</option>'
+        : '<option value="">— Select Category —</option>';
+      allExpCategories.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.name;
+        opt.textContent = `${c.icon} ${c.name}`;
+        sel.appendChild(opt);
+      });
+      if(addCustom) {
+        const divider = document.createElement('option');
+        divider.disabled = true;
+        divider.textContent = '──────────────';
+        sel.appendChild(divider);
+        const addOpt = document.createElement('option');
+        addOpt.value = '__add_custom__';
+        addOpt.textContent = '➕ Add Custom Category…';
+        sel.appendChild(addOpt);
+      }
+      if(prevVal && prevVal !== '__add_custom__') sel.value = prevVal;
+    });
+  }
+
+  // ── Load custom categories from Firebase & merge ──
+  async function loadExpCategories() {
+    const snap = await get(child(ref(db), 'expenseCategories'));
+    const customCats = [];
+    if(snap.exists()) {
+      Object.values(snap.val()).forEach(c => {
+        if(c && c.name && !DEFAULT_EXP_CATEGORIES.some(d => d.name === c.name)) {
+          customCats.push({ name: c.name, icon: c.icon || '💡' });
+        }
+      });
+    }
+    allExpCategories = [...DEFAULT_EXP_CATEGORIES, ...customCats];
+    populateExpCategoryDropdowns();
+  }
+
+  // ── Handle dropdown change — show inline input if "+ Add Custom" picked ──
+  window.handleExpCategoryChange = (sel) => {
+    const wrap = document.getElementById('exp-custom-category-wrap');
+    if(sel.value === '__add_custom__') {
+      wrap.style.display = 'block';
+      const inp = document.getElementById('exp-custom-category-input');
+      inp.value = '';
+      document.getElementById('exp-custom-category-icon').value = '';
+      setTimeout(() => inp.focus(), 50);
+    } else {
+      wrap.style.display = 'none';
+    }
+  };
+
+  // ── Save new category inline, then auto-select it ──
+  window.saveInlineExpCategory = async () => {
+    const nameEl = document.getElementById('exp-custom-category-input');
+    const name = nameEl.value.trim();
+    if(!name) { nameEl.focus(); return; }
+    if(allExpCategories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
+      alert('এই category আগেই আছে!');
+      return;
+    }
+    const key = 'cat_' + Date.now();
+    await set(ref(db, `expenseCategories/${key}`), { name, icon: '💡' });
+    await loadExpCategories();
+    const sel = document.getElementById('exp-category');
+    sel.value = name;
+    document.getElementById('exp-custom-category-wrap').style.display = 'none';
+  };
+
+  // ── Cancel inline input ──
+  window.cancelInlineExpCategory = () => {
+    document.getElementById('exp-custom-category-wrap').style.display = 'none';
+    document.getElementById('exp-category').value = '';
+  };
+
+  // ── Add Expense ──
+  window.addExpense = async () => {
+    let category = document.getElementById('exp-category').value;
+    if(!category || category === '__add_custom__') return alert('Please select an expense category!');
+
+    const amountVal = document.getElementById('exp-amount').value.trim();
+    const dateVal   = document.getElementById('exp-date').value;
+    const note      = document.getElementById('exp-note').value.trim();
+
+    if(!amountVal || isNaN(parseFloat(amountVal)) || parseFloat(amountVal) < 0)
+      return alert('Please enter a valid amount!');
+    if(!dateVal) return alert('Please select the expense date!');
+
+    const amount = parseFloat(amountVal);
+    const dateObj = new Date(dateVal);
+    const month  = dateObj.toLocaleString('default', { month: 'long' });
+    const year   = dateObj.getFullYear().toString();
+    const displayDate = dateObj.toLocaleDateString('en-BD', { day:'2-digit', month:'short', year:'numeric' });
+
+    const entry = { category, amount, date: displayDate, rawDate: dateVal, month, year, note };
+    const key = 'exp_' + Date.now();
+
+    await set(ref(db, `expenses/${key}`), entry);
+    alert(`✅ Expense added: ${getExpIcon(category)} ${category} — ৳${amount.toLocaleString('en-BD')}`);
+
+    document.getElementById('exp-category').value = '';
+    document.getElementById('exp-custom-category-wrap').style.display = 'none';
+    document.getElementById('exp-amount').value = '';
+    document.getElementById('exp-date').value = '';
+    document.getElementById('exp-note').value = '';
+
+    loadExpenses();
+  };
+
+  // ── Load & Render Expenses ──
+  window.loadExpenses = async () => {
+    const tbody        = document.getElementById('expense-table-body');
+    const totalEl      = document.getElementById('exp-summary-total');
+    const countEl      = document.getElementById('exp-summary-count');
+    const labelEl      = document.getElementById('exp-summary-label');
+    const tableLabel   = document.getElementById('exp-table-label');
+
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:20px;">⏳ Loading...</td></tr>`;
+
+    const filterYear     = document.getElementById('exp-filter-year')?.value     || '';
+    const filterMonth    = document.getElementById('exp-filter-month')?.value    || '';
+    const filterCategory = document.getElementById('exp-filter-category')?.value || '';
+
+    const snapshot = await get(child(ref(db), 'expenses'));
+    let entries = [];
+    if(snapshot.exists()) {
+      entries = Object.entries(snapshot.val()).map(([k, v]) => ({ key: k, ...v }));
+    }
+
+    if(filterYear)     entries = entries.filter(e => (e.year || '') === filterYear);
+    if(filterMonth)    entries = entries.filter(e => e.month === filterMonth);
+    if(filterCategory) entries = entries.filter(e => e.category === filterCategory);
+
+    entries.sort((a, b) => (b.rawDate || '').localeCompare(a.rawDate || ''));
+
+    const total = entries.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+    totalEl.textContent = `৳${total.toLocaleString('en-BD')}`;
+    countEl.textContent = entries.length;
+
+    let filterParts = [];
+    if(filterYear)     filterParts.push(filterYear);
+    if(filterMonth)    filterParts.push(filterMonth);
+    if(filterCategory) filterParts.push(filterCategory);
+    labelEl.textContent = filterParts.length ? filterParts.join(' · ') : 'All Records';
+    tableLabel.textContent = entries.length > 0 ? `(${entries.length} entries)` : '';
+
+    if(entries.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:28px;">No expense records found${filterParts.length ? ' for this filter' : ''}.${ filterParts.length === 0 ? ' Add your first expense above.' : ''}</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = entries.map(e => {
+      const icon = getExpIcon(e.category);
+      const safeNote = (e.note || '—').replace(/'/g, "\\'");
+      const safeCategory = e.category.replace(/'/g, "\\'");
+      return `
+        <tr>
+          <td style="font-family:var(--mono); color:var(--cyan); font-size:13px; white-space:nowrap;">${e.date || 'N/A'}</td>
+          <td>
+            <div style="display:flex; align-items:center; gap:7px;">
+              <span style="font-size:16px;">${icon}</span>
+              <span style="font-weight:600;">${e.category}</span>
+            </div>
+          </td>
+          <td style="font-family:var(--mono); color:var(--red); font-weight:700;">৳${parseFloat(e.amount||0).toLocaleString('en-BD')}</td>
+          <td style="color:var(--text-muted); font-size:13px; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${e.note||''}">
+            ${e.note ? e.note : '<span style="color:var(--text-muted);">—</span>'}
+          </td>
+          <td style="display:flex; gap:5px; flex-wrap:wrap;">
+            <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);"
+              onclick="openExpenseEditModal('${e.key}','${safeCategory}','${e.amount}','${e.rawDate||''}','${safeNote}')">✏️ Edit</button>
+            <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);"
+              onclick="deleteExpenseEntry('${e.key}')">Delete</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  };
+
+  // ── Clear Filters ──
+  window.clearExpenseFilters = () => {
+    document.getElementById('exp-filter-year').value = '';
+    document.getElementById('exp-filter-month').value = '';
+    document.getElementById('exp-filter-category').value = '';
+    loadExpenses();
+  };
+
+  // ── Delete Expense ──
+  window.deleteExpenseEntry = async (key) => {
+    if(!confirm('Delete this expense entry?')) return;
+    await remove(ref(db, `expenses/${key}`));
+    loadExpenses();
+  };
+
+  // ── Open Edit Modal ──
+  window.openExpenseEditModal = (key, category, amount, rawDate, note) => {
+    document.getElementById('ee-key').value = key;
+    populateExpCategoryDropdowns(category);
+    const catSel = document.getElementById('ee-category');
+    catSel.value = category;
+    if(!catSel.value) catSel.value = 'Other';
+    document.getElementById('ee-amount').value = amount || '';
+    document.getElementById('ee-date').value   = rawDate || '';
+    document.getElementById('ee-note').value   = note === '—' ? '' : (note || '');
+    document.getElementById('edit-expense-modal').style.display = 'flex';
+  };
+
+  // ── Close Edit Modal ──
+  window.closeExpenseEditModal = () => {
+    document.getElementById('edit-expense-modal').style.display = 'none';
+  };
+
+  // ── Save Edited Expense ──
+  window.saveExpenseEdit = async () => {
+    const key = document.getElementById('ee-key').value;
+    let category = document.getElementById('ee-category').value;
+    if(!category) return alert('Please select a category!');
+
+    const amountVal = document.getElementById('ee-amount').value.trim();
+    const rawDate   = document.getElementById('ee-date').value;
+    const note      = document.getElementById('ee-note').value.trim();
+
+    if(!amountVal || isNaN(parseFloat(amountVal)) || parseFloat(amountVal) < 0)
+      return alert('Please enter a valid amount!');
+    if(!rawDate) return alert('Please select an expense date!');
+
+    const amount    = parseFloat(amountVal);
+    const dateObj   = new Date(rawDate);
+    const month     = dateObj.toLocaleString('default', { month: 'long' });
+    const year      = dateObj.getFullYear().toString();
+    const displayDate = dateObj.toLocaleDateString('en-BD', { day:'2-digit', month:'short', year:'numeric' });
+
+    await set(ref(db, `expenses/${key}`), { category, amount, date: displayDate, rawDate, month, year, note });
+    closeExpenseEditModal();
+    loadExpenses();
+  };
+
+  // ── Init on tab open ──
+  window._initExpensesTab = async () => {
+    await loadExpCategories();
+    loadExpenses();
+  };
+
 </script>
 </body>
 </html>
