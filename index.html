@@ -769,6 +769,7 @@
       <div class="nav-item" id="nav-admin-files" onclick="switchTab('admin-files')"><span class="nav-dot"></span>Upload Files</div>
       <div class="nav-item" id="nav-admin-passrequests" onclick="switchTab('admin-passrequests')"><span class="nav-dot"></span>🔑 Password Requests</div>
       <div class="nav-item" id="nav-admin-secretkey" onclick="switchTab('admin-secretkey')"><span class="nav-dot"></span>🛡️ Registration Key</div>
+      <div class="nav-item" id="nav-admin-summary" onclick="switchTab('admin-summary')"><span class="nav-dot"></span>📈 Financial Summary</div>
       <div class="nav-item" id="nav-admin-income" onclick="switchTab('admin-income')"><span class="nav-dot"></span>📊 Monthly Income</div>
       <div class="nav-item" id="nav-admin-expenses" onclick="switchTab('admin-expenses')"><span class="nav-dot"></span>💰 Monthly Expenses</div>
     </div>
@@ -1604,18 +1605,26 @@
         </div>
       </div>
       <div id="income-result-area" style="display:none;">
-        <div class="grid-3" style="margin-bottom:20px;">
-          <div style="background:linear-gradient(135deg,rgba(52,211,153,0.12),rgba(52,211,153,0.05));border:1px solid rgba(52,211,153,0.25);border-radius:var(--radius);padding:22px 20px;text-align:center;">
-            <div id="income-total" style="font-size:26px;font-weight:800;color:var(--green);font-family:var(--mono);">৳0</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Total Income (Paid)</div>
+        <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:20px;">
+          <div style="background:linear-gradient(135deg,rgba(52,211,153,0.12),rgba(52,211,153,0.05));border:1px solid rgba(52,211,153,0.25);border-radius:var(--radius);padding:20px 16px;text-align:center;">
+            <div id="income-total" style="font-size:22px;font-weight:800;color:var(--green);font-family:var(--mono);">৳0</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Total Income</div>
           </div>
-          <div style="background:linear-gradient(135deg,rgba(79,142,247,0.12),rgba(79,142,247,0.05));border:1px solid rgba(79,142,247,0.25);border-radius:var(--radius);padding:22px 20px;text-align:center;">
-            <div id="income-paid-count" style="font-size:26px;font-weight:800;color:var(--accent);font-family:var(--mono);">0</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Students Paid</div>
+          <div style="background:linear-gradient(135deg,rgba(79,142,247,0.12),rgba(79,142,247,0.05));border:1px solid rgba(79,142,247,0.25);border-radius:var(--radius);padding:20px 16px;text-align:center;">
+            <div id="income-paid-count" style="font-size:22px;font-weight:800;color:var(--accent);font-family:var(--mono);">0</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Students Paid</div>
           </div>
-          <div style="background:linear-gradient(135deg,rgba(248,113,113,0.12),rgba(248,113,113,0.05));border:1px solid rgba(248,113,113,0.25);border-radius:var(--radius);padding:22px 20px;text-align:center;">
-            <div id="income-pending-count" style="font-size:26px;font-weight:800;color:var(--red);font-family:var(--mono);">0</div>
-            <div style="font-size:12px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Pending / Due</div>
+          <div style="background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(251,191,36,0.05));border:1px solid rgba(251,191,36,0.25);border-radius:var(--radius);padding:20px 16px;text-align:center;">
+            <div id="income-pending-amount" style="font-size:22px;font-weight:800;color:var(--gold);font-family:var(--mono);">৳0</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Total Pending (৳)</div>
+          </div>
+          <div style="background:linear-gradient(135deg,rgba(248,113,113,0.12),rgba(248,113,113,0.05));border:1px solid rgba(248,113,113,0.25);border-radius:var(--radius);padding:20px 16px;text-align:center;">
+            <div id="income-due-amount" style="font-size:22px;font-weight:800;color:var(--red);font-family:var(--mono);">৳0</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Total Due (৳)</div>
+          </div>
+          <div style="background:linear-gradient(135deg,rgba(248,113,113,0.06),rgba(251,191,36,0.04));border:1px solid rgba(0,0,0,0.08);border-radius:var(--radius);padding:20px 16px;text-align:center;">
+            <div id="income-pending-count" style="font-size:22px;font-weight:800;color:var(--text-dim);font-family:var(--mono);">0</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Pending / Due Count</div>
           </div>
         </div>
         <div class="card">
@@ -1626,6 +1635,71 @@
               <tbody id="income-breakdown-table"></tbody>
             </table>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN: FINANCIAL SUMMARY -->
+    <section id="tab-admin-summary" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">📈 Financial Summary</div>
+        <div class="page-subtitle">Total income vs expenses overview with full source breakdown</div>
+      </div>
+
+      <!-- Year Filter -->
+      <div class="admin-form-card" style="padding:16px 20px;">
+        <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+          <label style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.8px;">Filter by Year</label>
+          <select id="summary-year" style="background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); padding:9px 14px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; min-width:120px;">
+            <option value="">— All Years —</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+            <option value="2028">2028</option>
+            <option value="2029">2029</option>
+            <option value="2030">2030</option>
+          </select>
+          <button class="btn-action" style="margin:0; padding:9px 22px;" onclick="loadFinancialSummary()">🔄 Generate Summary</button>
+        </div>
+      </div>
+
+      <!-- Top KPI Cards -->
+      <div class="grid-3" style="margin-bottom:20px;" id="summary-kpi-cards">
+        <div style="background:linear-gradient(135deg,rgba(52,211,153,0.13),rgba(52,211,153,0.05)); border:1px solid rgba(52,211,153,0.28); border-radius:var(--radius); padding:26px 22px; text-align:center;">
+          <div style="font-size:13px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.7px; margin-bottom:8px;">💰 Total Income</div>
+          <div id="summary-total-income" style="font-size:30px; font-weight:800; color:var(--green); font-family:var(--mono);">৳0</div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">All paid tuition fees</div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(248,113,113,0.13),rgba(248,113,113,0.05)); border:1px solid rgba(248,113,113,0.28); border-radius:var(--radius); padding:26px 22px; text-align:center;">
+          <div style="font-size:13px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.7px; margin-bottom:8px;">📤 Total Expenses</div>
+          <div id="summary-total-expenses" style="font-size:30px; font-weight:800; color:var(--red); font-family:var(--mono);">৳0</div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">All recorded expenses</div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(167,139,250,0.13),rgba(167,139,250,0.05)); border:1px solid rgba(167,139,250,0.28); border-radius:var(--radius); padding:26px 22px; text-align:center;">
+          <div style="font-size:13px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.7px; margin-bottom:8px;">📊 Net Balance</div>
+          <div id="summary-net-balance" style="font-size:30px; font-weight:800; color:var(--purple); font-family:var(--mono);">৳0</div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">Income − Expenses</div>
+        </div>
+      </div>
+
+      <!-- Income breakdown by source (month) -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-title" style="margin-bottom:14px;">📥 Income Source Breakdown <span id="summary-income-label" style="font-size:12px; color:var(--accent); font-family:var(--mono); font-weight:600;"></span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Year</th><th>Month</th><th>Students Paid</th><th>Total Amount (৳)</th></tr></thead>
+            <tbody id="summary-income-breakdown"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Expense breakdown by category -->
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px;">📤 Expense Source Breakdown <span id="summary-expense-label" style="font-size:12px; color:var(--red); font-family:var(--mono); font-weight:600;"></span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Category</th><th>Entries</th><th>Total Amount (৳)</th></tr></thead>
+            <tbody id="summary-expense-breakdown"></tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -1645,26 +1719,14 @@
             <label>Expense Category</label>
             <select id="exp-category" onchange="handleExpCategoryChange(this)">
               <option value="">— Select Category —</option>
+              <option value="Mess Cost">🍽️ Mess Cost</option>
+              <option value="Transportation">🚗 Transportation</option>
+              <option value="Internet">📶 Internet</option>
+              <option value="Mobile">📱 Mobile</option>
+              <option value="University Tuition Fee">🎓 University Tuition Fee</option>
+              <option disabled>──────────────</option>
+              <option value="__custom__">✏️ Other / Custom…</option>
             </select>
-            <!-- Inline custom category input -->
-            <div id="exp-custom-category-wrap" style="display:none; margin-top:8px;">
-              <div style="display:flex; gap:6px; align-items:center;">
-                <input type="text" id="exp-custom-category-input" placeholder="নতুন category-র নাম লিখুন…"
-                  style="flex:1; background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); padding:10px 13px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; transition:border-color 0.2s, box-shadow 0.2s;"
-                  onkeydown="if(event.key==='Enter')saveInlineExpCategory()"
-                  onfocus="this.style.borderColor='var(--accent)'; this.style.boxShadow='0 0 0 3px var(--accent-glow)'"
-                  onblur="this.style.borderColor='rgba(0,0,0,0.13)'; this.style.boxShadow=''">
-                <button onclick="saveInlineExpCategory()"
-                  style="padding:9px 16px; background:var(--accent); border:none; color:#fff; border-radius:var(--radius-sm); cursor:pointer; font-weight:700; font-size:12px; font-family:var(--font); white-space:nowrap; flex-shrink:0;">
-                  ✓ Save
-                </button>
-                <button onclick="cancelInlineExpCategory()"
-                  style="padding:9px 11px; background:#eeebe4; border:1px solid rgba(0,0,0,0.1); color:var(--text-dim); border-radius:var(--radius-sm); cursor:pointer; font-size:13px; font-family:var(--font); flex-shrink:0;">
-                  ✕
-                </button>
-              </div>
-              <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">Enter চাপুন বা ✓ Save ক্লিক করুন — category save হয়ে auto-select হবে।</div>
-            </div>
           </div>
           <div class="form-group">
             <label>Cost Amount (৳)</label>
@@ -1674,6 +1736,13 @@
             <label>Expense Date</label>
             <input type="date" id="exp-date">
           </div>
+        </div>
+        <!-- Custom category name input — shown only when "Other / Custom" is selected -->
+        <div id="exp-custom-category-wrap" style="display:none; margin-bottom:14px;">
+          <label style="font-size:12px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px; display:block; margin-bottom:6px;">Custom Category Name</label>
+          <input type="text" id="exp-custom-category-input" placeholder="Category name লিখুন, e.g. Electricity Bill"
+            style="width:100%; max-width:340px; box-sizing:border-box; background:#f8f6f2; border:1.5px solid var(--accent); padding:10px 13px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; box-shadow:0 0 0 3px var(--accent-glow);">
+          <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">এখানে category name লিখুন — Add Expense করলে এই নামে save হবে।</div>
         </div>
         <div class="form-group">
           <label>Note / Description (Optional)</label>
@@ -1778,7 +1847,12 @@
     <div class="form-group">
       <label>Expense Category</label>
       <select id="ee-category">
-        <!-- populated dynamically -->
+        <option value="">— Select Category —</option>
+        <option value="Mess Cost">🍽️ Mess Cost</option>
+        <option value="Transportation">🚗 Transportation</option>
+        <option value="Internet">📶 Internet</option>
+        <option value="Mobile">📱 Mobile</option>
+        <option value="University Tuition Fee">🎓 University Tuition Fee</option>
       </select>
     </div>
     <div class="grid-2">
@@ -2140,6 +2214,7 @@
     if(tabId === 'admin-secretkey') loadSecretKey();
     if(tabId === 'admin-income') { document.getElementById('income-result-area').style.display='none'; }
     if(tabId === 'admin-expenses') { if(window._initExpensesTab) window._initExpensesTab(); else loadExpenses(); }
+    if(tabId === 'admin-summary') loadFinancialSummary();
     if(tabId === 'profile') loadProfileData();
     if(tabId === 'dash') initUserDash();
     if(tabId === 'result') loadStudentResults();
@@ -3591,14 +3666,12 @@
     let rows = [];
 
     Object.entries(payments).forEach(([studentId, studentPayments]) => {
-      const monthRecord = studentPayments[month];
+      // Try new key format first: "2026_January", fallback to legacy "January"
+      const key = year ? `${year}_${month}` : month;
+      let monthRecord = studentPayments[key];
+      // fallback: if no year selected, also try legacy plain month key
+      if(!monthRecord && !year) monthRecord = studentPayments[month];
       if(!monthRecord) return;
-
-      // If year filter is set, filter by year stored in payment record (or from date)
-      if(year) {
-        const recYear = monthRecord.year || (monthRecord.date ? monthRecord.date.slice(-4) : '');
-        if(recYear && recYear !== year) return;
-      }
 
       const studentData = users[studentId] || {};
       const name = studentData.name || 'Unknown';
@@ -3714,113 +3787,46 @@
   //  MONTHLY EXPENSES MODULE
   // ═══════════════════════════════════════════════════
 
-  // Built-in default categories (always present)
-  const DEFAULT_EXP_CATEGORIES = [
-    { name: 'Mess Cost',              icon: '🍽️' },
-    { name: 'Transportation',         icon: '🚗' },
-    { name: 'Internet',               icon: '📶' },
-    { name: 'Mobile',                 icon: '📱' },
-    { name: 'University Tuition Fee', icon: '🎓' },
-  ];
-
-  // In-memory merged category list (default + custom from Firebase)
-  let allExpCategories = [...DEFAULT_EXP_CATEGORIES];
+  // ── Category icon map (static, matches the 5 fixed options) ──
+  const EXP_ICON_MAP = {
+    'Mess Cost':              '🍽️',
+    'Transportation':         '🚗',
+    'Internet':               '📶',
+    'Mobile':                 '📱',
+    'University Tuition Fee': '🎓',
+  };
 
   function getExpIcon(cat) {
-    const found = allExpCategories.find(c => c.name === cat);
-    return found ? found.icon : '💡';
+    return EXP_ICON_MAP[cat] || '💡';
   }
 
-  // ── Populate all category dropdowns ──
-  function populateExpCategoryDropdowns(selectedValue = '') {
-    const configs = [
-      { id: 'exp-category',        isFilter: false, addCustom: true  },
-      { id: 'exp-filter-category', isFilter: true,  addCustom: false },
-      { id: 'ee-category',         isFilter: false, addCustom: false },
-    ];
-    configs.forEach(({ id, isFilter, addCustom }) => {
-      const sel = document.getElementById(id);
-      if(!sel) return;
-      const prevVal = sel.value || selectedValue;
-      sel.innerHTML = isFilter
-        ? '<option value="">— All Categories —</option>'
-        : '<option value="">— Select Category —</option>';
-      allExpCategories.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.name;
-        opt.textContent = `${c.icon} ${c.name}`;
-        sel.appendChild(opt);
-      });
-      if(addCustom) {
-        const divider = document.createElement('option');
-        divider.disabled = true;
-        divider.textContent = '──────────────';
-        sel.appendChild(divider);
-        const addOpt = document.createElement('option');
-        addOpt.value = '__add_custom__';
-        addOpt.textContent = '➕ Add Custom Category…';
-        sel.appendChild(addOpt);
-      }
-      if(prevVal && prevVal !== '__add_custom__') sel.value = prevVal;
-    });
-  }
-
-  // ── Load custom categories from Firebase & merge ──
-  async function loadExpCategories() {
-    const snap = await get(child(ref(db), 'expenseCategories'));
-    const customCats = [];
-    if(snap.exists()) {
-      Object.values(snap.val()).forEach(c => {
-        if(c && c.name && !DEFAULT_EXP_CATEGORIES.some(d => d.name === c.name)) {
-          customCats.push({ name: c.name, icon: c.icon || '💡' });
-        }
-      });
-    }
-    allExpCategories = [...DEFAULT_EXP_CATEGORIES, ...customCats];
-    populateExpCategoryDropdowns();
-  }
-
-  // ── Handle dropdown change — show inline input if "+ Add Custom" picked ──
+  // ── Show / hide custom name input when "Other / Custom…" is selected ──
   window.handleExpCategoryChange = (sel) => {
     const wrap = document.getElementById('exp-custom-category-wrap');
-    if(sel.value === '__add_custom__') {
+    if(sel.value === '__custom__') {
       wrap.style.display = 'block';
-      const inp = document.getElementById('exp-custom-category-input');
-      inp.value = '';
-      document.getElementById('exp-custom-category-icon').value = '';
-      setTimeout(() => inp.focus(), 50);
+      setTimeout(() => document.getElementById('exp-custom-category-input').focus(), 50);
     } else {
       wrap.style.display = 'none';
     }
   };
 
-  // ── Save new category inline, then auto-select it ──
-  window.saveInlineExpCategory = async () => {
-    const nameEl = document.getElementById('exp-custom-category-input');
-    const name = nameEl.value.trim();
-    if(!name) { nameEl.focus(); return; }
-    if(allExpCategories.some(c => c.name.toLowerCase() === name.toLowerCase())) {
-      alert('এই category আগেই আছে!');
-      return;
-    }
-    const key = 'cat_' + Date.now();
-    await set(ref(db, `expenseCategories/${key}`), { name, icon: '💡' });
-    await loadExpCategories();
-    const sel = document.getElementById('exp-category');
-    sel.value = name;
-    document.getElementById('exp-custom-category-wrap').style.display = 'none';
-  };
-
-  // ── Cancel inline input ──
-  window.cancelInlineExpCategory = () => {
-    document.getElementById('exp-custom-category-wrap').style.display = 'none';
-    document.getElementById('exp-category').value = '';
-  };
-
   // ── Add Expense ──
   window.addExpense = async () => {
-    let category = document.getElementById('exp-category').value;
-    if(!category || category === '__add_custom__') return alert('Please select an expense category!');
+    const selVal = document.getElementById('exp-category').value;
+
+    // If "Other / Custom" chosen, read from the text input
+    let category = '';
+    if(selVal === '__custom__') {
+      category = document.getElementById('exp-custom-category-input').value.trim();
+      if(!category) {
+        document.getElementById('exp-custom-category-input').focus();
+        return alert('Custom category-র নাম লিখুন!');
+      }
+    } else {
+      category = selVal;
+      if(!category) return alert('Please select an expense category!');
+    }
 
     const amountVal = document.getElementById('exp-amount').value.trim();
     const dateVal   = document.getElementById('exp-date').value;
@@ -3837,13 +3843,13 @@
     const displayDate = dateObj.toLocaleDateString('en-BD', { day:'2-digit', month:'short', year:'numeric' });
 
     const entry = { category, amount, date: displayDate, rawDate: dateVal, month, year, note };
-    const key = 'exp_' + Date.now();
-
-    await set(ref(db, `expenses/${key}`), entry);
+    await set(ref(db, `expenses/${'exp_' + Date.now()}`), entry);
     alert(`✅ Expense added: ${getExpIcon(category)} ${category} — ৳${amount.toLocaleString('en-BD')}`);
 
+    // Reset form
     document.getElementById('exp-category').value = '';
     document.getElementById('exp-custom-category-wrap').style.display = 'none';
+    document.getElementById('exp-custom-category-input').value = '';
     document.getElementById('exp-amount').value = '';
     document.getElementById('exp-date').value = '';
     document.getElementById('exp-note').value = '';
@@ -3939,10 +3945,8 @@
   // ── Open Edit Modal ──
   window.openExpenseEditModal = (key, category, amount, rawDate, note) => {
     document.getElementById('ee-key').value = key;
-    populateExpCategoryDropdowns(category);
     const catSel = document.getElementById('ee-category');
     catSel.value = category;
-    if(!catSel.value) catSel.value = 'Other';
     document.getElementById('ee-amount').value = amount || '';
     document.getElementById('ee-date').value   = rawDate || '';
     document.getElementById('ee-note').value   = note === '—' ? '' : (note || '');
@@ -3981,7 +3985,6 @@
 
   // ── Init on tab open ──
   window._initExpensesTab = async () => {
-    await loadExpCategories();
     loadExpenses();
   };
 
