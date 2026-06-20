@@ -345,6 +345,7 @@
   /* ===== GRID ===== */
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 
   /* ===== STATS CARD ===== */
   .stat-item {
@@ -619,6 +620,7 @@
     .auth-card { width: 92vw; padding: 32px 20px; margin: 0 auto; }
     .grid-2 { grid-template-columns: 1fr; }
     .grid-3 { grid-template-columns: 1fr; }
+    .grid-4 { grid-template-columns: 1fr 1fr; }
     .page-title { font-size: 20px; }
     .modal-content { width: 92vw; padding: 22px 18px; }
     .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -769,9 +771,9 @@
       <div class="nav-item" id="nav-admin-files" onclick="switchTab('admin-files')"><span class="nav-dot"></span>Upload Files</div>
       <div class="nav-item" id="nav-admin-passrequests" onclick="switchTab('admin-passrequests')"><span class="nav-dot"></span>🔑 Password Requests</div>
       <div class="nav-item" id="nav-admin-secretkey" onclick="switchTab('admin-secretkey')"><span class="nav-dot"></span>🛡️ Registration Key</div>
-      <div class="nav-item" id="nav-admin-summary" onclick="switchTab('admin-summary')"><span class="nav-dot"></span>📈 Financial Summary</div>
       <div class="nav-item" id="nav-admin-income" onclick="switchTab('admin-income')"><span class="nav-dot"></span>📊 Monthly Income</div>
       <div class="nav-item" id="nav-admin-expenses" onclick="switchTab('admin-expenses')"><span class="nav-dot"></span>💰 Monthly Expenses</div>
+      <div class="nav-item" id="nav-admin-summary" onclick="switchTab('admin-summary')"><span class="nav-dot"></span>📈 Financial Summary</div>
     </div>
 
     <div class="sidebar-footer">
@@ -1605,26 +1607,22 @@
         </div>
       </div>
       <div id="income-result-area" style="display:none;">
-        <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:20px;">
+        <div class="grid-4" style="margin-bottom:20px;">
           <div style="background:linear-gradient(135deg,rgba(52,211,153,0.12),rgba(52,211,153,0.05));border:1px solid rgba(52,211,153,0.25);border-radius:var(--radius);padding:20px 16px;text-align:center;">
-            <div id="income-total" style="font-size:22px;font-weight:800;color:var(--green);font-family:var(--mono);">৳0</div>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Total Income</div>
-          </div>
-          <div style="background:linear-gradient(135deg,rgba(79,142,247,0.12),rgba(79,142,247,0.05));border:1px solid rgba(79,142,247,0.25);border-radius:var(--radius);padding:20px 16px;text-align:center;">
-            <div id="income-paid-count" style="font-size:22px;font-weight:800;color:var(--accent);font-family:var(--mono);">0</div>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Students Paid</div>
+            <div id="income-total" style="font-size:23px;font-weight:800;color:var(--green);font-family:var(--mono);">৳0</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Total Income (Paid)</div>
           </div>
           <div style="background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(251,191,36,0.05));border:1px solid rgba(251,191,36,0.25);border-radius:var(--radius);padding:20px 16px;text-align:center;">
-            <div id="income-pending-amount" style="font-size:22px;font-weight:800;color:var(--gold);font-family:var(--mono);">৳0</div>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Total Pending (৳)</div>
+            <div id="income-due-amount" style="font-size:23px;font-weight:800;color:var(--gold);font-family:var(--mono);">৳0</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Total Due Amount</div>
           </div>
           <div style="background:linear-gradient(135deg,rgba(248,113,113,0.12),rgba(248,113,113,0.05));border:1px solid rgba(248,113,113,0.25);border-radius:var(--radius);padding:20px 16px;text-align:center;">
-            <div id="income-due-amount" style="font-size:22px;font-weight:800;color:var(--red);font-family:var(--mono);">৳0</div>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Total Due (৳)</div>
+            <div id="income-pending-amount" style="font-size:23px;font-weight:800;color:var(--red);font-family:var(--mono);">৳0</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Total Pending Amount</div>
           </div>
-          <div style="background:linear-gradient(135deg,rgba(248,113,113,0.06),rgba(251,191,36,0.04));border:1px solid rgba(0,0,0,0.08);border-radius:var(--radius);padding:20px 16px;text-align:center;">
-            <div id="income-pending-count" style="font-size:22px;font-weight:800;color:var(--text-dim);font-family:var(--mono);">0</div>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Pending / Due Count</div>
+          <div style="background:linear-gradient(135deg,rgba(79,142,247,0.12),rgba(79,142,247,0.05));border:1px solid rgba(79,142,247,0.25);border-radius:var(--radius);padding:20px 16px;text-align:center;">
+            <div id="income-paid-count" style="font-size:23px;font-weight:800;color:var(--accent);font-family:var(--mono);">0</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Students Paid</div>
           </div>
         </div>
         <div class="card">
@@ -1635,71 +1633,6 @@
               <tbody id="income-breakdown-table"></tbody>
             </table>
           </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ADMIN: FINANCIAL SUMMARY -->
-    <section id="tab-admin-summary" class="tab-content hidden">
-      <div class="page-header">
-        <div class="page-title">📈 Financial Summary</div>
-        <div class="page-subtitle">Total income vs expenses overview with full source breakdown</div>
-      </div>
-
-      <!-- Year Filter -->
-      <div class="admin-form-card" style="padding:16px 20px;">
-        <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
-          <label style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.8px;">Filter by Year</label>
-          <select id="summary-year" style="background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); padding:9px 14px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; min-width:120px;">
-            <option value="">— All Years —</option>
-            <option value="2026">2026</option>
-            <option value="2027">2027</option>
-            <option value="2028">2028</option>
-            <option value="2029">2029</option>
-            <option value="2030">2030</option>
-          </select>
-          <button class="btn-action" style="margin:0; padding:9px 22px;" onclick="loadFinancialSummary()">🔄 Generate Summary</button>
-        </div>
-      </div>
-
-      <!-- Top KPI Cards -->
-      <div class="grid-3" style="margin-bottom:20px;" id="summary-kpi-cards">
-        <div style="background:linear-gradient(135deg,rgba(52,211,153,0.13),rgba(52,211,153,0.05)); border:1px solid rgba(52,211,153,0.28); border-radius:var(--radius); padding:26px 22px; text-align:center;">
-          <div style="font-size:13px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.7px; margin-bottom:8px;">💰 Total Income</div>
-          <div id="summary-total-income" style="font-size:30px; font-weight:800; color:var(--green); font-family:var(--mono);">৳0</div>
-          <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">All paid tuition fees</div>
-        </div>
-        <div style="background:linear-gradient(135deg,rgba(248,113,113,0.13),rgba(248,113,113,0.05)); border:1px solid rgba(248,113,113,0.28); border-radius:var(--radius); padding:26px 22px; text-align:center;">
-          <div style="font-size:13px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.7px; margin-bottom:8px;">📤 Total Expenses</div>
-          <div id="summary-total-expenses" style="font-size:30px; font-weight:800; color:var(--red); font-family:var(--mono);">৳0</div>
-          <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">All recorded expenses</div>
-        </div>
-        <div style="background:linear-gradient(135deg,rgba(167,139,250,0.13),rgba(167,139,250,0.05)); border:1px solid rgba(167,139,250,0.28); border-radius:var(--radius); padding:26px 22px; text-align:center;">
-          <div style="font-size:13px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.7px; margin-bottom:8px;">📊 Net Balance</div>
-          <div id="summary-net-balance" style="font-size:30px; font-weight:800; color:var(--purple); font-family:var(--mono);">৳0</div>
-          <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">Income − Expenses</div>
-        </div>
-      </div>
-
-      <!-- Income breakdown by source (month) -->
-      <div class="card" style="margin-bottom:20px;">
-        <div class="card-title" style="margin-bottom:14px;">📥 Income Source Breakdown <span id="summary-income-label" style="font-size:12px; color:var(--accent); font-family:var(--mono); font-weight:600;"></span></div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Year</th><th>Month</th><th>Students Paid</th><th>Total Amount (৳)</th></tr></thead>
-            <tbody id="summary-income-breakdown"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Expense breakdown by category -->
-      <div class="card">
-        <div class="card-title" style="margin-bottom:14px;">📤 Expense Source Breakdown <span id="summary-expense-label" style="font-size:12px; color:var(--red); font-family:var(--mono); font-weight:600;"></span></div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Category</th><th>Entries</th><th>Total Amount (৳)</th></tr></thead>
-            <tbody id="summary-expense-breakdown"></tbody>
-          </table>
         </div>
       </div>
     </section>
@@ -1825,6 +1758,89 @@
             <tbody id="expense-table-body">
               <tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:24px;">Loading expenses...</td></tr>
             </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN: FINANCIAL SUMMARY -->
+    <section id="tab-admin-summary" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">📈 Financial Summary</div>
+        <div class="page-subtitle">Overall income vs expenses across all years, months, and sources</div>
+      </div>
+
+      <div class="admin-form-card" style="background:linear-gradient(135deg,rgba(167,139,250,0.06),rgba(79,142,247,0.04)); border-color:rgba(167,139,250,0.18);">
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <label style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.8px;">Filter Year</label>
+          <select id="summary-filter-year" onchange="loadFinancialSummary()" style="background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); padding:8px 12px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; min-width:130px;">
+            <option value="">— All Years —</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+            <option value="2028">2028</option>
+            <option value="2029">2029</option>
+            <option value="2030">2030</option>
+          </select>
+          <label style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.8px;">Filter Month</label>
+          <select id="summary-filter-month" onchange="loadFinancialSummary()" style="background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); padding:8px 12px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; min-width:130px;">
+            <option value="">— All Months —</option>
+            <option value="January">January</option><option value="February">February</option>
+            <option value="March">March</option><option value="April">April</option>
+            <option value="May">May</option><option value="June">June</option>
+            <option value="July">July</option><option value="August">August</option>
+            <option value="September">September</option><option value="October">October</option>
+            <option value="November">November</option><option value="December">December</option>
+          </select>
+          <button class="btn-action" style="margin-top:0; background:#eeebe4; color:var(--text-dim); box-shadow:none; border:1px solid rgba(0,0,0,0.1); padding:9px 16px;" onclick="clearSummaryFilters()">✕ Clear Filters</button>
+        </div>
+      </div>
+
+      <!-- Top-level totals -->
+      <div class="grid-3" style="margin-bottom:20px;">
+        <div style="background:linear-gradient(135deg,rgba(52,211,153,0.13),rgba(52,211,153,0.05));border:1px solid rgba(52,211,153,0.28);border-radius:var(--radius);padding:24px 20px;text-align:center;">
+          <div id="summary-total-income" style="font-size:28px;font-weight:800;color:var(--green);font-family:var(--mono);">৳0</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Total Income (Paid)</div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(248,113,113,0.13),rgba(248,113,113,0.05));border:1px solid rgba(248,113,113,0.28);border-radius:var(--radius);padding:24px 20px;text-align:center;">
+          <div id="summary-total-expense" style="font-size:28px;font-weight:800;color:var(--red);font-family:var(--mono);">৳0</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Total Expenses</div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(79,142,247,0.13),rgba(79,142,247,0.05));border:1px solid rgba(79,142,247,0.28);border-radius:var(--radius);padding:24px 20px;text-align:center;">
+          <div id="summary-net-balance" style="font-size:28px;font-weight:800;color:var(--accent);font-family:var(--mono);">৳0</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Net Balance</div>
+        </div>
+      </div>
+
+      <!-- Due / Pending -->
+      <div class="grid-2" style="margin-bottom:20px;">
+        <div style="background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(251,191,36,0.05));border:1px solid rgba(251,191,36,0.25);border-radius:var(--radius);padding:20px;text-align:center;">
+          <div id="summary-due-amount" style="font-size:24px;font-weight:800;color:var(--gold);font-family:var(--mono);">৳0</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Total Due Amount</div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(248,113,113,0.12),rgba(248,113,113,0.05));border:1px solid rgba(248,113,113,0.25);border-radius:var(--radius);padding:20px;text-align:center;">
+          <div id="summary-pending-amount" style="font-size:24px;font-weight:800;color:var(--red);font-family:var(--mono);">৳0</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Total Pending Amount</div>
+        </div>
+      </div>
+
+      <!-- Income by source breakdown -->
+      <div class="card">
+        <div class="card-title">💵 Income Breakdown — By Source (Student)</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Student ID</th><th>Name</th><th>Paid</th><th>Due</th><th>Pending</th><th>Total Paid (৳)</th></tr></thead>
+            <tbody id="summary-income-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Expense by category breakdown -->
+      <div class="card">
+        <div class="card-title">💸 Expense Breakdown — By Category</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Category</th><th>Entries</th><th>Total Amount (৳)</th><th>% of Total</th></tr></thead>
+            <tbody id="summary-expense-table"></tbody>
           </table>
         </div>
       </div>
@@ -2214,7 +2230,7 @@
     if(tabId === 'admin-secretkey') loadSecretKey();
     if(tabId === 'admin-income') { document.getElementById('income-result-area').style.display='none'; }
     if(tabId === 'admin-expenses') { if(window._initExpensesTab) window._initExpensesTab(); else loadExpenses(); }
-    if(tabId === 'admin-summary') loadFinancialSummary();
+    if(tabId === 'admin-summary') { loadFinancialSummary(); }
     if(tabId === 'profile') loadProfileData();
     if(tabId === 'dash') initUserDash();
     if(tabId === 'result') loadStudentResults();
@@ -3661,8 +3677,9 @@
     const payments = paymentsSnap.exists() ? paymentsSnap.val() : {};
 
     let totalIncome = 0;
+    let dueAmount = 0;
+    let pendingAmount = 0;
     let paidCount = 0;
-    let pendingCount = 0;
     let rows = [];
 
     Object.entries(payments).forEach(([studentId, studentPayments]) => {
@@ -3682,8 +3699,10 @@
       if(status === 'Paid') {
         paidCount++;
         totalIncome += amount;
+      } else if(status === 'Due') {
+        dueAmount += amount;
       } else {
-        pendingCount++;
+        pendingAmount += amount;
       }
       rows.push({ studentId, name, amount, date, status });
     });
@@ -3696,8 +3715,9 @@
     });
 
     document.getElementById('income-total').textContent = `৳${totalIncome.toLocaleString('en-BD')}`;
+    document.getElementById('income-due-amount').textContent = `৳${dueAmount.toLocaleString('en-BD')}`;
+    document.getElementById('income-pending-amount').textContent = `৳${pendingAmount.toLocaleString('en-BD')}`;
     document.getElementById('income-paid-count').textContent = paidCount;
-    document.getElementById('income-pending-count').textContent = pendingCount;
     document.getElementById('income-month-label').textContent = year ? `${month} ${year}` : month;
 
     if(rows.length > 0) {
@@ -3986,6 +4006,130 @@
   // ── Init on tab open ──
   window._initExpensesTab = async () => {
     loadExpenses();
+  };
+
+  // ═══════════════════════════════════════════════════
+  //  FINANCIAL SUMMARY MODULE
+  // ═══════════════════════════════════════════════════
+  window.clearSummaryFilters = () => {
+    document.getElementById('summary-filter-year').value = '';
+    document.getElementById('summary-filter-month').value = '';
+    loadFinancialSummary();
+  };
+
+  window.loadFinancialSummary = async () => {
+    const filterYear = document.getElementById('summary-filter-year')?.value || '';
+    const filterMonth = document.getElementById('summary-filter-month')?.value || '';
+
+    const [usersSnap, paymentsSnap, expensesSnap] = await Promise.all([
+      get(child(ref(db), 'users')),
+      get(child(ref(db), 'payments')),
+      get(child(ref(db), 'expenses'))
+    ]);
+
+    const users = usersSnap.exists() ? usersSnap.val() : {};
+    const payments = paymentsSnap.exists() ? paymentsSnap.val() : {};
+    const expenses = expensesSnap.exists() ? expensesSnap.val() : {};
+
+    // ── INCOME: walk every student × every year_month record ──
+    let totalIncome = 0, totalDue = 0, totalPending = 0;
+    const perStudent = {}; // studentId -> {name, paid, due, pending, totalPaid}
+
+    Object.entries(payments).forEach(([studentId, studentPayments]) => {
+      const studentName = (users[studentId] && users[studentId].name) || 'Unknown';
+      if(!perStudent[studentId]) perStudent[studentId] = { name: studentName, paid: 0, due: 0, pending: 0, totalPaid: 0 };
+
+      Object.entries(studentPayments).forEach(([key, rec]) => {
+        if(typeof rec !== 'object' || rec === null) return;
+        const recYear = rec.year || (key.includes('_') ? key.split('_')[0] : '');
+        const recMonth = rec.month || (key.includes('_') ? key.split('_')[1] : key);
+        if(filterYear && recYear !== filterYear) return;
+        if(filterMonth && recMonth !== filterMonth) return;
+
+        const amount = parseFloat(rec.amount) || 0;
+        const status = rec.status || 'Pending';
+
+        if(status === 'Paid') {
+          totalIncome += amount;
+          perStudent[studentId].paid++;
+          perStudent[studentId].totalPaid += amount;
+        } else if(status === 'Due') {
+          totalDue += amount;
+          perStudent[studentId].due++;
+        } else {
+          totalPending += amount;
+          perStudent[studentId].pending++;
+        }
+      });
+    });
+
+    // ── EXPENSES: walk every expense entry, group by category ──
+    let totalExpense = 0;
+    const perCategory = {}; // category -> {count, total}
+
+    Object.values(expenses).forEach(e => {
+      if(filterYear && (e.year || '') !== filterYear) return;
+      if(filterMonth && (e.month || '') !== filterMonth) return;
+      const amount = parseFloat(e.amount) || 0;
+      const category = e.category || 'Other';
+      totalExpense += amount;
+      if(!perCategory[category]) perCategory[category] = { count: 0, total: 0 };
+      perCategory[category].count++;
+      perCategory[category].total += amount;
+    });
+
+    // ── Render top cards ──
+    document.getElementById('summary-total-income').textContent   = `৳${totalIncome.toLocaleString('en-BD')}`;
+    document.getElementById('summary-total-expense').textContent  = `৳${totalExpense.toLocaleString('en-BD')}`;
+    document.getElementById('summary-due-amount').textContent     = `৳${totalDue.toLocaleString('en-BD')}`;
+    document.getElementById('summary-pending-amount').textContent = `৳${totalPending.toLocaleString('en-BD')}`;
+
+    const net = totalIncome - totalExpense;
+    const netEl = document.getElementById('summary-net-balance');
+    netEl.textContent = `${net < 0 ? '-' : ''}৳${Math.abs(net).toLocaleString('en-BD')}`;
+    netEl.style.color = net >= 0 ? 'var(--green)' : 'var(--red)';
+
+    // ── Render income-by-student table ──
+    const incomeTbody = document.getElementById('summary-income-table');
+    const studentRows = Object.entries(perStudent)
+      .filter(([, s]) => s.paid + s.due + s.pending > 0)
+      .sort((a, b) => b[1].totalPaid - a[1].totalPaid);
+
+    if(studentRows.length === 0) {
+      incomeTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">No income records found${(filterYear||filterMonth) ? ' for '+[filterMonth,filterYear].filter(Boolean).join(' ') : ''}.</td></tr>`;
+    } else {
+      incomeTbody.innerHTML = studentRows.map(([sId, s]) => `
+        <tr>
+          <td style="font-family:var(--mono); color:var(--accent); font-weight:700;">${sId}</td>
+          <td style="font-weight:600;">${s.name}</td>
+          <td style="color:var(--green); font-weight:700;">${s.paid}</td>
+          <td style="color:var(--gold); font-weight:700;">${s.due}</td>
+          <td style="color:var(--red); font-weight:700;">${s.pending}</td>
+          <td style="font-family:var(--mono); color:var(--green); font-weight:700;">৳${s.totalPaid.toLocaleString('en-BD')}</td>
+        </tr>
+      `).join('');
+    }
+
+    // ── Render expense-by-category table ──
+    const expenseTbody = document.getElementById('summary-expense-table');
+    const categoryRows = Object.entries(perCategory).sort((a, b) => b[1].total - a[1].total);
+
+    if(categoryRows.length === 0) {
+      expenseTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">No expense records found${(filterYear||filterMonth) ? ' for '+[filterMonth,filterYear].filter(Boolean).join(' ') : ''}.</td></tr>`;
+    } else {
+      expenseTbody.innerHTML = categoryRows.map(([cat, data]) => {
+        const pct = totalExpense > 0 ? ((data.total / totalExpense) * 100).toFixed(1) : '0.0';
+        const icon = (typeof getExpIcon === 'function') ? getExpIcon(cat) : '💡';
+        return `
+          <tr>
+            <td style="font-weight:600;"><span style="margin-right:6px;">${icon}</span>${cat}</td>
+            <td style="font-family:var(--mono); color:var(--text-dim);">${data.count}</td>
+            <td style="font-family:var(--mono); color:var(--red); font-weight:700;">৳${data.total.toLocaleString('en-BD')}</td>
+            <td style="font-family:var(--mono); color:var(--text-muted); font-size:13px;">${pct}%</td>
+          </tr>
+        `;
+      }).join('');
+    }
   };
 
 </script>
