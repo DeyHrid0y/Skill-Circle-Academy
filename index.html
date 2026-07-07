@@ -5,100 +5,116 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Skill Circle Academy — Student & Admin Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>emailjs.init("d0754iMYdWN8ktqGT");</script>
 <style>
+  /* ═══════════════════════════════════════
+     SKILL CIRCLE ACADEMY — PREMIUM DESIGN
+  ═══════════════════════════════════════ */
   :root {
-    --bg: #f5f4f0;
-    --surface: #ffffff;
-    --surface2: #eeebe5;
-    --surface3: #e5e1da;
-    --border: rgba(0,0,0,0.08);
-    --border-bright: rgba(0,0,0,0.13);
-    --accent: #4f8ef7;
-    --accent-glow: rgba(79,142,247,0.15);
-    --cyan: #22d3ee;
-    --gold: #fbbf24;
-    --green: #34d399;
-    --red: #f87171;
-    --purple: #a78bfa;
-    --text: #0d1117;
-    --text-muted: #4a5270;
-    --text-dim: #5a6278;
-    --radius: 14px;
-    --radius-sm: 8px;
-    --font: 'Plus Jakarta Sans', sans-serif;
-    --mono: 'Space Mono', monospace;
-    --sidebar-w: 270px;
+    --bg:            #fff8f2;
+    --surface:       #fffaf6;
+    --surface2:      #fff3e8;
+    --surface3:      #ffe8d0;
+    --border:        rgba(99,102,241,0.09);
+    --border-bright: rgba(99,102,241,0.18);
+    --accent:        #6366f1;
+    --accent2:       #8b5cf6;
+    --accent-glow:   rgba(99,102,241,0.15);
+    --cyan:          #06b6d4;
+    --gold:          #f59e0b;
+    --green:         #10b981;
+    --red:           #ef4444;
+    --purple:        #8b5cf6;
+    --pink:          #ec4899;
+    --text:          #0f1623;
+    --text-muted:    #64748b;
+    --text-dim:      #475569;
+    --radius:        16px;
+    --radius-sm:     10px;
+    --font:          'Plus Jakarta Sans', sans-serif;
+    --mono:          'Space Mono', monospace;
+    --sidebar-w:     272px;
+    --shadow-sm:     0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow:        0 4px 20px rgba(99,102,241,0.08), 0 1px 4px rgba(0,0,0,0.06);
+    --shadow-lg:     0 20px 60px rgba(99,102,241,0.12), 0 4px 16px rgba(0,0,0,0.08);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  
+
   body {
     font-family: var(--font);
-    background: var(--bg);
+    background: var(--surface2);
     color: var(--text);
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* ===== SCROLLBAR ===== */
-  ::-webkit-scrollbar { width: 4px; }
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #c8c2bb; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.25); border-radius: 10px; }
 
-  /* ===== AUTH ===== */
+  /* ═══════════════════
+     AUTH PAGES
+  ═══════════════════ */
   .auth-wrapper {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--bg);
     position: relative;
     overflow: hidden;
+    background: linear-gradient(135deg, #fff3e8 0%, #fff8f2 40%, #fef3c7 100%);
   }
 
+  /* Animated background blobs */
   .auth-wrapper::before {
     content: '';
     position: absolute;
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(79,142,247,0.06) 0%, transparent 70%);
-    top: -100px; left: 50%;
-    transform: translateX(-50%);
-    pointer-events: none;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 65%);
+    top: -200px; left: -100px;
+    animation: blob1 8s ease-in-out infinite;
   }
-
   .auth-wrapper::after {
     content: '';
     position: absolute;
-    width: 400px; height: 400px;
-    background: radial-gradient(circle, rgba(34,211,238,0.04) 0%, transparent 70%);
-    bottom: -50px; right: 10%;
-    pointer-events: none;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(139,92,246,0.10) 0%, transparent 65%);
+    bottom: -100px; right: -50px;
+    animation: blob2 10s ease-in-out infinite;
   }
+  @keyframes blob1 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(30px,-20px) scale(1.05)} }
+  @keyframes blob2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-20px,30px) scale(1.08)} }
 
   .auth-card {
-    background: var(--surface);
-    border: 1px solid var(--border-bright);
-    padding: 44px 40px;
-    border-radius: 22px;
-    width: 420px;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.9);
+    padding: 48px 44px;
+    border-radius: 28px;
+    width: 440px;
     position: relative;
     z-index: 1;
-    box-shadow: 0 0 0 1px rgba(0,0,0,0.05), 0 20px 60px rgba(0,0,0,0.12);
+    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(99,102,241,0.07);
   }
 
   .auth-logo {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 30px;
+    margin-bottom: 32px;
   }
 
   .auth-logo-icon {
-    width: 42px; height: 42px;
-    background: linear-gradient(135deg, var(--accent), var(--cyan));
-    border-radius: 10px;
+    width: 46px; height: 46px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    border-radius: 13px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
+    font-size: 22px;
+    box-shadow: 0 4px 14px rgba(99,102,241,0.35);
   }
 
   .auth-logo-text {
@@ -106,79 +122,82 @@
     font-weight: 800;
     letter-spacing: -0.5px;
   }
-
   .auth-logo-text span { color: var(--accent); }
 
   .auth-heading {
-    font-size: 26px;
+    font-size: 28px;
     font-weight: 800;
-    letter-spacing: -0.5px;
-    margin-bottom: 6px;
+    letter-spacing: -0.7px;
+    margin-bottom: 7px;
+    background: linear-gradient(135deg, #0f1623, #3730a3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   .auth-subheading {
     font-size: 14px;
     color: var(--text-muted);
-    margin-bottom: 28px;
+    margin-bottom: 30px;
   }
 
-  .form-group { margin-bottom: 16px; }
+  /* ── Form elements ── */
+  .form-group { margin-bottom: 18px; }
 
   .form-group label {
     display: block;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 11.5px;
+    font-weight: 700;
     margin-bottom: 7px;
     color: var(--text-dim);
     text-transform: uppercase;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.9px;
   }
 
   .form-group input,
   .form-group select {
     width: 100%;
-    background: #f8f6f2;
-    border: 1px solid rgba(0,0,0,0.13);
+    background: #fff6ee;
+    border: 1.5px solid rgba(234,88,12,0.14);
     padding: 12px 15px;
     color: var(--text);
     border-radius: var(--radius-sm);
     outline: none;
     font-family: var(--font);
     font-size: 14px;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: all 0.2s;
   }
 
   .form-group input:focus,
   .form-group select:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-glow);
+    box-shadow: 0 0 0 4px rgba(99,102,241,0.12);
+    background: #fffaf6;
   }
 
-  .form-group input::placeholder { color: var(--text-muted); }
-
-  .form-group select option { background: #f8f6f2; color: var(--text); }
+  .form-group input::placeholder { color: #a0aec0; }
+  .form-group select option { background: #fff; color: var(--text); }
 
   .btn-primary {
     width: 100%;
-    padding: 13px;
-    background: var(--accent);
+    padding: 14px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
     border: none;
     color: #fff;
     border-radius: var(--radius-sm);
     cursor: pointer;
     font-weight: 700;
-    font-size: 14px;
+    font-size: 14.5px;
     font-family: var(--font);
-    transition: all 0.2s;
+    transition: all 0.25s;
     letter-spacing: 0.2px;
+    box-shadow: 0 4px 14px rgba(99,102,241,0.4);
   }
 
   .btn-primary:hover {
-    background: #5f9cf8;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(79,142,247,0.35);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(99,102,241,0.45);
   }
-
   .btn-primary:active { transform: translateY(0); }
 
   .auth-toggle {
@@ -187,67 +206,66 @@
     font-size: 13px;
     color: var(--text-muted);
   }
-
-  .auth-toggle a {
-    color: var(--accent);
-    text-decoration: none;
-    font-weight: 600;
-  }
-
+  .auth-toggle a { color: var(--accent); text-decoration: none; font-weight: 700; }
   .auth-toggle a:hover { text-decoration: underline; }
 
-  /* ===== PORTAL LAYOUT ===== */
+  /* ═══════════════════
+     PORTAL LAYOUT
+  ═══════════════════ */
   #portal-page { display: none; }
 
+  /* ── Sidebar ── */
   .sidebar {
     position: fixed;
     width: var(--sidebar-w);
     height: 100vh;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    padding: 24px 16px;
+    background: linear-gradient(180deg, #1e1b4b 0%, #1a1740 60%, #0f0e2b 100%);
+    padding: 24px 14px;
     overflow-y: auto;
     z-index: 100;
     display: flex;
     flex-direction: column;
+    border-right: none;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.15);
   }
 
   .sidebar-brand {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 0 8px;
-    margin-bottom: 28px;
+    padding: 4px 8px 0;
+    margin-bottom: 30px;
   }
 
   .sidebar-brand-icon {
-    width: 36px; height: 36px;
-    background: linear-gradient(135deg, var(--accent), var(--cyan));
-    border-radius: 9px;
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    border-radius: 11px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 17px;
+    font-size: 18px;
     flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(99,102,241,0.5);
   }
 
   .sidebar-brand-name {
     font-size: 16px;
     font-weight: 800;
     letter-spacing: -0.3px;
+    color: #fff;
+    line-height: 1.2;
   }
-
-  .sidebar-brand-name span { color: var(--accent); }
+  .sidebar-brand-name span { color: #a5b4fc; }
 
   .nav-section-label {
     font-size: 10px;
     font-weight: 700;
-    color: var(--text-muted);
+    color: rgba(165,180,252,0.5);
     text-transform: uppercase;
-    letter-spacing: 1.2px;
+    letter-spacing: 1.3px;
     padding: 0 10px;
-    margin: 16px 0 6px;
+    margin: 18px 0 6px;
   }
-
-  .nav-section-label.gold { color: var(--gold); }
+  .nav-section-label.gold { color: rgba(251,191,36,0.7); }
 
   .nav-item {
     display: flex;
@@ -255,24 +273,37 @@
     gap: 10px;
     padding: 10px 12px;
     cursor: pointer;
-    border-radius: var(--radius-sm);
+    border-radius: 10px;
     margin-bottom: 2px;
-    transition: all 0.15s;
-    color: var(--text-dim);
+    transition: all 0.18s;
+    color: rgba(165,180,252,0.75);
     font-size: 13.5px;
     font-weight: 500;
   }
 
-  .nav-item:hover { background: var(--surface2); color: var(--text); }
-  .nav-item.active { background: var(--accent-glow); color: var(--accent); font-weight: 600; }
-  .nav-item.active .nav-dot { background: var(--accent); }
+  .nav-item:hover {
+    background: rgba(99,102,241,0.18);
+    color: #c7d2fe;
+  }
+
+  .nav-item.active {
+    background: linear-gradient(135deg, rgba(99,102,241,0.35), rgba(139,92,246,0.25));
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 2px 12px rgba(99,102,241,0.25);
+  }
+
+  .nav-item.active .nav-dot {
+    background: #a5b4fc;
+    box-shadow: 0 0 8px rgba(165,180,252,0.8);
+  }
 
   .nav-dot {
     width: 6px; height: 6px;
-    background: var(--border-bright);
+    background: rgba(165,180,252,0.3);
     border-radius: 50%;
     flex-shrink: 0;
-    transition: background 0.15s;
+    transition: all 0.18s;
   }
 
   .sidebar-footer { margin-top: auto; padding-top: 16px; }
@@ -280,57 +311,74 @@
   .btn-logout {
     width: 100%;
     padding: 11px;
-    background: rgba(248,113,113,0.1);
-    border: 1px solid rgba(248,113,113,0.2);
-    color: var(--red);
-    border-radius: var(--radius-sm);
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.25);
+    color: #fca5a5;
+    border-radius: 10px;
     cursor: pointer;
     font-weight: 600;
     font-size: 13px;
     font-family: var(--font);
     transition: all 0.2s;
   }
-
   .btn-logout:hover {
-    background: rgba(248,113,113,0.2);
-    border-color: var(--red);
+    background: rgba(239,68,68,0.22);
+    border-color: rgba(239,68,68,0.45);
+    color: #fff;
   }
 
-  /* ===== MAIN CONTENT ===== */
+  /* ═══════════════════
+     MAIN CONTENT
+  ═══════════════════ */
   .main-content {
     margin-left: var(--sidebar-w);
-    padding: 32px 36px;
+    padding: 32px 38px;
     min-height: 100vh;
   }
 
-  .page-header { margin-bottom: 28px; }
+  .page-header {
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1.5px solid rgba(99,102,241,0.08);
+  }
 
   .page-title {
     font-size: 26px;
     font-weight: 800;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.6px;
     line-height: 1.2;
+    background: linear-gradient(135deg, var(--text), #3730a3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
-
-  .page-title .accent { color: var(--accent); }
+  .page-title .accent { color: var(--accent); -webkit-text-fill-color: var(--accent); }
 
   .page-subtitle {
     font-size: 14px;
     color: var(--text-muted);
     margin-top: 5px;
+    -webkit-text-fill-color: var(--text-muted);
   }
 
-  /* ===== CARDS ===== */
+  /* ═══════════════════
+     CARDS
+  ═══════════════════ */
   .card {
     background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 22px 24px;
+    border: 1.5px solid var(--border);
+    padding: 24px 26px;
     border-radius: var(--radius);
     margin-bottom: 20px;
-    transition: border-color 0.2s;
+    transition: all 0.22s;
+    box-shadow: var(--shadow-sm);
   }
 
-  .card:hover { border-color: var(--border-bright); }
+  .card:hover {
+    border-color: rgba(99,102,241,0.22);
+    box-shadow: var(--shadow);
+    transform: translateY(-1px);
+  }
 
   .card-title {
     font-size: 14px;
@@ -342,101 +390,98 @@
     gap: 8px;
   }
 
-  /* ===== GRID ===== */
+  /* ═══════════════════
+     GRIDS
+  ═══════════════════ */
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
   .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 
-  /* ===== STATS CARD ===== */
+  /* ═══════════════════
+     STAT ITEMS
+  ═══════════════════ */
   .stat-item {
-    background: #f0ede8;
-    border: 1px solid rgba(0,0,0,0.08);
-    border-radius: var(--radius-sm);
-    padding: 14px 16px;
+    background: linear-gradient(135deg, #f8f9ff, #f0f2fa);
+    border: 1.5px solid rgba(99,102,241,0.1);
+    border-radius: 12px;
+    padding: 14px 18px;
     margin-bottom: 10px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    transition: all 0.2s;
   }
-
+  .stat-item:hover { border-color: rgba(99,102,241,0.2); background: #f0f2ff; }
   .stat-label { font-size: 13px; color: var(--text-muted); }
-  .stat-value { font-size: 13px; font-weight: 600; }
+  .stat-value { font-size: 13px; font-weight: 700; color: var(--text); }
 
-  /* ===== BADGES ===== */
+  /* ═══════════════════
+     BADGES
+  ═══════════════════ */
   .badge {
-    padding: 4px 10px;
+    padding: 4px 11px;
     border-radius: 20px;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.3px;
     text-transform: uppercase;
   }
+  .badge-admin   { background: rgba(245,158,11,0.12);  color: var(--gold);   border: 1.5px solid rgba(245,158,11,0.25); }
+  .badge-user    { background: rgba(99,102,241,0.12);  color: var(--accent); border: 1.5px solid rgba(99,102,241,0.22); }
+  .badge-paid    { background: rgba(16,185,129,0.12);  color: var(--green);  border: 1.5px solid rgba(16,185,129,0.25); }
+  .badge-pending { background: rgba(239,68,68,0.10);   color: var(--red);    border: 1.5px solid rgba(239,68,68,0.2); }
+  .badge-due     { background: rgba(245,158,11,0.12);  color: var(--gold);   border: 1.5px solid rgba(245,158,11,0.22); }
 
-  .badge-admin { background: rgba(251,191,36,0.12); color: var(--gold); border: 1px solid rgba(251,191,36,0.2); }
-  .badge-user { background: rgba(79,142,247,0.12); color: var(--accent); border: 1px solid rgba(79,142,247,0.2); }
-  .badge-paid { background: rgba(52,211,153,0.12); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
-  .badge-pending { background: rgba(248,113,113,0.12); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
-  .badge-due { background: rgba(251,191,36,0.12); color: var(--gold); border: 1px solid rgba(251,191,36,0.2); }
-
-  /* ===== TABLE ===== */
+  /* ═══════════════════
+     TABLE
+  ═══════════════════ */
   .table-wrap {
     overflow: hidden;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
+    border-radius: 12px;
+    border: 1.5px solid rgba(99,102,241,0.1);
+    box-shadow: var(--shadow-sm);
   }
-
   table { width: 100%; border-collapse: collapse; }
-
-  thead { background: #eeebe5; }
-
+  thead { background: linear-gradient(135deg, #fff3e8, #fff8f0); }
   th {
     text-align: left;
-    padding: 12px 16px;
+    padding: 13px 18px;
     font-size: 11px;
     font-weight: 700;
-    color: var(--text-muted);
+    color: var(--accent);
     text-transform: uppercase;
-    letter-spacing: 0.8px;
-    border-bottom: 1px solid var(--border);
+    letter-spacing: 0.9px;
+    border-bottom: 1.5px solid rgba(234,88,12,0.12);
   }
-
   td {
     text-align: left;
-    padding: 13px 16px;
+    padding: 13px 18px;
     font-size: 13.5px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid rgba(99,102,241,0.07);
     color: var(--text);
   }
-
   tr:last-child td { border-bottom: none; }
-  tbody tr { transition: background 0.1s; }
-  tbody tr:hover { background: #f5f2ec; }
+  tbody tr { transition: background 0.15s; }
+  tbody tr:hover { background: #fff3e8; }
 
-  /* ===== NOTICE ITEM ===== */
-  .notice-item {
-    padding: 12px 14px;
-    background: #f0ede8;
-    margin-bottom: 8px;
-    border-radius: var(--radius-sm);
-    border-left: 3px solid var(--accent);
-    font-size: 13.5px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  /* ===== ADMIN FORM ===== */
+  /* ═══════════════════
+     ADMIN FORM CARD
+  ═══════════════════ */
   .admin-form-card {
-    background: #ffffff;
-    border: 1px solid var(--border-bright);
-    padding: 24px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    padding: 26px;
     border-radius: var(--radius);
     margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+    transition: border-color 0.2s;
   }
+  .admin-form-card:hover { border-color: rgba(99,102,241,0.2); }
 
+  /* ── Buttons ── */
   .btn-action {
-    padding: 11px 24px;
-    background: var(--accent);
+    padding: 11px 26px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
     border: none;
     color: #fff;
     border-radius: var(--radius-sm);
@@ -444,66 +489,65 @@
     font-weight: 700;
     font-size: 13px;
     font-family: var(--font);
-    transition: all 0.2s;
+    transition: all 0.22s;
     margin-top: 8px;
+    box-shadow: 0 3px 10px rgba(99,102,241,0.3);
   }
-
   .btn-action:hover {
-    background: #5f9cf8;
-    transform: translateY(-1px);
-    box-shadow: 0 5px 15px rgba(79,142,247,0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(99,102,241,0.4);
   }
+  .btn-action:active { transform: translateY(0); }
 
   .btn-sm {
     padding: 6px 14px;
-    background: rgba(79,142,247,0.12);
-    border: 1px solid rgba(79,142,247,0.25);
+    background: rgba(99,102,241,0.08);
+    border: 1.5px solid rgba(99,102,241,0.18);
     color: var(--accent);
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 12px;
     font-weight: 600;
     font-family: var(--font);
     transition: all 0.15s;
   }
+  .btn-sm:hover {
+    background: rgba(99,102,241,0.15);
+    border-color: rgba(99,102,241,0.35);
+    transform: translateY(-1px);
+  }
 
-  .btn-sm:hover { background: rgba(79,142,247,0.2); }
-
-  /* ===== MODAL ===== */
+  /* ── Modal ── */
   .modal {
     display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.4);
-    backdrop-filter: blur(4px);
+    position: fixed; inset: 0;
+    background: rgba(15,22,35,0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 1000;
-    align-items: center;
-    justify-content: center;
+    align-items: center; justify-content: center;
   }
-
   .modal-content {
     background: var(--surface);
-    padding: 32px;
-    border-radius: 18px;
-    width: 420px;
-    border: 1px solid var(--border-bright);
-    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    padding: 36px;
+    border-radius: 22px;
+    width: 440px;
+    border: 1.5px solid rgba(99,102,241,0.15);
+    box-shadow: var(--shadow-lg);
   }
-
   .modal-title {
-    font-size: 18px;
-    font-weight: 800;
-    letter-spacing: -0.3px;
-    margin-bottom: 20px;
+    font-size: 19px; font-weight: 800;
+    letter-spacing: -0.4px; margin-bottom: 22px;
+    background: linear-gradient(135deg, var(--text), #4338ca);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   }
-
   .modal-actions { display: flex; gap: 10px; margin-top: 6px; }
   .modal-actions .btn-action { margin-top: 0; }
 
   .btn-cancel {
-    padding: 11px 20px;
-    background: #eeeae4;
-    border: 1px solid rgba(0,0,0,0.13);
+    padding: 11px 22px;
+    background: #f1f5f9;
+    border: 1.5px solid rgba(99,102,241,0.12);
     color: var(--text-muted);
     border-radius: var(--radius-sm);
     cursor: pointer;
@@ -512,117 +556,129 @@
     font-family: var(--font);
     transition: all 0.2s;
   }
+  .btn-cancel:hover { background: #e8ecf5; color: var(--text); }
 
-  .btn-cancel:hover { background: #e5e1da; color: var(--text); }
-
-  /* ===== CGPA ===== */
-  .cgpa-result {
-    background: linear-gradient(135deg, rgba(79,142,247,0.1), rgba(34,211,238,0.1));
-    border: 1px solid rgba(79,142,247,0.2);
-    border-radius: var(--radius);
-    padding: 20px 24px;
-    margin-top: 20px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .cgpa-label { font-size: 13px; color: var(--text-muted); }
-  .cgpa-value { font-size: 36px; font-weight: 800; color: var(--gold); font-family: var(--mono); }
-
-  /* ===== PROFILE ===== */
-  .profile-info-item {
-    display: flex;
-    align-items: center;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--border);
-    gap: 12px;
-  }
-
-  .profile-info-item:last-child { border-bottom: none; }
-  .profile-info-label { font-size: 12px; color: var(--text-muted); width: 80px; flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-  .profile-info-value { font-size: 14px; font-weight: 500; }
-
-  /* ===== FILE HISTORY ===== */
-  .file-history-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    background: #f0ede8;
-    border-radius: var(--radius-sm);
-    margin-bottom: 6px;
+  /* ── Notice item ── */
+  .notice-item {
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #f5f6ff, #faf5ff);
+    margin-bottom: 10px;
+    border-radius: 12px;
+    border-left: 4px solid var(--accent);
     font-size: 13.5px;
-    border: 1px dashed rgba(0,0,0,0.13);
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
   }
+  .notice-item:hover { transform: translateX(3px); box-shadow: var(--shadow); }
 
+  /* ── CGPA ── */
+  .cgpa-result {
+    background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.08));
+    border: 1.5px solid rgba(99,102,241,0.15);
+    border-radius: var(--radius);
+    padding: 22px 26px;
+    margin-top: 20px;
+    display: flex; align-items: center; gap: 18px;
+    box-shadow: var(--shadow-sm);
+  }
+  .cgpa-label { font-size: 13px; color: var(--text-muted); }
+  .cgpa-value { font-size: 40px; font-weight: 800; color: var(--gold); font-family: var(--mono); }
+
+  /* ── Profile ── */
+  .profile-info-item {
+    display: flex; align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid rgba(99,102,241,0.08);
+    gap: 14px;
+    transition: background 0.15s;
+  }
+  .profile-info-item:last-child { border-bottom: none; }
+  .profile-info-label { font-size: 11.5px; color: var(--text-muted); width: 90px; flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700; }
+  .profile-info-value { font-size: 14px; font-weight: 600; color: var(--text); }
+
+  /* ── File history ── */
+  .file-history-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, #f8f9ff, #f5f6ff);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 13.5px;
+    border: 1.5px solid rgba(99,102,241,0.1);
+    transition: all 0.15s;
+  }
+  .file-history-item:hover { border-color: rgba(99,102,241,0.22); background: #f0f1ff; }
+
+  /* ── Animations ── */
   .hidden { display: none; }
-  .tab-content { animation: fadeIn 0.2s ease; }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
+  .tab-content { animation: fadeSlideIn 0.25s ease; }
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* ===== MOBILE TOPBAR ===== */
+  /* ── Mobile topbar ── */
   .mobile-topbar {
     display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 56px;
-    background: #ffffff;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 16px;
-    z-index: 200;
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 58px;
+    background: linear-gradient(135deg, #1e1b4b, #1a1740);
+    border-bottom: 1px solid rgba(99,102,241,0.2);
+    align-items: center; justify-content: space-between;
+    padding: 0 18px; z-index: 200;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.2);
   }
   .mobile-brand {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 15px; font-weight: 800; letter-spacing: -0.3px;
+    display: flex; align-items: center; gap: 9px;
+    font-size: 15px; font-weight: 800; letter-spacing: -0.3px; color: #fff;
   }
   .mobile-brand-icon {
-    width: 30px; height: 30px;
-    background: linear-gradient(135deg, var(--accent), var(--cyan));
-    border-radius: 7px;
-    display: flex; align-items: center; justify-content: center; font-size: 14px;
-  }
-  .mobile-brand span { color: var(--accent); }
-  .hamburger {
-    width: 36px; height: 36px;
-    background: #eeebe5;
-    border: 1px solid rgba(0,0,0,0.13);
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
     border-radius: 8px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
-    cursor: pointer; padding: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 15px;
+    box-shadow: 0 2px 8px rgba(99,102,241,0.5);
   }
+  .mobile-brand span { color: #a5b4fc; }
+  .hamburger {
+    width: 38px; height: 38px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 9px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+    cursor: pointer; padding: 0; transition: background 0.2s;
+  }
+  .hamburger:hover { background: rgba(255,255,255,0.15); }
   .hamburger span {
     display: block; width: 18px; height: 2px;
-    background: #1a1f2e; border-radius: 2px; transition: all 0.25s;
+    background: #fff; border-radius: 2px; transition: all 0.25s;
   }
   .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
   .hamburger.open span:nth-child(2) { opacity: 0; }
   .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
   .sidebar-overlay {
     display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.6); z-index: 149;
-    
+    background: rgba(15,22,35,0.6); z-index: 149;
+    backdrop-filter: blur(2px);
   }
 
-  /* ===== RESPONSIVE ===== */
+  /* ═══════════════════
+     RESPONSIVE
+  ═══════════════════ */
   @media (max-width: 768px) {
     .mobile-topbar { display: flex; }
     .sidebar-overlay { display: none; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
     .sidebar-overlay.visible { display: block; opacity: 1; pointer-events: auto; }
-    .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; top: 0; z-index: 200; }
+    .sidebar { transform: translateX(-100%); transition: transform 0.28s cubic-bezier(.4,0,.2,1); top: 0; z-index: 200; }
     .sidebar.open { transform: translateX(0); }
-    .main-content { margin-left: 0; padding: 76px 16px 24px; }
-    .auth-card { width: 92vw; padding: 32px 20px; margin: 0 auto; }
+    .main-content { margin-left: 0; padding: 76px 16px 28px; }
+    .auth-card { width: 92vw; padding: 34px 22px; margin: 0 auto; }
     .grid-2 { grid-template-columns: 1fr; }
     .grid-3 { grid-template-columns: 1fr; }
     .grid-4 { grid-template-columns: 1fr 1fr; }
-    .page-title { font-size: 20px; }
-    .modal-content { width: 92vw; padding: 22px 18px; }
+    .page-title { font-size: 21px; }
+    .modal-content { width: 92vw; padding: 24px 18px; }
     .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     table { min-width: 440px; }
     .cgpa-result { flex-direction: column; gap: 8px; }
@@ -630,14 +686,14 @@
     #cgpa-courses-container > div { grid-template-columns: 1fr 80px 80px auto !important; gap:8px !important; }
     #student-cards-grid { grid-template-columns: repeat(auto-fill, minmax(160px,1fr)) !important; }
     #user-search-input { width: 100% !important; }
-    .card { padding: 16px; }
-    .admin-form-card { padding: 16px; }
-    .profile-info-label { width: 70px; font-size: 11px; }
+    .card { padding: 16px 18px; }
+    .admin-form-card { padding: 16px 18px; }
+    .profile-info-label { width: 72px; font-size: 11px; }
     #portal-page footer { margin-left: 0; padding: 16px; }
   }
   @media (max-width: 400px) {
-    .auth-card { padding: 26px 16px; }
-    .page-title { font-size: 17px; }
+    .auth-card { padding: 28px 16px; }
+    .page-title { font-size: 18px; }
   }
 </style>
 </head>
@@ -706,7 +762,7 @@
     <div class="form-group"><label>Full Name</label><input type="text" id="signup-name" placeholder="John Doe"></div>
     <div class="form-group">
       <label>Student ID <span style="color:var(--accent); font-size:10px; font-weight:700; background:rgba(79,142,247,0.1); padding:2px 7px; border-radius:10px; letter-spacing:0.3px;">Admin Approved</span></label>
-      <select id="signup-id" style="width:100%; background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); padding:12px 15px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:14px; transition:border-color 0.2s, box-shadow 0.2s;">
+      <select id="signup-id" style="width:100%; background:#f8f9ff; border:1px solid rgba(0,0,0,0.13); padding:12px 15px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:14px; transition:border-color 0.2s, box-shadow 0.2s;">
         <option value="">— Loading approved IDs... —</option>
       </select>
       <div id="signup-id-notice" style="font-size:11px; color:var(--text-muted); margin-top:5px;">Only IDs approved by the admin are available. Contact admin if your ID is missing.</div>
@@ -747,11 +803,8 @@
       <div class="nav-item" id="nav-result" onclick="switchTab('result')"><span class="nav-dot"></span>Academic Result</div>
       <div class="nav-item" id="nav-attendance" onclick="switchTab('attendance')"><span class="nav-dot"></span>Attendance</div>
       <div class="nav-item" id="nav-payment" onclick="switchTab('payment')"><span class="nav-dot"></span>Payment Tracker</div>
-      <div class="nav-item" id="nav-saving" onclick="switchTab('saving')"><span class="nav-dot"></span>💰 Monthly Saving</div>
       <div class="nav-item" id="nav-class-dates" onclick="switchTab('class-dates')"><span class="nav-dot"></span>Classes Held Dates</div>
       <div class="nav-item" id="nav-homework" onclick="switchTab('homework')"><span class="nav-dot"></span>Homework</div>
-      <div class="nav-item" id="nav-library" onclick="switchTab('library')"><span class="nav-dot"></span>Library Resources</div>
-      <div class="nav-item" id="nav-notices" onclick="switchTab('notices')"><span class="nav-dot"></span>📢 Notices</div>
       <div class="nav-item" id="nav-notes" onclick="switchTab('notes')"><span class="nav-dot"></span>Class Notes & PDFs</div>
       <div class="nav-item" id="nav-cgpa" onclick="switchTab('cgpa')"><span class="nav-dot"></span>CGPA Calculator</div>
       <div class="nav-item" id="nav-profile" onclick="switchTab('profile')"><span class="nav-dot"></span>My Profile</div>
@@ -766,10 +819,7 @@
       <div class="nav-item" id="nav-admin-payments" onclick="switchTab('admin-payments')"><span class="nav-dot"></span>Manage Payments</div>
       <div class="nav-item" id="nav-admin-class-dates" onclick="switchTab('admin-class-dates')"><span class="nav-dot"></span>Manage Class Dates</div>
       <div class="nav-item" id="nav-admin-homework" onclick="switchTab('admin-homework')"><span class="nav-dot"></span>Manage Homework</div>
-      <div class="nav-item" id="nav-admin-library" onclick="switchTab('admin-library')"><span class="nav-dot"></span>Manage Library</div>
-      <div class="nav-item" id="nav-admin-notes" onclick="switchTab('admin-notes')"><span class="nav-dot"></span>Upload Notes / Drive</div>
-      <div class="nav-item" id="nav-admin-notices" onclick="switchTab('admin-notices')"><span class="nav-dot"></span>📢 Manage Notices</div>
-      <div class="nav-item" id="nav-admin-files" onclick="switchTab('admin-files')"><span class="nav-dot"></span>Upload Files</div>
+      <div class="nav-item" id="nav-admin-notes" onclick="switchTab('admin-notes')"><span class="nav-dot"></span>📄 Class Notes & PDFs</div>
       <div class="nav-item" id="nav-admin-passrequests" onclick="switchTab('admin-passrequests')"><span class="nav-dot"></span>🔑 Password Requests</div>
       <div class="nav-item" id="nav-admin-secretkey" onclick="switchTab('admin-secretkey')"><span class="nav-dot"></span>🛡️ Registration Key</div>
       <div class="nav-item" id="nav-admin-income" onclick="switchTab('admin-income')"><span class="nav-dot"></span>📊 Monthly Income</div>
@@ -867,7 +917,7 @@
       <div class="card" style="padding:16px 20px 10px;">
         <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
           <label style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.8px;">Filter Year</label>
-          <select id="pay-filter-year" onchange="loadStudentPayments()" style="background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); padding:8px 12px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; min-width:110px;">
+          <select id="pay-filter-year" onchange="loadStudentPayments()" style="background:#f8f9ff; border:1px solid rgba(0,0,0,0.13); padding:8px 12px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; min-width:110px;">
             <option value="">— All Years —</option>
             <option value="2026">2026</option>
             <option value="2027">2027</option>
@@ -887,33 +937,6 @@
       </div>
     </section>
 
-    <!-- MONTHLY SAVING (STUDENT) -->
-    <section id="tab-saving" class="tab-content hidden">
-      <div class="page-header">
-        <div class="page-title">💰 Monthly Saving</div>
-        <div class="page-subtitle">Year &amp; month-wise saving records</div>
-      </div>
-      <div class="card" style="padding:16px 20px 10px;">
-        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-          <label style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.8px;">Filter Year</label>
-          <select id="saving-filter-year" onchange="loadStudentSaving()" style="background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); padding:8px 12px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; min-width:110px;">
-            <option value="">— All Years —</option>
-            <option value="2026">2026</option><option value="2027">2027</option>
-            <option value="2028">2028</option><option value="2029">2029</option>
-            <option value="2030">2030</option>
-          </select>
-        </div>
-      </div>
-      <div class="card">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Year</th><th>Month</th><th>Amount Saved (৳)</th><th>Note</th></tr></thead>
-            <tbody id="saving-table-body"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
     <!-- CLASS DATES -->
     <section id="tab-class-dates" class="tab-content hidden">
       <div class="page-header">
@@ -923,7 +946,7 @@
       <div class="card" style="padding:16px 20px 10px;">
         <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
           <label style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.8px;">Filter Year</label>
-          <select id="classdate-filter-year" onchange="loadStudentClassDates()" style="background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); padding:8px 12px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; min-width:110px;">
+          <select id="classdate-filter-year" onchange="loadStudentClassDates()" style="background:#f8f9ff; border:1px solid rgba(0,0,0,0.13); padding:8px 12px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; min-width:110px;">
             <option value="">— All Years —</option>
             <option value="2026">2026</option>
             <option value="2027">2027</option>
@@ -960,56 +983,38 @@
     </section>
 
     <!-- LIBRARY -->
-    <section id="tab-library" class="tab-content hidden">
-      <div class="page-header">
-        <div class="page-title">Library Resources</div>
-        <div class="page-subtitle">Books and academic materials</div>
-      </div>
-      <div class="card">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Book / Resource Title</th><th>Access</th></tr></thead>
-            <tbody id="library-table-body"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- NOTICES (Student) -->
-    <section id="tab-notices" class="tab-content hidden">
-      <div class="page-header">
-        <div class="page-title">📢 Notices</div>
-        <div class="page-subtitle">Important announcements from the academy</div>
-      </div>
-      <div id="notices-student-list">
-        <div style="text-align:center; padding:32px; color:var(--text-muted); font-size:14px;">Loading notices...</div>
-      </div>
-    </section>
-
     <!-- NOTES -->
     <section id="tab-notes" class="tab-content hidden">
       <div class="page-header">
         <div class="page-title">Class Notes & Materials</div>
-        <div class="page-subtitle">Drive links and uploaded PDFs</div>
+        <div class="page-subtitle">Drive links and uploaded PDFs — search by subject or level</div>
       </div>
       <div class="card">
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap;">
-          <div style="position:relative; flex:1; min-width:220px; max-width:400px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:18px; flex-wrap:wrap;">
+          <div style="position:relative; flex:1; min-width:200px; max-width:340px;">
             <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:15px; pointer-events:none;">🔍</span>
-            <input type="text" id="notes-search-input" placeholder="Search by note name..." oninput="filterStudentNotes()" style="width:100%; padding:10px 14px 10px 36px; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); background:#f8f6f2; font-family:var(--font); font-size:13.5px; color:var(--text); outline:none; transition:border-color 0.2s, box-shadow 0.2s;">
+            <input type="text" id="notes-search-input" placeholder="Search notes..." oninput="filterStudentNotes()" style="width:100%; padding:10px 14px 10px 36px; border:1.5px solid rgba(234,88,12,0.14); border-radius:var(--radius-sm); background:#fff6ee; font-family:var(--font); font-size:13.5px; color:var(--text); outline:none; transition:border-color 0.2s;">
           </div>
-          <select id="notes-level-filter" onchange="filterStudentNotes()" style="padding:10px 14px; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); background:#f8f6f2; font-family:var(--font); font-size:13.5px; color:var(--text); outline:none;">
+          <select id="notes-subject-filter" onchange="filterStudentNotes()" style="padding:10px 14px; border:1.5px solid rgba(234,88,12,0.14); border-radius:var(--radius-sm); background:#fff6ee; font-family:var(--font); font-size:13px; color:var(--text); outline:none;">
+            <option value="all">All Subjects</option>
+            <option value="Chemistry">⚗️ Chemistry</option>
+            <option value="Physics">⚡ Physics</option>
+            <option value="Higher Math">📐 Higher Math</option>
+            <option value="ICT">💻 ICT</option>
+            <option value="Other">📦 Other</option>
+          </select>
+          <select id="notes-level-filter" onchange="filterStudentNotes()" style="padding:10px 14px; border:1.5px solid rgba(234,88,12,0.14); border-radius:var(--radius-sm); background:#fff6ee; font-family:var(--font); font-size:13px; color:var(--text); outline:none;">
             <option value="all">All Levels</option>
             <option value="SSC">SSC</option>
             <option value="HSC">HSC</option>
             <option value="University">University</option>
           </select>
-          <span id="notes-count-badge" style="font-size:12px; color:var(--text-muted); background:#f0ede8; padding:5px 12px; border-radius:20px; white-space:nowrap;"></span>
+          <span id="notes-count-badge" style="font-size:12px; color:var(--text-muted); background:#fff3e8; padding:5px 12px; border-radius:20px; white-space:nowrap; border:1px solid rgba(234,88,12,0.15);"></span>
         </div>
         <div id="notes-no-result" style="display:none; text-align:center; padding:32px; color:var(--text-muted); font-size:14px;">No notes match your search.</div>
         <div class="table-wrap" id="notes-table-wrap">
           <table>
-            <thead><tr><th>Topic / Note Name</th><th>Level</th><th>Type</th><th>Action</th></tr></thead>
+            <thead><tr><th>Topic / Note Name</th><th>Subject</th><th>Level</th><th>Type</th><th>Action</th></tr></thead>
             <tbody id="notes-table-body"></tbody>
           </table>
         </div>
@@ -1129,8 +1134,8 @@
         <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
           <div class="card-title" style="margin-bottom:0;">👥 All Registered Students</div>
           <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-            <input type="text" id="user-search-input" placeholder="🔍 Search by ID or Name..." oninput="filterStudentCards()" style="padding:9px 14px; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); background:#f8f6f2; font-family:var(--font); font-size:13px; color:var(--text); outline:none; width:240px; transition:border-color 0.2s;">
-            <span id="user-count-badge" style="font-size:12px; color:var(--text-muted); white-space:nowrap; background:#f0ede8; padding:5px 10px; border-radius:20px;"></span>
+            <input type="text" id="user-search-input" placeholder="🔍 Search by ID or Name..." oninput="filterStudentCards()" style="padding:9px 14px; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); background:#f8f9ff; font-family:var(--font); font-size:13px; color:var(--text); outline:none; width:240px; transition:border-color 0.2s;">
+            <span id="user-count-badge" style="font-size:12px; color:var(--text-muted); white-space:nowrap; background:#f0f2ff; padding:5px 10px; border-radius:20px;"></span>
           </div>
         </div>
         <div id="student-cards-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:14px;"></div>
@@ -1141,35 +1146,35 @@
     <!-- STUDENT PROFILE MODAL -->
     <div id="student-profile-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(5px); z-index:2000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeStudentProfileModal()">
       <div style="background:var(--surface); border-radius:22px; border:1px solid var(--border-bright); padding:36px 32px; width:460px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.2); position:relative; max-height:90vh; overflow-y:auto;">
-        <button onclick="closeStudentProfileModal()" style="position:absolute; top:16px; right:16px; background:#eeebe4; border:none; border-radius:8px; width:32px; height:32px; cursor:pointer; font-size:16px; color:var(--text-muted);">✕</button>
+        <button onclick="closeStudentProfileModal()" style="position:absolute; top:16px; right:16px; background:#eef0ff; border:none; border-radius:8px; width:32px; height:32px; cursor:pointer; font-size:16px; color:var(--text-muted);">✕</button>
         <div style="display:flex; flex-direction:column; align-items:center; margin-bottom:24px;">
           <div id="sp-avatar" style="width:72px; height:72px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:800; color:#fff; margin-bottom:12px; background:linear-gradient(135deg,var(--accent),var(--cyan));"></div>
           <div id="sp-name" style="font-size:20px; font-weight:800; letter-spacing:-0.4px;"></div>
           <div id="sp-role-badge" style="margin-top:6px;"></div>
         </div>
-        <div style="background:#f8f6f2; border-radius:var(--radius); padding:18px; margin-bottom:16px;">
+        <div style="background:#f8f9ff; border-radius:var(--radius); padding:18px; margin-bottom:16px;">
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Student ID</span><span id="sp-id" style="font-family:var(--mono); color:var(--accent); font-weight:700; font-size:13px;"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Email</span><span id="sp-email" style="font-size:13px;"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Level</span><span id="sp-level" style="font-size:13px; font-weight:700; color:var(--purple);"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0;"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Password</span><span id="sp-pass" style="font-family:var(--mono); font-size:13px; color:var(--text-dim);"></span></div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
-          <div style="background:#f0ede8; border-radius:var(--radius-sm); padding:12px; text-align:center;">
+          <div style="background:#f0f2ff; border-radius:var(--radius-sm); padding:12px; text-align:center;">
             <div id="sp-courses" style="font-size:22px; font-weight:800; color:var(--accent); font-family:var(--mono);">—</div>
             <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Courses</div>
           </div>
-          <div style="background:#f0ede8; border-radius:var(--radius-sm); padding:12px; text-align:center;">
+          <div style="background:#f0f2ff; border-radius:var(--radius-sm); padding:12px; text-align:center;">
             <div id="sp-payments" style="font-size:22px; font-weight:800; color:var(--green); font-family:var(--mono);">—</div>
             <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Paid Months</div>
           </div>
-          <div style="background:#f0ede8; border-radius:var(--radius-sm); padding:12px; text-align:center;">
+          <div style="background:#f0f2ff; border-radius:var(--radius-sm); padding:12px; text-align:center;">
             <div id="sp-homeworks" style="font-size:22px; font-weight:800; color:var(--gold); font-family:var(--mono);">—</div>
             <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Homeworks</div>
           </div>
         </div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button class="btn-action" style="flex:1; margin-top:0;" id="sp-edit-btn">✏️ Edit Profile</button>
-          <button class="btn-action" style="flex:1; margin-top:0; background:#f0ede8; color:var(--purple); box-shadow:none; border:1px solid rgba(167,139,250,0.3);" id="sp-edit-level-btn">🎓 Change Level</button>
+          <button class="btn-action" style="flex:1; margin-top:0; background:#f0f2ff; color:var(--purple); box-shadow:none; border:1px solid rgba(167,139,250,0.3);" id="sp-edit-level-btn">🎓 Change Level</button>
           <button id="sp-delete-btn" style="flex:1; padding:11px 20px; background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.3); color:var(--red); border-radius:var(--radius-sm); cursor:pointer; font-weight:700; font-size:13px; font-family:var(--font);">🗑️ Delete Student</button>
         </div>
       </div>
@@ -1367,6 +1372,7 @@
           <div class="form-group"><label>Class Dates (Comma Separated)</label><input type="text" id="class-dates-input" placeholder="e.g. 01/06, 03/06, 05/06"></div>
         </div>
         <button class="btn-action" onclick="uploadClassDates()">Update Class Dates</button>
+        <button class="btn-action" style="margin-left:10px; background:linear-gradient(135deg,#10b981,#059669);" onclick="manualEmailCheck()">📧 Check & Send Email</button>
       </div>
       <div class="card">
         <div class="card-title">📅 Class Date Records <span id="classdate-preview-id" style="color:var(--accent); font-family:var(--mono); font-size:12px;"></span></div>
@@ -1400,7 +1406,7 @@
         </div>
         <div class="form-group">
           <label>Attach File (Optional — PDF/Image, max 2MB)</label>
-          <input type="file" id="hw-file" accept=".pdf,image/*" style="width:100%; background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); padding:10px 14px; font-family:var(--font); font-size:13.5px; color:var(--text); outline:none; cursor:pointer;">
+          <input type="file" id="hw-file" accept=".pdf,image/*" style="width:100%; background:#f8f9ff; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); padding:10px 14px; font-family:var(--font); font-size:13.5px; color:var(--text); outline:none; cursor:pointer;">
           <div id="hw-file-hint" style="font-size:11px; color:var(--text-muted); margin-top:4px;">File will be stored; students can download it from their Homework section.</div>
         </div>
         <div id="hw-upload-progress" style="display:none; margin-bottom:10px; padding:10px 14px; border-radius:var(--radius-sm); background:rgba(79,142,247,0.08); border:1px solid rgba(79,142,247,0.2); font-size:13px; color:var(--accent);">⏳ Uploading file...</div>
@@ -1417,19 +1423,44 @@
       </div>
     </section>
 
-    <!-- ADMIN: LIBRARY -->
-    <section id="tab-admin-library" class="tab-content hidden">
+    <!-- ADMIN: CLASS NOTES & PDFs -->
+    <section id="tab-admin-notes" class="tab-content hidden">
       <div class="page-header">
-        <div class="page-title">Manage Library</div>
-        <div class="page-subtitle">Add and remove books and academic resources</div>
+        <div class="page-title">📄 Publish Notes & Drive Links</div>
+        <div class="page-subtitle">Upload notes or share Google Drive links with students</div>
       </div>
       <div class="admin-form-card">
         <div class="grid-3">
-          <div class="form-group"><label>Resource / Book Title</label><input type="text" id="lib-title" placeholder="Introduction to C Algorithms"></div>
-          <div class="form-group"><label>Access Link / Location</label><input type="text" id="lib-link" placeholder="Drive link or leave blank if uploading PDF"></div>
+          <div class="form-group">
+            <label>Topic / Note Title</label>
+            <input type="text" id="note-title" placeholder="e.g. Lecture 1 — Matrix Input">
+          </div>
+          <div class="form-group">
+            <label>Subject</label>
+            <select id="note-subject">
+              <option value="Chemistry">⚗️ Chemistry</option>
+              <option value="Physics">⚡ Physics</option>
+              <option value="Higher Math">📐 Higher Math</option>
+              <option value="ICT">💻 ICT</option>
+              <option value="Other">📦 Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Material Type</label>
+            <select id="note-type">
+              <option value="PDF Document">PDF Document</option>
+              <option value="Google Drive Link">Google Drive Link</option>
+              <option value="YouTube Link">YouTube Link</option>
+              <option value="Other Link">Other Link</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>File Name / URL Path</label>
+            <input type="text" id="note-path" placeholder="https://drive.google.com/...">
+          </div>
           <div class="form-group">
             <label>Student Level</label>
-            <select id="lib-level">
+            <select id="note-level">
               <option value="All">All Levels</option>
               <option value="SSC">SSC</option>
               <option value="HSC">HSC</option>
@@ -1437,117 +1468,18 @@
             </select>
           </div>
         </div>
-        <div class="form-group">
-          <label>Upload PDF from Device (Optional — replaces link above, max 2MB)</label>
-          <input type="file" id="lib-pdf-file" accept=".pdf" style="width:100%; background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); padding:10px 14px; font-family:var(--font); font-size:13.5px; color:var(--text); outline:none; cursor:pointer;">
-          <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">If a PDF is selected, it overrides the link above. Students will get a download button.</div>
-        </div>
-        <div id="lib-upload-progress" style="display:none; margin-bottom:10px; padding:10px 14px; border-radius:var(--radius-sm); background:rgba(79,142,247,0.08); border:1px solid rgba(79,142,247,0.2); font-size:13px; color:var(--accent);">⏳ Uploading PDF...</div>
-        <button class="btn-action" onclick="uploadLibrary()">Add Library Resource</button>
-      </div>
-      <div class="card">
-        <div class="card-title">📚 Library Resources</div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Title</th><th>Level</th><th>Link</th><th>Action</th></tr></thead>
-            <tbody id="admin-library-preview"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ADMIN: NOTES -->
-    <section id="tab-admin-notes" class="tab-content hidden">
-      <div class="page-header">
-        <div class="page-title">Publish Notes & Drive Links</div>
-        <div class="page-subtitle">Upload notes or share Google Drive links</div>
-      </div>
-      <div class="admin-form-card">
-        <div class="grid-3">
-          <div class="form-group"><label>Topic / Note Title</label><input type="text" id="note-title" placeholder="e.g. Lecture 1 - Matrix Input"></div>
-          <div class="form-group">
-            <label>Material Type</label>
-            <select id="note-type">
-              <option value="PDF Document">PDF Upload Mode</option>
-              <option value="Google Drive Link">Google Drive Link</option>
-            </select>
-          </div>
-          <div class="form-group"><label>File Name / URL Path</label><input type="text" id="note-path" placeholder="https://drive.google.com/..."></div>
-        </div>
-        <div class="form-group" style="max-width:240px;">
-          <label>Student Level</label>
-          <select id="note-level">
-            <option value="All">All Levels</option>
-            <option value="SSC">SSC</option>
-            <option value="HSC">HSC</option>
-            <option value="University">University</option>
-          </select>
-        </div>
-        <button class="btn-action" onclick="uploadNote()">Publish Note</button>
+        <button class="btn-action" onclick="uploadNote()">📤 Publish Note</button>
       </div>
       <div class="card">
         <div class="card-title">📄 Published Notes</div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Title</th><th>Level</th><th>Type</th><th>Path</th><th>Action</th></tr></thead>
-            <tbody id="admin-notes-preview"></tbody>
+            <thead><tr><th>Title</th><th>Subject</th><th>Level</th><th>Type</th><th>Path / URL</th><th>Action</th></tr></thead>
+            <tbody id="admin-notes-preview">
+              <tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">Loading...</td></tr>
+            </tbody>
           </table>
         </div>
-      </div>
-    </section>
-
-    <!-- ADMIN: NOTICES -->
-    <section id="tab-admin-notices" class="tab-content hidden">
-      <div class="page-header">
-        <div class="page-title">📢 Manage Notices</div>
-        <div class="page-subtitle">Post important announcements for all students</div>
-      </div>
-      <div class="admin-form-card">
-        <div class="grid-2">
-          <div class="form-group"><label>Notice Title</label><input type="text" id="notice-title" placeholder="e.g. Class Postponed on Friday"></div>
-          <div class="form-group">
-            <label>Priority</label>
-            <select id="notice-priority">
-              <option value="normal">Normal</option>
-              <option value="important">Important</option>
-              <option value="urgent">Urgent</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group"><label>Notice Body</label><textarea id="notice-body" placeholder="Write the full notice here..." style="width:100%; min-height:90px; background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); padding:12px 14px; font-family:var(--font); font-size:14px; color:var(--text); outline:none; resize:vertical; transition:border-color 0.2s;"></textarea></div>
-        <button class="btn-action" onclick="publishNotice()">📢 Publish Notice</button>
-      </div>
-      <div class="card">
-        <div class="card-title">📋 Published Notices</div>
-        <div id="admin-notices-list"><div style="color:var(--text-muted); font-size:13px; padding:12px;">Loading...</div></div>
-      </div>
-    </section>
-
-    <!-- ADMIN: FILES -->
-    <section id="tab-admin-files" class="tab-content hidden">
-      <div class="page-header">
-        <div class="page-title">Upload Study Materials</div>
-        <div class="page-subtitle">Upload PDF files or publish file names for students</div>
-      </div>
-      <div class="admin-form-card">
-        <div class="card-title" style="margin-bottom:14px;">📄 Upload PDF from Device</div>
-        <div class="form-group"><label>Display Name for Students</label><input type="text" id="f-display-name" placeholder="e.g. Chapter 3 - Algebra Notes"></div>
-        <div class="form-group">
-          <label>Select PDF File</label>
-          <input type="file" id="f-pdf-input" accept=".pdf" style="width:100%; background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); padding:10px 14px; font-family:var(--font); font-size:13.5px; color:var(--text); outline:none; cursor:pointer;">
-          <div id="f-pdf-size-hint" style="font-size:11px; color:var(--text-muted); margin-top:4px;">Max file size: 2 MB. File is stored as a downloadable link for students.</div>
-        </div>
-        <div id="f-upload-progress" style="display:none; margin-bottom:10px; padding:10px 14px; border-radius:var(--radius-sm); background:rgba(79,142,247,0.08); border:1px solid rgba(79,142,247,0.2); font-size:13px; color:var(--accent);">⏳ Uploading...</div>
-        <button class="btn-action" onclick="uploadPdfFile()">⬆️ Upload PDF</button>
-        <div style="margin-top:18px; padding-top:18px; border-top:1px solid var(--border);">
-          <div class="card-title" style="margin-bottom:12px;">📝 Or Publish a Notice / File Name</div>
-          <div class="form-group"><label>File Name / Notification Title</label><input type="text" id="f-name" placeholder="e.g. Class Routine.pdf"></div>
-          <button class="btn-action" style="background:#eeebe4; color:var(--text-dim); box-shadow:none;" onclick="uploadFile()">Publish Title Only</button>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">📂 Uploaded Files History</div>
-        <div id="admin-file-list"></div>
       </div>
     </section>
 
@@ -1577,7 +1509,7 @@
       </div>
       <div class="admin-form-card" style="max-width:500px;">
         <div class="card-title" style="margin-bottom:20px;">Current Active Key</div>
-        <div id="current-secret-display" style="background:#f0ede8; border:1px solid var(--border-bright); border-radius:var(--radius-sm); padding:14px 16px; margin-bottom:20px; font-family:var(--mono); color:var(--gold); font-size:16px; font-weight:700; letter-spacing:2px; word-break:break-all;">Loading...</div>
+        <div id="current-secret-display" style="background:#f0f2ff; border:1px solid var(--border-bright); border-radius:var(--radius-sm); padding:14px 16px; margin-bottom:20px; font-family:var(--mono); color:var(--gold); font-size:16px; font-weight:700; letter-spacing:2px; word-break:break-all;">Loading...</div>
         <div class="form-group">
           <label>Set New Secret Key</label>
           <input type="text" id="new-secret-key-input" placeholder="e.g. SKA-2026-XYZ">
@@ -1585,7 +1517,7 @@
         </div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button class="btn-action" onclick="saveSecretKey()">💾 Save Key</button>
-          <button class="btn-action" style="background:#eeebe4; color:var(--text-dim); box-shadow:none;" onclick="generateRandomKey()">🎲 Generate Random</button>
+          <button class="btn-action" style="background:#eef0ff; color:var(--text-dim); box-shadow:none;" onclick="generateRandomKey()">🎲 Generate Random</button>
         </div>
       </div>
 
@@ -1739,7 +1671,7 @@
         <div id="exp-custom-category-wrap" style="display:none; margin-bottom:14px;">
           <label style="font-size:12px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.6px; display:block; margin-bottom:6px;">Custom Category Name</label>
           <input type="text" id="exp-custom-category-input" placeholder="Category name লিখুন, e.g. Electricity Bill"
-            style="width:100%; max-width:340px; box-sizing:border-box; background:#f8f6f2; border:1.5px solid var(--accent); padding:10px 13px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; box-shadow:0 0 0 3px var(--accent-glow);">
+            style="width:100%; max-width:340px; box-sizing:border-box; background:#f8f9ff; border:1.5px solid var(--accent); padding:10px 13px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; box-shadow:0 0 0 3px var(--accent-glow);">
           <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">এখানে category name লিখুন — Add Expense করলে এই নামে save হবে।</div>
         </div>
         <div class="form-group">
@@ -1785,7 +1717,7 @@
             </select>
           </div>
           <div style="margin-bottom:0;">
-            <button class="btn-action" style="margin-top:0; background:#eeebe4; color:var(--text-dim); box-shadow:none; border:1px solid rgba(0,0,0,0.1);" onclick="clearExpenseFilters()">✕ Clear Filters</button>
+            <button class="btn-action" style="margin-top:0; background:#eef0ff; color:var(--text-dim); box-shadow:none; border:1px solid rgba(0,0,0,0.1);" onclick="clearExpenseFilters()">✕ Clear Filters</button>
           </div>
         </div>
       </div>
@@ -1890,7 +1822,7 @@
       <div class="admin-form-card" style="background:linear-gradient(135deg,rgba(167,139,250,0.06),rgba(79,142,247,0.04)); border-color:rgba(167,139,250,0.18);">
         <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
           <label style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.8px;">Filter Year</label>
-          <select id="summary-filter-year" onchange="loadFinancialSummary()" style="background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); padding:8px 12px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; min-width:130px;">
+          <select id="summary-filter-year" onchange="loadFinancialSummary()" style="background:#f8f9ff; border:1px solid rgba(0,0,0,0.13); padding:8px 12px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; min-width:130px;">
             <option value="">— All Years —</option>
             <option value="2026">2026</option>
             <option value="2027">2027</option>
@@ -1899,7 +1831,7 @@
             <option value="2030">2030</option>
           </select>
           <label style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.8px;">Filter Month</label>
-          <select id="summary-filter-month" onchange="loadFinancialSummary()" style="background:#f8f6f2; border:1px solid rgba(0,0,0,0.13); padding:8px 12px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; min-width:130px;">
+          <select id="summary-filter-month" onchange="loadFinancialSummary()" style="background:#f8f9ff; border:1px solid rgba(0,0,0,0.13); padding:8px 12px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; min-width:130px;">
             <option value="">— All Months —</option>
             <option value="January">January</option><option value="February">February</option>
             <option value="March">March</option><option value="April">April</option>
@@ -1908,7 +1840,7 @@
             <option value="September">September</option><option value="October">October</option>
             <option value="November">November</option><option value="December">December</option>
           </select>
-          <button class="btn-action" style="margin-top:0; background:#eeebe4; color:var(--text-dim); box-shadow:none; border:1px solid rgba(0,0,0,0.1); padding:9px 16px;" onclick="clearSummaryFilters()">✕ Clear Filters</button>
+          <button class="btn-action" style="margin-top:0; background:#eef0ff; color:var(--text-dim); box-shadow:none; border:1px solid rgba(0,0,0,0.1); padding:9px 16px;" onclick="clearSummaryFilters()">✕ Clear Filters</button>
         </div>
       </div>
 
@@ -1981,7 +1913,7 @@
 <!-- EDIT EXPENSE MODAL -->
 <div id="edit-expense-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeExpenseEditModal()">
   <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:460px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
-    <button onclick="closeExpenseEditModal()" style="position:absolute;top:14px;right:14px;background:#eeebe4;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+    <button onclick="closeExpenseEditModal()" style="position:absolute;top:14px;right:14px;background:#eef0ff;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
     <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Expense Entry</div>
     <input type="hidden" id="ee-key">
     <div class="form-group">
@@ -2032,7 +1964,7 @@
 <!-- EDIT CLASS DATES MODAL -->
 <div id="edit-classdate-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeClassDateEditModal()">
   <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:420px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
-    <button onclick="closeClassDateEditModal()" style="position:absolute;top:14px;right:14px;background:#eeebe4;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+    <button onclick="closeClassDateEditModal()" style="position:absolute;top:14px;right:14px;background:#eef0ff;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
     <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Class Dates</div>
     <input type="hidden" id="ecd-student-id">
     <input type="hidden" id="ecd-old-key">
@@ -2069,7 +2001,7 @@
 <!-- EDIT ROUTINE MODAL -->
 <div id="edit-routine-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeRoutineEditModal()">
   <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:420px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
-    <button onclick="closeRoutineEditModal()" style="position:absolute;top:14px;right:14px;background:#eeebe4;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+    <button onclick="closeRoutineEditModal()" style="position:absolute;top:14px;right:14px;background:#eef0ff;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
     <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Routine Entry</div>
     <input type="hidden" id="er-routine-student-id">
     <input type="hidden" id="er-routine-key">
@@ -2097,7 +2029,7 @@
 
 <div id="edit-payment-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closePaymentEditModal()">
   <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:420px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
-    <button onclick="closePaymentEditModal()" style="position:absolute;top:14px;right:14px;background:#eeebe4;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+    <button onclick="closePaymentEditModal()" style="position:absolute;top:14px;right:14px;background:#eef0ff;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
     <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Payment Record</div>
     <input type="hidden" id="ep-student-id">
     <input type="hidden" id="ep-old-key">
@@ -2147,7 +2079,7 @@
 <!-- EDIT RESULT MODAL -->
 <div id="edit-result-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeResultEditModal()">
   <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:460px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
-    <button onclick="closeResultEditModal()" style="position:absolute;top:14px;right:14px;background:#eeebe4;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+    <button onclick="closeResultEditModal()" style="position:absolute;top:14px;right:14px;background:#eef0ff;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
     <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Academic Result</div>
     <input type="hidden" id="er-student-id">
     <input type="hidden" id="er-old-key">
@@ -2172,6 +2104,7 @@
   import { getDatabase, ref, set, get, child, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
   const firebaseConfig = {
+    apiKey: "AIzaSyBVvR9NMvUNQR9buleNoCwNEcP82VwD168",
     authDomain: "uni-portal-4f306.firebaseapp.com",
     databaseURL: "https://uni-portal-4f306-default-rtdb.firebaseio.com",
     projectId: "uni-portal-4f306",
@@ -2346,9 +2279,6 @@
     
     if(tabId === 'routine') loadStudentRoutine();
     if(tabId === 'admin-routine') {};
-    if(tabId === 'admin-files') renderAdminFiles();
-    if(tabId === 'admin-library') loadAdminLibraryPreview();
-    if(tabId === 'admin-notes') loadAdminNotesPreview();
     if(tabId === 'admin-users') renderUserTable();
     if(tabId === 'admin-passrequests') loadPassRequests();
     if(tabId === 'admin-secretkey') loadSecretKey();
@@ -2356,7 +2286,6 @@
     if(tabId === 'admin-expenses') { if(window._initExpensesTab) window._initExpensesTab(); else loadExpenses(); }
     if(tabId === 'admin-saving') { loadSavingPreview(); }
     if(tabId === 'admin-summary') { loadFinancialSummary(); }
-    if(tabId === 'saving') { loadStudentSaving(); }
     if(tabId === 'profile') loadProfileData();
     if(tabId === 'dash') initUserDash();
     if(tabId === 'result') loadStudentResults();
@@ -2364,8 +2293,8 @@
     if(tabId === 'payment') loadStudentPayments();
     if(tabId === 'class-dates') loadStudentClassDates();
     if(tabId === 'homework') loadStudentHomeworks();
-    if(tabId === 'library') loadStudentLibrary();
     if(tabId === 'notes') loadStudentNotes();
+    if(tabId === 'admin-notes') loadAdminNotesPreview();
     if(tabId === 'cgpa') initCGPACalculator();
   };
 
@@ -2540,31 +2469,7 @@
     }
   };
 
-  async function loadAdminLibraryPreview() {
-    const tbody = document.getElementById('admin-library-preview');
-    const snapshot = await get(child(ref(db), 'library'));
-    if(snapshot.exists()) {
-      tbody.innerHTML = Object.entries(snapshot.val()).map(([key, l]) => {
-        const lvl = l.level || 'All';
-        const levelBadgeColor = lvl === 'SSC' ? 'var(--green)' : lvl === 'HSC' ? 'var(--gold)' : lvl === 'University' ? 'var(--purple)' : 'var(--text-muted)';
-        return `
-        <tr>
-          <td style="font-weight:600;">${l.title}</td>
-          <td><span style="font-size:11px; font-weight:700; padding:3px 9px; border-radius:12px; background:rgba(0,0,0,0.06); color:${levelBadgeColor};">${lvl}</span></td>
-          <td style="color:var(--accent); font-size:12px; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${l.link}">${l.link}</td>
-          <td style="display:flex; gap:5px; flex-wrap:wrap;">
-            <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="editLibraryTitle('${key}','${l.title.replace(/'/g,"\\'")}')">✏️ Title</button>
-            <button class="btn-sm" style="background:rgba(251,191,36,0.1);border-color:rgba(251,191,36,0.3);color:var(--gold);" onclick="editLibraryLink('${key}','${l.link.replace(/'/g,"\\'")}')">🔗 Link</button>
-            <button class="btn-sm" style="background:rgba(79,142,247,0.08);border-color:rgba(79,142,247,0.25);color:var(--purple);" onclick="editLibraryLevel('${key}','${lvl}')">🎓 Level</button>
-            <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('library/${key}', loadAdminLibraryPreview)">Delete</button>
-          </td>
-        </tr>
-      `}).join('');
-    } else {
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:16px;">No library resources found.</td></tr>`;
-    }
-  }
-  window.loadAdminLibraryPreview = loadAdminLibraryPreview;
+
 
   window.editLibraryTitle = async (key, current) => {
     const val = prompt('Edit resource title:', current);
@@ -2595,30 +2500,7 @@
     loadAdminLibraryPreview();
   };
 
-  async function loadAdminNotesPreview() {
-    const tbody = document.getElementById('admin-notes-preview');
-    const snapshot = await get(child(ref(db), 'notes'));
-    if(snapshot.exists()) {
-      tbody.innerHTML = Object.entries(snapshot.val()).map(([key, n]) => {
-        const levelBadgeColor = n.level === 'SSC' ? 'var(--green)' : n.level === 'HSC' ? 'var(--gold)' : n.level === 'University' ? 'var(--purple)' : 'var(--text-muted)';
-        return `
-        <tr>
-          <td style="font-weight:600;" id="note-title-cell-${key}">${n.title}</td>
-          <td><span style="font-size:11px; font-weight:700; padding:3px 9px; border-radius:12px; background:rgba(0,0,0,0.06); color:${levelBadgeColor};">${n.level || 'All'}</span></td>
-          <td><span class="badge badge-user">${n.type}</span></td>
-          <td style="font-size:12px; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${n.path}</td>
-          <td style="display:flex; gap:6px; flex-wrap:wrap;">
-            <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="editNoteTitle('${key}', '${n.title.replace(/'/g,"\\'")}')">✏️ Title</button>
-            <button class="btn-sm" style="background:rgba(167,139,250,0.1);border-color:rgba(167,139,250,0.3);color:var(--purple);" onclick="editNoteLevel('${key}','${n.level || 'All'}')">🎓 Level</button>
-            <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('notes/${key}', loadAdminNotesPreview)">Delete</button>
-          </td>
-        </tr>
-      `}).join('');
-    } else {
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:16px;">No notes found.</td></tr>`;
-    }
-  }
-  window.loadAdminNotesPreview = loadAdminNotesPreview;
+
 
   window.editNoteTitle = async (key, currentTitle) => {
     const newTitle = prompt('Edit note name:', currentTitle);
@@ -2796,36 +2678,92 @@
     }
   }
 
-  async function loadStudentLibrary() {
-    const tbody = document.getElementById('library-table-body');
-    const snapshot = await get(child(ref(db), 'library'));
+  // ═══════════════════════════════════════════════════
+  //  ADMIN CLASS NOTES MODULE (original simple version)
+  // ═══════════════════════════════════════════════════
+
+  window.uploadNote = () => {
+    const title   = document.getElementById('note-title').value.trim();
+    const subject = document.getElementById('note-subject').value;
+    const type    = document.getElementById('note-type').value;
+    const path    = document.getElementById('note-path').value.trim();
+    const level   = document.getElementById('note-level').value;
+    if(!title || !path) return alert('Note title and path/URL are required!');
+    set(ref(db, 'notes/' + Date.now()), { title, subject, type, path, level }).then(() => {
+      alert('✅ Note published successfully!');
+      document.getElementById('note-title').value = '';
+      document.getElementById('note-path').value  = '';
+      loadAdminNotesPreview();
+      allNotesCache = [];
+    });
+  };
+
+  async function loadAdminNotesPreview() {
+    const tbody = document.getElementById('admin-notes-preview');
+    if(!tbody) return;
+    const snapshot = await get(child(ref(db), 'notes'));
     if(snapshot.exists()) {
-      const studentLevel = currentSession.level || null;
-      const isAdmin = currentSession.role === 'admin';
-      tbody.innerHTML = Object.values(snapshot.val()).filter(l => {
-        if(isAdmin) return true;
-        const lvl = l.level || 'All';
-        return lvl === 'All' || lvl === studentLevel;
-      }).map(l => {
-        let accessCell;
-        if(l.fileData) {
-          accessCell = `<a href="${l.fileData}" download="${l.fileName||'resource.pdf'}" class="btn-sm" style="background:rgba(52,211,153,0.1);border-color:rgba(52,211,153,0.3);color:var(--green);">⬇️ Download PDF</a>`;
-        } else if(l.link && l.link.startsWith('http')) {
-          accessCell = `<a href="${l.link}" target="_blank" class="btn-sm">🔗 Open Resource</a>`;
-        } else {
-          accessCell = `<span style="color:var(--text-muted);">${l.link||'—'}</span>`;
-        }
+      const subjectIcon = { Chemistry:'⚗️', Physics:'⚡', 'Higher Math':'📐', ICT:'💻', Other:'📦' };
+      tbody.innerHTML = Object.entries(snapshot.val()).map(([key, n]) => {
+        const lvl = n.level || 'All';
+        const subj = n.subject || 'Other';
+        const levelColor = lvl === 'SSC' ? 'var(--green)' : lvl === 'HSC' ? 'var(--gold)' : lvl === 'University' ? 'var(--purple)' : 'var(--text-muted)';
+        const safeTitle = (n.title || '').replace(/'/g, "\\'");
         return `
           <tr>
-            <td style="font-weight:600;">${l.title}</td>
-            <td>${accessCell}</td>
+            <td style="font-weight:600;" id="note-title-cell-${key}">${n.title}</td>
+            <td style="font-size:13px; font-weight:600;">${subjectIcon[subj]||'📦'} ${subj}</td>
+            <td><span style="font-size:11px; font-weight:700; padding:3px 9px; border-radius:12px; background:rgba(0,0,0,0.06); color:${levelColor};">${lvl}</span></td>
+            <td><span class="badge badge-user">${n.type}</span></td>
+            <td style="font-size:12px; max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${n.path}">${n.path}</td>
+            <td style="display:flex; gap:5px; flex-wrap:wrap;">
+              <button class="btn-sm" style="background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.3);color:var(--accent);" onclick="editNoteTitle('${key}','${safeTitle}')">✏️ Title</button>
+              <button class="btn-sm" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);color:var(--gold);" onclick="editNoteSubject('${key}','${subj}')">📚 Subject</button>
+              <button class="btn-sm" style="background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.3);color:var(--purple);" onclick="editNoteLevel('${key}','${lvl}')">🎓 Level</button>
+              <button class="btn-sm" style="background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:var(--red);" onclick="deleteEntry('notes/${key}', loadAdminNotesPreview); allNotesCache=[];">Delete</button>
+            </td>
           </tr>
         `;
       }).join('');
     } else {
-      tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:var(--text-muted); padding:24px;">No library records found.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">No notes published yet.</td></tr>`;
     }
   }
+  window.loadAdminNotesPreview = loadAdminNotesPreview;
+
+  window.editNoteTitle = async (key, currentTitle) => {
+    const newTitle = prompt('Edit note title:', currentTitle);
+    if(newTitle === null) return;
+    const trimmed = newTitle.trim();
+    if(!trimmed) return alert('Title cannot be empty!');
+    await update(ref(db), { [`/notes/${key}/title`]: trimmed });
+    loadAdminNotesPreview();
+  };
+
+  window.editNoteLevel = async (key, current) => {
+    const levels  = ['All', 'SSC', 'HSC', 'University'];
+    const options = levels.map((l, i) => `${i+1}. ${l}`).join('\n');
+    const input   = prompt(`Select new level (enter number):\n${options}\n\nCurrent: ${current}`);
+    if(input === null) return;
+    const idx = parseInt(input) - 1;
+    if(isNaN(idx) || idx < 0 || idx >= levels.length) return alert('Invalid selection!');
+    await update(ref(db), { [`/notes/${key}/level`]: levels[idx] });
+    loadAdminNotesPreview();
+    allNotesCache = [];
+  };
+
+  window.editNoteSubject = async (key, current) => {
+    const subjects = ['Chemistry', 'Physics', 'Higher Math', 'ICT', 'Other'];
+    const icons    = ['⚗️', '⚡', '📐', '💻', '📦'];
+    const options  = subjects.map((s, i) => `${i+1}. ${icons[i]} ${s}`).join('\n');
+    const input    = prompt(`Select new subject (enter number):\n${options}\n\nCurrent: ${current}`);
+    if(input === null) return;
+    const idx = parseInt(input) - 1;
+    if(isNaN(idx) || idx < 0 || idx >= subjects.length) return alert('Invalid selection!');
+    await update(ref(db), { [`/notes/${key}/subject`]: subjects[idx] });
+    loadAdminNotesPreview();
+    allNotesCache = [];
+  };
 
   let allNotesCache = [];
 
@@ -2873,6 +2811,7 @@
     const noResult = document.getElementById('notes-no-result');
     const tableWrap = document.getElementById('notes-table-wrap');
     if(countBadge) countBadge.innerText = notes.length + ' note' + (notes.length !== 1 ? 's' : '');
+    const subjectIcon = { Chemistry:'⚗️', Physics:'⚡', 'Higher Math':'📐', ICT:'💻', Other:'📦' };
     if(notes.length === 0) {
       tbody.innerHTML = '';
       if(noResult) noResult.style.display = 'block';
@@ -2881,15 +2820,17 @@
       if(noResult) noResult.style.display = 'none';
       if(tableWrap) tableWrap.style.display = '';
       tbody.innerHTML = notes.map(n => {
-        const isUrl = n.path.startsWith('http');
-        const lvl = n.level || 'All';
-        const levelBadgeColor = lvl === 'SSC' ? 'var(--green)' : lvl === 'HSC' ? 'var(--gold)' : lvl === 'University' ? 'var(--purple)' : 'var(--text-muted)';
+        const isUrl = n.path && n.path.startsWith('http');
+        const lvl  = n.level || 'All';
+        const subj = n.subject || 'Other';
+        const levelColor = lvl === 'SSC' ? 'var(--green)' : lvl === 'HSC' ? 'var(--gold)' : lvl === 'University' ? 'var(--purple)' : 'var(--text-muted)';
         return `
           <tr>
             <td style="font-weight:600;">${n.title}</td>
-            <td><span style="font-size:11px; font-weight:700; padding:3px 9px; border-radius:12px; background:rgba(0,0,0,0.06); color:${levelBadgeColor};">${lvl}</span></td>
+            <td style="font-size:13px; font-weight:600;">${subjectIcon[subj]||'📦'} ${subj}</td>
+            <td><span style="font-size:11px; font-weight:700; padding:3px 9px; border-radius:12px; background:rgba(0,0,0,0.06); color:${levelColor};">${lvl}</span></td>
             <td><span class="badge badge-user">${n.type}</span></td>
-            <td>${isUrl ? `<a href="${n.path}" target="_blank" class="btn-sm">Go To Link</a>` : `<span style="color:var(--green); font-family:var(--mono); font-size:12px;">📄 ${n.path}</span>`}</td>
+            <td>${isUrl ? `<a href="${n.path}" target="_blank" class="btn-sm">🔗 Open</a>` : `<span style="color:var(--green); font-family:var(--mono); font-size:12px;">📄 ${n.path}</span>`}</td>
           </tr>
         `;
       }).join('');
@@ -2897,25 +2838,30 @@
   }
 
   window.filterStudentNotes = () => {
-    const q = (document.getElementById('notes-search-input')?.value || '').trim().toLowerCase();
-    const lvl = document.getElementById('notes-level-filter')?.value || 'all';
+    const q    = (document.getElementById('notes-search-input')?.value || '').trim().toLowerCase();
+    const lvl  = document.getElementById('notes-level-filter')?.value || 'all';
+    const subj = document.getElementById('notes-subject-filter')?.value || 'all';
     const isAdmin = currentSession.role === 'admin';
     const studentLevel = currentSession.level || null;
 
     let filtered = allNotesCache;
 
-    // Students can only see their own level + 'All' level notes
+    // Students only see their level + 'All'
     if(!isAdmin && studentLevel) {
       filtered = filtered.filter(n => {
         const noteLevel = n.level || 'All';
         return noteLevel === 'All' || noteLevel === studentLevel;
       });
     } else if(lvl !== 'all') {
-      // Admin can filter by any level
       filtered = filtered.filter(n => (n.level || 'All') === lvl || (n.level || '') === 'All');
     }
 
+    // Filter by subject
+    if(subj !== 'all') filtered = filtered.filter(n => (n.subject || 'Other') === subj);
+
+    // Filter by search text
     if(q) filtered = filtered.filter(n => n.title && n.title.toLowerCase().includes(q));
+
     renderNotesRows(filtered);
   };
 
@@ -2994,21 +2940,95 @@
     });
   };
 
-  window.uploadClassDates = () => {
-    const sId = document.getElementById('class-student-id').value.trim();
-    const year = document.getElementById('class-year').value;
-    const month = document.getElementById('class-month').value;
+  window.uploadClassDates = async () => {
+    const sId       = document.getElementById('class-student-id').value.trim();
+    const year      = document.getElementById('class-year').value;
+    const month     = document.getElementById('class-month').value;
     const classDates = document.getElementById('class-dates-input').value.trim() || "None Entered";
 
     if(!sId) return alert("Student ID is required!");
 
     const key = `${year}_${month}`;
-    set(ref(db, `classDates/${sId}/${key}`), { dates: classDates, year, month })
-    .then(() => {
-      alert(`Class conducted dates updated for ${month} ${year}!`);
-      document.getElementById('class-dates-input').value = '';
-      loadClassDatesPreview();
+    await set(ref(db, `classDates/${sId}/${key}`), { dates: classDates, year, month });
+    alert(`Class conducted dates updated for ${month} ${year}!`);
+    document.getElementById('class-dates-input').value = '';
+    loadClassDatesPreview();
+
+    // ── Count total classes across all months for this student ──
+    await checkAndSendClassEmail(sId);
+  };
+
+  // ── Count total class days and send email if >= 12 ──
+  async function checkAndSendClassEmail(sId) {
+    const [classDatesSnap, userSnap] = await Promise.all([
+      get(child(ref(db), `classDates/${sId}`)),
+      get(child(ref(db), `users/${sId}`))
+    ]);
+
+    if(!classDatesSnap.exists()) return;
+
+    // Count total class dates (comma-separated entries across all months)
+    let totalClasses = 0;
+    Object.values(classDatesSnap.val()).forEach(rec => {
+      const datesStr = typeof rec === 'string' ? rec : (rec.dates || '');
+      if(datesStr && datesStr !== 'None Entered') {
+        const count = datesStr.split(',').map(d => d.trim()).filter(d => d.length > 0).length;
+        totalClasses += count;
+      }
     });
+
+    // Check if already emailed for this milestone
+    const emailSentSnap = await get(child(ref(db), `emailSent/${sId}/class12`));
+    if(emailSentSnap.exists()) return; // already sent
+
+    if(totalClasses >= 12) {
+      const student = userSnap.exists() ? userSnap.val() : {};
+      const studentName  = student.name  || `Student ${sId}`;
+      const studentEmail = student.email || null;
+
+      if(!studentEmail) {
+        alert(`⚠️ Student ${sId} has completed 12 classes but no email address found in their profile!`);
+        return;
+      }
+
+      try {
+        await emailjs.send('service_c500mo1', 'template_96312d3', {
+          student_name: studentName,
+          student_id:   sId,
+          to_email:     studentEmail,
+        });
+
+        // Mark as sent so we don't resend
+        await set(ref(db, `emailSent/${sId}/class12`), {
+          sentAt: new Date().toISOString(),
+          totalClasses,
+          email: studentEmail
+        });
+
+        alert(`✅ Email sent to ${studentName} (${studentEmail}) — 12 classes completed! 🎓`);
+      } catch(err) {
+        console.error('EmailJS error:', err);
+        alert(`⚠️ Failed to send email to ${studentName}. Error: ${err.text || err.message || 'Unknown error'}`);
+      }
+    }
+  }
+
+  window.checkAndSendClassEmail = checkAndSendClassEmail;
+
+  // ── Manual trigger: admin clicks "Check & Send Email" button ──
+  window.manualEmailCheck = async () => {
+    const sId = document.getElementById('class-student-id').value.trim();
+    if(!sId) return alert('Please enter a Student ID first!');
+
+    const emailSentSnap = await get(child(ref(db), `emailSent/${sId}/class12`));
+    if(emailSentSnap.exists()) {
+      const data = emailSentSnap.val();
+      const confirm_reset = confirm(`Email already sent to this student on ${data.sentAt?.slice(0,10) || 'unknown date'}.\n\nDo you want to resend?`);
+      if(!confirm_reset) return;
+      // Reset so it can be sent again
+      await remove(ref(db, `emailSent/${sId}/class12`));
+    }
+    await checkAndSendClassEmail(sId);
   };
 
   window.uploadHomework = async () => {
@@ -3050,43 +3070,7 @@
     loadHomeworkPreview();
   };
 
-  window.uploadLibrary = async () => {
-    const title = document.getElementById('lib-title').value.trim();
-    const link = document.getElementById('lib-link').value.trim();
-    const level = document.getElementById('lib-level').value;
-    const fileInput = document.getElementById('lib-pdf-file');
-    const file = fileInput && fileInput.files[0];
 
-    if(!title) return alert("Resource title is required!");
-    if(!file && !link) return alert("Please provide a link or upload a PDF file!");
-
-    const progress = document.getElementById('lib-upload-progress');
-    let fileData = null;
-    let fileName = null;
-
-    if(file) {
-      if(file.size > 2 * 1024 * 1024) return alert("PDF is too large! Max size is 2 MB.");
-      progress.style.display = 'block';
-      fileData = await new Promise((res, rej) => {
-        const r = new FileReader();
-        r.onload = () => res(r.result);
-        r.onerror = () => rej(new Error("File read failed"));
-        r.readAsDataURL(file);
-      });
-      fileName = file.name;
-      progress.style.display = 'none';
-    }
-
-    const entry = { title, link: link || '', level };
-    if(fileData) { entry.fileData = fileData; entry.fileName = fileName; }
-
-    await set(ref(db, 'library/' + Date.now()), entry);
-    alert("Library resource added!");
-    document.getElementById('lib-title').value = '';
-    document.getElementById('lib-link').value = '';
-    if(fileInput) fileInput.value = '';
-    loadAdminLibraryPreview();
-  };
 
   window.uploadNote = () => {
     const title = document.getElementById('note-title').value.trim();
@@ -3513,26 +3497,26 @@
     renderAdminFiles();
   };
 
-  window.uploadFile = () => {
-    const fName = document.getElementById('f-name').value.trim();
-    if(!fName) return alert("Enter a file name!");
-    set(ref(db, 'files/' + Date.now()), fName).then(() => {
-      document.getElementById('f-name').value = '';
-      alert("Notice published!");
-      renderAdminFiles();
-    });
-  };
-
   async function renderAdminFiles() {
     const snapshot = await get(child(ref(db), 'files'));
     const fileList = document.getElementById('admin-file-list');
+    if(!fileList) return;
     if(snapshot.exists()) {
-      fileList.innerHTML = Object.entries(snapshot.val()).map(([key, f]) => `
-        <div class="file-history-item" style="justify-content:space-between;">
-          <span>✅ ${f}</span>
-          <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red); flex-shrink:0;" onclick="deleteEntry('files/${key}', renderAdminFiles)">Delete</button>
-        </div>
-      `).join('');
+      fileList.innerHTML = Object.entries(snapshot.val()).map(([key, f]) => {
+        const name = typeof f === 'object' ? f.name : f;
+        const isFile = typeof f === 'object' && f.fileData;
+        const downloadBtn = isFile
+          ? `<a href="${f.fileData}" download="${f.fileName||name}" class="btn-sm" style="background:rgba(52,211,153,0.1);border-color:rgba(52,211,153,0.3);color:var(--green);">⬇️ Download</a>`
+          : '';
+        return `
+          <div class="file-history-item" style="justify-content:space-between;">
+            <span>📄 ${name}</span>
+            <div style="display:flex;gap:6px;">${downloadBtn}
+              <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('files/${key}', renderAdminFiles)">Delete</button>
+            </div>
+          </div>
+        `;
+      }).join('');
     } else {
       fileList.innerHTML = `<span style="color:var(--text-muted); font-size:13px; padding:12px; display:block;">No files uploaded yet.</span>`;
     }
@@ -4511,7 +4495,7 @@
 <!-- EDIT SAVING MODAL -->
 <div id="edit-saving-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeSavingEditModal()">
   <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:420px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
-    <button onclick="closeSavingEditModal()" style="position:absolute;top:14px;right:14px;background:#eeebe4;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+    <button onclick="closeSavingEditModal()" style="position:absolute;top:14px;right:14px;background:#eef0ff;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
     <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Saving Record</div>
     <input type="hidden" id="esav-student-id">
     <input type="hidden" id="esav-old-key">
@@ -4551,7 +4535,7 @@
 <!-- EDIT OTHER INCOME MODAL -->
 <div id="edit-other-income-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeOtherIncomeEditModal()">
   <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:420px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
-    <button onclick="closeOtherIncomeEditModal()" style="position:absolute;top:14px;right:14px;background:#eeebe4;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+    <button onclick="closeOtherIncomeEditModal()" style="position:absolute;top:14px;right:14px;background:#eef0ff;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
     <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Other Income</div>
     <input type="hidden" id="eoi-key">
     <div class="form-group">
@@ -4578,6 +4562,7 @@
     </div>
   </div>
 </div>
+
 
 </body>
 </html>
