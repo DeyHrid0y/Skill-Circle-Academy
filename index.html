@@ -56,94 +56,229 @@
   ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.25); border-radius: 10px; }
 
   /* ═══════════════════
-     AUTH PAGES
+     AUTH PAGES — SPLIT PANEL
   ═══════════════════ */
   .auth-wrapper {
     min-height: 100vh;
+    display: flex;
+    align-items: stretch;
+  }
+
+  /* ── Left decorative panel ── */
+  .auth-panel-left {
+    width: 420px;
+    flex-shrink: 0;
+    background: linear-gradient(160deg, #6366f1 0%, #4f46e5 50%, #0ea5e9 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     overflow: hidden;
-    background: linear-gradient(135deg, #fff3e8 0%, #fff8f2 40%, #fef3c7 100%);
   }
 
-  /* Animated background blobs */
-  .auth-wrapper::before {
-    content: '';
+  .auth-panel-blur1 {
     position: absolute;
-    width: 700px; height: 700px;
-    background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 65%);
-    top: -200px; left: -100px;
-    animation: blob1 8s ease-in-out infinite;
+    width: 350px; height: 350px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+    top: -80px; left: -80px;
+    animation: floatBlob 7s ease-in-out infinite;
   }
-  .auth-wrapper::after {
-    content: '';
+  .auth-panel-blur2 {
     position: absolute;
-    width: 500px; height: 500px;
-    background: radial-gradient(circle, rgba(139,92,246,0.10) 0%, transparent 65%);
-    bottom: -100px; right: -50px;
-    animation: blob2 10s ease-in-out infinite;
+    width: 250px; height: 250px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+    bottom: -40px; right: -60px;
+    animation: floatBlob 9s ease-in-out infinite reverse;
   }
-  @keyframes blob1 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(30px,-20px) scale(1.05)} }
-  @keyframes blob2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-20px,30px) scale(1.08)} }
+  @keyframes floatBlob {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(20px,-20px) scale(1.08); }
+  }
 
-  .auth-card {
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255,255,255,0.9);
-    padding: 48px 44px;
-    border-radius: 28px;
-    width: 440px;
+  .auth-panel-content {
     position: relative;
     z-index: 1;
-    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(99,102,241,0.07);
+    text-align: center;
+    padding: 40px;
   }
 
-  .auth-logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 32px;
+  .auth-panel-logo {
+    font-size: 64px;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 8px 24px rgba(0,0,0,0.2));
+    animation: floatIcon 3s ease-in-out infinite;
+  }
+  @keyframes floatIcon {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
   }
 
-  .auth-logo-icon {
-    width: 46px; height: 46px;
-    background: linear-gradient(135deg, var(--accent), var(--purple));
-    border-radius: 13px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-    box-shadow: 0 4px 14px rgba(99,102,241,0.35);
-  }
-
-  .auth-logo-text {
-    font-size: 20px;
+  .auth-panel-title {
+    font-size: 36px;
     font-weight: 800;
-    letter-spacing: -0.5px;
+    color: #fff;
+    letter-spacing: -1px;
+    line-height: 1.15;
+    margin-bottom: 14px;
   }
-  .auth-logo-text span { color: var(--accent); }
-
-  .auth-heading {
-    font-size: 28px;
-    font-weight: 800;
-    letter-spacing: -0.7px;
-    margin-bottom: 7px;
-    background: linear-gradient(135deg, #0f1623, #3730a3);
+  .auth-panel-title span {
+    background: linear-gradient(135deg, #fde68a, #fbbf24);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
+  .auth-panel-tagline {
+    font-size: 15px;
+    color: rgba(255,255,255,0.75);
+    font-weight: 400;
+    margin-bottom: 32px;
+  }
+
+  .auth-panel-dots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+  .auth-panel-dots span {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transition: all 0.3s;
+  }
+  .auth-panel-dots span.active {
+    width: 24px;
+    border-radius: 4px;
+    background: #fff;
+  }
+
+  /* ── Right form panel ── */
+  .auth-form-panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fffaf6;
+    padding: 40px 24px;
+  }
+
+  .auth-form-inner {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .auth-form-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--accent);
+    background: rgba(99,102,241,0.1);
+    border: 1.5px solid rgba(99,102,241,0.2);
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 18px;
+  }
+
+  .auth-heading {
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.7px;
+    margin-bottom: 7px;
+    color: var(--text);
+  }
+
   .auth-subheading {
     font-size: 14px;
     color: var(--text-muted);
-    margin-bottom: 30px;
+    margin-bottom: 28px;
+    line-height: 1.5;
   }
 
-  /* ── Form elements ── */
-  .form-group { margin-bottom: 18px; }
+  /* ── Input with icon ── */
+  .input-icon-wrap {
+    position: relative;
+  }
+  .input-icon {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 15px;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .input-icon-wrap input {
+    padding-left: 40px !important;
+  }
 
+  /* ── Divider ── */
+  .auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0 16px;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .auth-divider::before,
+  .auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(234,88,12,0.15);
+  }
+
+  /* ── Toggle ── */
+  .auth-toggle {
+    text-align: center;
+    font-size: 13.5px;
+    color: var(--text-muted);
+  }
+  .auth-toggle a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 700;
+  }
+  .auth-toggle a:hover { text-decoration: underline; }
+
+  /* ── Button ── */
+  .btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    color: #fff;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 15px;
+    font-family: var(--font);
+    transition: all 0.25s;
+    letter-spacing: 0.2px;
+    box-shadow: 0 4px 14px rgba(99,102,241,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(99,102,241,0.45);
+  }
+  .btn-primary:active { transform: translateY(0); }
+
+  /* ═══════════════════
+     PORTAL LAYOUT
+  ═══════════════════ */
+  #portal-page { display: none; }
+
+  /* ── Form elements (shared) ── */
+  .form-group { margin-bottom: 18px; }
   .form-group label {
     display: block;
     font-size: 11.5px;
@@ -153,7 +288,6 @@
     text-transform: uppercase;
     letter-spacing: 0.9px;
   }
-
   .form-group input,
   .form-group select {
     width: 100%;
@@ -167,52 +301,14 @@
     font-size: 14px;
     transition: all 0.2s;
   }
-
   .form-group input:focus,
   .form-group select:focus {
     border-color: var(--accent);
     box-shadow: 0 0 0 4px rgba(99,102,241,0.12);
     background: #fffaf6;
   }
-
   .form-group input::placeholder { color: #a0aec0; }
-  .form-group select option { background: #fff; color: var(--text); }
-
-  .btn-primary {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border: none;
-    color: #fff;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 14.5px;
-    font-family: var(--font);
-    transition: all 0.25s;
-    letter-spacing: 0.2px;
-    box-shadow: 0 4px 14px rgba(99,102,241,0.4);
-  }
-
-  .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(99,102,241,0.45);
-  }
-  .btn-primary:active { transform: translateY(0); }
-
-  .auth-toggle {
-    text-align: center;
-    margin-top: 22px;
-    font-size: 13px;
-    color: var(--text-muted);
-  }
-  .auth-toggle a { color: var(--accent); text-decoration: none; font-weight: 700; }
-  .auth-toggle a:hover { text-decoration: underline; }
-
-  /* ═══════════════════
-     PORTAL LAYOUT
-  ═══════════════════ */
-  #portal-page { display: none; }
+  .form-group select option { background: #fffaf6; color: var(--text); }
 
   /* ── Sidebar ── */
   .sidebar {
@@ -673,7 +769,14 @@
     .sidebar { transform: translateX(-100%); transition: transform 0.28s cubic-bezier(.4,0,.2,1); top: 0; z-index: 200; }
     .sidebar.open { transform: translateX(0); }
     .main-content { margin-left: 0; padding: 76px 16px 28px; }
-    .auth-card { width: 92vw; padding: 34px 22px; margin: 0 auto; }
+    /* Auth mobile */
+    .auth-wrapper { flex-direction: column; }
+    .auth-panel-left { width: 100%; min-height: 200px; padding: 30px 20px; }
+    .auth-panel-logo { font-size: 44px; margin-bottom: 12px; }
+    .auth-panel-title { font-size: 26px; }
+    .auth-form-panel { padding: 28px 20px; }
+    .auth-form-inner { max-width: 100%; }
+    .auth-heading { font-size: 24px; }
     .grid-2 { grid-template-columns: 1fr; }
     .grid-3 { grid-template-columns: 1fr; }
     .grid-4 { grid-template-columns: 1fr 1fr; }
@@ -712,79 +815,161 @@
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 
 <!-- LOGIN PAGE -->
+<!-- LOGIN PAGE -->
 <div id="login-page" class="auth-wrapper">
-  <div class="auth-card">
-    <div class="auth-logo">
-      <div class="auth-logo-icon">🎓</div>
-      <div class="auth-logo-text">Skill Circle <span>Academy</span></div>
+  <!-- Left decorative panel -->
+  <div class="auth-panel-left">
+    <div class="auth-panel-content">
+      <div class="auth-panel-logo">🎓</div>
+      <div class="auth-panel-title">Skill Circle<br><span>Academy</span></div>
+      <div class="auth-panel-tagline">Your gateway to academic excellence</div>
+      <div class="auth-panel-dots">
+        <span></span><span class="active"></span><span></span>
+      </div>
     </div>
-    <div class="auth-heading">Welcome back</div>
-    <div class="auth-subheading">Sign in to access your academic portal</div>
-
-    <div class="form-group"><label>Student ID</label><input type="text" id="login-id" placeholder="Enter your Student ID"></div>
-    <div class="form-group"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••"></div>
-    <button class="btn-primary" onclick="handleLogin()">Sign In →</button>
-    <div style="text-align:right; margin-top: -4px; margin-bottom: 4px;">
-      <a href="#" onclick="toggleAuth('forgot')" style="font-size:12px; color:var(--text-muted); text-decoration:none;">Forgot password?</a>
+    <div class="auth-panel-blur1"></div>
+    <div class="auth-panel-blur2"></div>
+  </div>
+  <!-- Right form panel -->
+  <div class="auth-form-panel">
+    <div class="auth-form-inner">
+      <div class="auth-form-badge">Student Portal</div>
+      <div class="auth-heading">Please sign in to access your student portal</div>
+      <div class="auth-subheading">Enter your Student ID and password to continue</div>
+      <div class="form-group">
+        <label>Student ID</label>
+        <div class="input-icon-wrap">
+          <span class="input-icon">🪪</span>
+          <input type="text" id="login-id" placeholder="Enter your Student ID" onkeydown="if(event.key==='Enter')handleLogin()">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-icon-wrap">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')handleLogin()">
+        </div>
+      </div>
+      <div style="text-align:right; margin-top:-8px; margin-bottom:20px;">
+        <a href="#" onclick="toggleAuth('forgot')" style="font-size:12.5px; color:var(--accent); text-decoration:none; font-weight:600;">Forgot password?</a>
+      </div>
+      <button class="btn-primary" onclick="handleLogin()">
+        <span>Sign In</span>
+        <span style="font-size:16px;">→</span>
+      </button>
+      <div class="auth-divider"><span>or</span></div>
+      <div class="auth-toggle">New student? <a href="#" onclick="toggleAuth('signup')">Create an account</a></div>
     </div>
-    <div class="auth-toggle">Don't have an account? <a href="#" onclick="toggleAuth('signup')">Create Account</a></div>
   </div>
 </div>
 
 <!-- FORGOT PASSWORD PAGE -->
 <div id="forgot-page" class="auth-wrapper" style="display:none;">
-  <div class="auth-card">
-    <div class="auth-logo">
-      <div class="auth-logo-icon">🎓</div>
-      <div class="auth-logo-text">Skill Circle <span>Academy</span></div>
+  <div class="auth-panel-left" style="background:linear-gradient(160deg,#7c3aed,#4f46e5,#0ea5e9);">
+    <div class="auth-panel-content">
+      <div class="auth-panel-logo">🔑</div>
+      <div class="auth-panel-title">Reset<br><span>Password</span></div>
+      <div class="auth-panel-tagline">We'll get you back in safely</div>
+      <div class="auth-panel-dots"><span></span><span></span><span class="active"></span></div>
     </div>
-    <div class="auth-heading">Reset Password</div>
-    <div class="auth-subheading">Fill in the form below — your request will be sent to the admin for approval</div>
-    <div class="form-group"><label>Full Name</label><input type="text" id="forgot-name" placeholder="Your registered full name"></div>
-    <div class="form-group"><label>Student ID</label><input type="text" id="forgot-id" placeholder="e.g. 101"></div>
-    <div class="form-group"><label>New Password (Requested)</label><input type="password" id="forgot-newpass" placeholder="Enter your desired new password"></div>
-    <button class="btn-primary" onclick="handleForgotPassword()">Send Request to Admin →</button>
-    <div id="forgot-result" style="margin-top:16px; padding:14px; border-radius:var(--radius-sm); display:none;"></div>
-    <div class="auth-toggle" style="margin-top:16px;"><a href="#" onclick="toggleAuth('login')">← Back to Sign In</a></div>
+    <div class="auth-panel-blur1"></div>
+    <div class="auth-panel-blur2"></div>
+  </div>
+  <div class="auth-form-panel">
+    <div class="auth-form-inner">
+      <div class="auth-form-badge">Password Reset</div>
+      <div class="auth-heading">Reset your password 🔑</div>
+      <div class="auth-subheading">Submit a request — admin will approve your new password</div>
+      <div class="form-group">
+        <label>Full Name</label>
+        <div class="input-icon-wrap"><span class="input-icon">👤</span>
+          <input type="text" id="forgot-name" placeholder="Your registered full name">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Student ID</label>
+        <div class="input-icon-wrap"><span class="input-icon">🪪</span>
+          <input type="text" id="forgot-id" placeholder="e.g. 101">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>New Password (Requested)</label>
+        <div class="input-icon-wrap"><span class="input-icon">🔒</span>
+          <input type="password" id="forgot-newpass" placeholder="Your desired new password">
+        </div>
+      </div>
+      <button class="btn-primary" onclick="handleForgotPassword()">
+        <span>Send Request</span><span style="font-size:16px;">→</span>
+      </button>
+      <div id="forgot-result" style="margin-top:16px; padding:14px; border-radius:var(--radius-sm); display:none;"></div>
+      <div class="auth-toggle" style="margin-top:20px;"><a href="#" onclick="toggleAuth('login')">← Back to Sign In</a></div>
+    </div>
   </div>
 </div>
 
 <!-- SIGNUP PAGE -->
 <div id="signup-page" class="auth-wrapper" style="display:none;">
-  <div class="auth-card">
-    <div class="auth-logo">
-      <div class="auth-logo-icon">🎓</div>
-      <div class="auth-logo-text">Skill Circle <span>Academy</span></div>
+  <div class="auth-panel-left" style="background:linear-gradient(160deg,#059669,#0d9488,#0284c7);">
+    <div class="auth-panel-content">
+      <div class="auth-panel-logo">✨</div>
+      <div class="auth-panel-title">Join<br><span>Academy</span></div>
+      <div class="auth-panel-tagline">Start your learning journey today</div>
+      <div class="auth-panel-dots"><span class="active"></span><span></span><span></span></div>
     </div>
-    <div class="auth-heading">Create account</div>
-    <div class="auth-subheading">Join the university portal today</div>
-
-    <div class="form-group"><label>Full Name</label><input type="text" id="signup-name" placeholder="John Doe"></div>
-    <div class="form-group">
-      <label>Student ID <span style="color:var(--accent); font-size:10px; font-weight:700; background:rgba(79,142,247,0.1); padding:2px 7px; border-radius:10px; letter-spacing:0.3px;">Admin Approved</span></label>
-      <select id="signup-id" style="width:100%; background:#f8f9ff; border:1px solid rgba(0,0,0,0.13); padding:12px 15px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:14px; transition:border-color 0.2s, box-shadow 0.2s;">
-        <option value="">— Loading approved IDs... —</option>
-      </select>
-      <div id="signup-id-notice" style="font-size:11px; color:var(--text-muted); margin-top:5px;">Only IDs approved by the admin are available. Contact admin if your ID is missing.</div>
+    <div class="auth-panel-blur1"></div>
+    <div class="auth-panel-blur2"></div>
+  </div>
+  <div class="auth-form-panel" style="overflow-y:auto;">
+    <div class="auth-form-inner">
+      <div class="auth-form-badge">New Student</div>
+      <div class="auth-heading">Create account ✨</div>
+      <div class="auth-subheading">Fill in your details to get started</div>
+      <div class="form-group">
+        <label>Full Name</label>
+        <div class="input-icon-wrap"><span class="input-icon">👤</span>
+          <input type="text" id="signup-name" placeholder="Your full name">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Student ID <span style="color:var(--accent); font-size:10px; font-weight:700; background:rgba(99,102,241,0.1); padding:2px 8px; border-radius:10px; margin-left:4px;">Admin Approved</span></label>
+        <select id="signup-id" style="width:100%; background:#fff6ee; border:1.5px solid rgba(234,88,12,0.14); padding:12px 15px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:14px;">
+          <option value="">— Loading approved IDs... —</option>
+        </select>
+        <div id="signup-id-notice" style="font-size:11px; color:var(--text-muted); margin-top:5px;">Only admin-approved IDs are available.</div>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <div class="input-icon-wrap"><span class="input-icon">📧</span>
+          <input type="email" id="signup-email" placeholder="example@email.com">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-icon-wrap"><span class="input-icon">🔒</span>
+          <input type="password" id="signup-pass" placeholder="Choose a password">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Student Level</label>
+        <select id="signup-level" style="width:100%; background:#fff6ee; border:1.5px solid rgba(234,88,12,0.14); padding:12px 15px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:14px;">
+          <option value="">— Select your level —</option>
+          <option value="SSC">SSC</option>
+          <option value="HSC">HSC</option>
+          <option value="University">University</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>🔑 Registration Secret Key</label>
+        <div class="input-icon-wrap"><span class="input-icon">🗝️</span>
+          <input type="password" id="signup-secret" placeholder="Key provided by admin">
+        </div>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">Required. Contact your admin for this key.</div>
+      </div>
+      <button class="btn-primary" onclick="handleSignUp()">
+        <span>Register Now</span><span style="font-size:16px;">→</span>
+      </button>
+      <div class="auth-toggle" style="margin-top:20px;">Already have an account? <a href="#" onclick="toggleAuth('login')">Sign In</a></div>
     </div>
-    <div class="form-group"><label>Email</label><input type="email" id="signup-email" placeholder="example@lu.com"></div>
-    <div class="form-group"><label>Password</label><input type="password" id="signup-pass" placeholder="••••••••"></div>
-    <div class="form-group">
-      <label>Student Level</label>
-      <select id="signup-level">
-        <option value="">— Select your level —</option>
-        <option value="SSC">SSC</option>
-        <option value="HSC">HSC</option>
-        <option value="University">University</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>🔑 Registration Secret Key</label>
-      <input type="password" id="signup-secret" placeholder="Enter key provided by admin">
-      <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">This key is provided by your admin. Without it, registration is not allowed.</div>
-    </div>
-    <button class="btn-primary" onclick="handleSignUp()">Register Now →</button>
-    <div class="auth-toggle">Already have an account? <a href="#" onclick="toggleAuth('login')">Sign In</a></div>
   </div>
 </div>
 
@@ -2992,7 +3177,7 @@
       }
 
       try {
-        await emailjs.send('service_c500mo1', 'template_96312d3', {
+        await window.emailjs.send('service_c500mo1', 'template_96312d3', {
           student_name: studentName,
           student_id:   sId,
           to_email:     studentEmail,
