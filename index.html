@@ -8,6 +8,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>emailjs.init("d0754iMYdWN8ktqGT");</script>
+<!-- Firebase compat (works with file:// protocol) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <style>
   /* ═══════════════════════════════════════
      SKILL CIRCLE ACADEMY — PREMIUM DESIGN
@@ -987,7 +990,6 @@
       <div class="nav-item active" id="nav-dash" onclick="switchTab('dash')"><span class="nav-dot"></span>Dashboard</div>
       <div class="nav-item" id="nav-routine" onclick="switchTab('routine')"><span class="nav-dot"></span>Class Routine</div>
       <div class="nav-item" id="nav-result" onclick="switchTab('result')"><span class="nav-dot"></span>Academic Result</div>
-      <div class="nav-item" id="nav-attendance" onclick="switchTab('attendance')"><span class="nav-dot"></span>Attendance</div>
       <div class="nav-item" id="nav-payment" onclick="switchTab('payment')"><span class="nav-dot"></span>Payment Tracker</div>
       <div class="nav-item" id="nav-class-dates" onclick="switchTab('class-dates')"><span class="nav-dot"></span>Classes Held Dates</div>
       <div class="nav-item" id="nav-homework" onclick="switchTab('homework')"><span class="nav-dot"></span>Homework</div>
@@ -1001,7 +1003,6 @@
       <div class="nav-item" id="nav-admin-users" onclick="switchTab('admin-users')"><span class="nav-dot"></span>Manage Users</div>
       <div class="nav-item" id="nav-admin-routine" onclick="switchTab('admin-routine')"><span class="nav-dot"></span>Manage Class Routine</div>
       <div class="nav-item" id="nav-admin-results" onclick="switchTab('admin-results')"><span class="nav-dot"></span>Publish Results</div>
-      <div class="nav-item" id="nav-admin-attendance" onclick="switchTab('admin-attendance')"><span class="nav-dot"></span>Manage Attendance</div>
       <div class="nav-item" id="nav-admin-payments" onclick="switchTab('admin-payments')"><span class="nav-dot"></span>Manage Payments</div>
       <div class="nav-item" id="nav-admin-class-dates" onclick="switchTab('admin-class-dates')"><span class="nav-dot"></span>Manage Class Dates</div>
       <div class="nav-item" id="nav-admin-homework" onclick="switchTab('admin-homework')"><span class="nav-dot"></span>Manage Homework</div>
@@ -1078,21 +1079,6 @@
       </div>
     </section>
 
-    <!-- ATTENDANCE -->
-    <section id="tab-attendance" class="tab-content hidden">
-      <div class="page-header">
-        <div class="page-title">Class Attendance</div>
-        <div class="page-subtitle">Track your attendance across all courses</div>
-      </div>
-      <div class="card">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Course Code</th><th>Total Classes</th><th>Attended</th><th>Percentage</th></tr></thead>
-            <tbody id="attendance-table-body"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
 
     <!-- PAYMENT -->
     <section id="tab-payment" class="tab-content hidden">
@@ -1439,37 +1425,6 @@
       </div>
     </section>
 
-    <!-- ADMIN: ATTENDANCE -->
-    <section id="tab-admin-attendance" class="tab-content hidden">
-      <div class="page-header">
-        <div class="page-title">Manage Attendance</div>
-        <div class="page-subtitle">Update and delete student attendance by course</div>
-      </div>
-      <div class="admin-form-card">
-        <div class="grid-2">
-          <div class="form-group">
-            <label>Student ID</label>
-            <input type="text" id="attn-student-id" placeholder="e.g. 101" oninput="loadAttendancePreview(); fetchStudentName('attn-student-id',null,'attn-name-display')">
-            <div id="attn-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
-          </div>
-          <div class="form-group"><label>Course Code</label><input type="text" id="attn-code" placeholder="e.g. CSE-1212"></div>
-        </div>
-        <div class="grid-2">
-          <div class="form-group"><label>Total Classes Conducted</label><input type="number" id="attn-total" placeholder="30"></div>
-          <div class="form-group"><label>Classes Attended</label><input type="number" id="attn-present" placeholder="25"></div>
-        </div>
-        <button class="btn-action" onclick="uploadAttendance()">Update Attendance</button>
-      </div>
-      <div class="card">
-        <div class="card-title">📋 Current Attendance <span id="attn-preview-id" style="color:var(--accent); font-family:var(--mono); font-size:12px;"></span></div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Course Code</th><th>Total</th><th>Attended</th><th>%</th><th>Action</th></tr></thead>
-            <tbody id="admin-attn-preview"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
 
     <!-- ADMIN: PAYMENTS -->
     <section id="tab-admin-payments" class="tab-content hidden">
@@ -1528,7 +1483,7 @@
     <section id="tab-admin-class-dates" class="tab-content hidden">
       <div class="page-header">
         <div class="page-title">Manage Class Dates</div>
-        <div class="page-subtitle">Enter and delete year &amp; month-wise class conducted dates</div>
+        <div class="page-subtitle">Enter class dates one by one — auto email sends when student reaches 12 classes total</div>
       </div>
       <div class="admin-form-card">
         <div class="grid-3">
@@ -1540,10 +1495,8 @@
           <div class="form-group">
             <label>Select Year</label>
             <select id="class-year">
-              <option value="2026">2026</option>
-              <option value="2027">2027</option>
-              <option value="2028">2028</option>
-              <option value="2029">2029</option>
+              <option value="2026">2026</option><option value="2027">2027</option>
+              <option value="2028">2028</option><option value="2029">2029</option>
               <option value="2030">2030</option>
             </select>
           </div>
@@ -1555,16 +1508,40 @@
               <option>September</option><option>October</option><option>November</option><option>December</option>
             </select>
           </div>
-          <div class="form-group"><label>Class Dates (Comma Separated)</label><input type="text" id="class-dates-input" placeholder="e.g. 01/06, 03/06, 05/06"></div>
         </div>
-        <button class="btn-action" onclick="uploadClassDates()">Update Class Dates</button>
-        <button class="btn-action" style="margin-left:10px; background:linear-gradient(135deg,#10b981,#059669);" onclick="manualEmailCheck()">📧 Check & Send Email</button>
+
+        <!-- Date picker row -->
+        <div class="form-group">
+          <label>Add Class Date</label>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <input type="date" id="class-date-picker" style="flex:1; min-width:160px; max-width:220px; background:#fff6ee; border:1.5px solid rgba(234,88,12,0.14); padding:11px 14px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:14px;">
+            <button onclick="addClassDate()" style="padding:11px 20px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border:none; color:#fff; border-radius:var(--radius-sm); cursor:pointer; font-weight:700; font-size:13px; font-family:var(--font); box-shadow:0 3px 10px rgba(99,102,241,0.3); white-space:nowrap;">+ Add Date</button>
+          </div>
+        </div>
+
+        <!-- Selected dates chips -->
+        <div id="class-dates-chips-wrap" style="display:none; margin-bottom:14px;">
+          <label style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.9px; display:block; margin-bottom:8px;">Selected Dates <span id="class-dates-count" style="color:var(--accent);"></span></label>
+          <div id="class-dates-chips" style="display:flex; flex-wrap:wrap; gap:8px; min-height:32px;"></div>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn-action" onclick="uploadClassDates()" style="margin-top:0;">💾 Save Class Dates</button>
+          <button class="btn-action" style="margin-top:0; background:linear-gradient(135deg,#10b981,#059669);" onclick="manualEmailCheck()">📧 Check & Send Email</button>
+        </div>
+
+        <!-- Total class counter badge -->
+        <div id="class-total-badge" style="display:none; margin-top:14px; padding:10px 16px; background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(139,92,246,0.08)); border:1.5px solid rgba(99,102,241,0.18); border-radius:var(--radius-sm); font-size:13px; color:var(--text-dim);">
+          📊 Total classes conducted for this student: <strong id="class-total-count" style="color:var(--accent); font-size:16px;"></strong>
+          <span id="class-email-sent-badge" style="display:none; margin-left:10px; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; background:rgba(16,185,129,0.1); color:var(--green); border:1px solid rgba(16,185,129,0.2);">✅ Email Sent</span>
+        </div>
       </div>
+
       <div class="card">
         <div class="card-title">📅 Class Date Records <span id="classdate-preview-id" style="color:var(--accent); font-family:var(--mono); font-size:12px;"></span></div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Year</th><th>Month</th><th>Dates Conducted</th><th>Action</th></tr></thead>
+            <thead><tr><th>Year</th><th>Month</th><th>Dates Conducted</th><th>Count</th><th>Action</th></tr></thead>
             <tbody id="admin-classdate-preview"></tbody>
           </table>
         </div>
@@ -2285,10 +2262,9 @@
   </div>
 </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, set, get, child, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+  // Firebase compat SDK (works with file:// and http://)
   const firebaseConfig = {
     apiKey: "AIzaSyBVvR9NMvUNQR9buleNoCwNEcP82VwD168",
     authDomain: "uni-portal-4f306.firebaseapp.com",
@@ -2300,8 +2276,21 @@
     measurementId: "G-DVVD1GK3BY"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+  const app = firebase.initializeApp(firebaseConfig);
+  const _db = firebase.database();
+
+  // Helper wrappers to match modular API used throughout the code
+  function ref(db, path)    { return path ? _db.ref(path) : _db.ref(); }
+  function child(r, path)   { return r.child(path); }
+  function set(r, val)      { return r.set(val); }
+  function update(r, val)   {
+    // update(ref(db), {'/path': val}) → root update
+    // update(ref(db, 'path'), {key: val}) → node update
+    return r.update(val);
+  }
+  function remove(r)        { return r.remove(); }
+  function get(r)           { return r.once('value'); }
+  const db = _db;
 
   let currentSession = null;
   let editingId = null;
@@ -2475,7 +2464,6 @@
     if(tabId === 'profile') loadProfileData();
     if(tabId === 'dash') initUserDash();
     if(tabId === 'result') loadStudentResults();
-    if(tabId === 'attendance') loadStudentAttendance();
     if(tabId === 'payment') loadStudentPayments();
     if(tabId === 'class-dates') loadStudentClassDates();
     if(tabId === 'homework') loadStudentHomeworks();
@@ -2573,32 +2561,6 @@
       `).join('');
     } else {
       tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:16px;">No results found.</td></tr>`;
-    }
-  };
-
-  window.loadAttendancePreview = async () => {
-    const sId = document.getElementById('attn-student-id').value.trim();
-    const tbody = document.getElementById('admin-attn-preview');
-    const label = document.getElementById('attn-preview-id');
-    if(!sId) { tbody.innerHTML = ''; label.innerText = ''; return; }
-    label.innerText = `for ID: ${sId}`;
-    const snapshot = await get(child(ref(db), `attendance/${sId}`));
-    if(snapshot.exists()) {
-      tbody.innerHTML = Object.entries(snapshot.val()).map(([key, a]) => {
-        const pct = ((a.present/a.total)*100).toFixed(1);
-        const color = pct >= 75 ? 'var(--green)' : 'var(--red)';
-        return `
-          <tr>
-            <td style="font-family:var(--mono); color:var(--accent); font-weight:700;">${a.code}</td>
-            <td>${a.total}</td>
-            <td>${a.present}</td>
-            <td style="font-weight:700; color:${color};">${pct}%</td>
-            <td><button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('attendance/${sId}/${key}', loadAttendancePreview)">Delete</button></td>
-          </tr>
-        `;
-      }).join('');
-    } else {
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:16px;">No attendance found.</td></tr>`;
     }
   };
 
@@ -2734,27 +2696,6 @@
       `).join('');
     } else {
       tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:24px;">No results published yet.</td></tr>`;
-    }
-  }
-
-  async function loadStudentAttendance() {
-    const tbody = document.getElementById('attendance-table-body');
-    const snapshot = await get(child(ref(db), `attendance/${currentSession.id}`));
-    if(snapshot.exists()) {
-      tbody.innerHTML = Object.values(snapshot.val()).map(a => {
-        const percentage = ((a.present / a.total) * 100).toFixed(1);
-        const color = percentage >= 75 ? 'var(--green)' : 'var(--red)';
-        return `
-          <tr>
-            <td style="font-family:var(--mono); color:var(--accent); font-weight:700;">${a.code}</td>
-            <td>${a.total}</td>
-            <td>${a.present}</td>
-            <td style="font-weight:700; color:${color};">${percentage}%</td>
-          </tr>
-        `;
-      }).join('');
-    } else {
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:24px;">No attendance data found.</td></tr>`;
     }
   }
 
@@ -3087,26 +3028,6 @@
     showMsg('✅ Password updated successfully!', true);
   };
 
-  window.uploadAttendance = () => {
-    const sId = document.getElementById('attn-student-id').value.trim();
-    const code = document.getElementById('attn-code').value.trim();
-    const total = parseInt(document.getElementById('attn-total').value);
-    const present = parseInt(document.getElementById('attn-present').value);
-
-    if(!sId || !code || isNaN(total) || isNaN(present)) return alert("Please fill all attendance fields!");
-    if(present > total) return alert("Attended classes cannot be greater than total classes!");
-
-    const courseKey = code.replace('.', '_');
-    set(ref(db, `attendance/${sId}/${courseKey}`), { code, total, present })
-    .then(() => {
-      alert("Attendance updated successfully!");
-      document.getElementById('attn-code').value = '';
-      document.getElementById('attn-total').value = '';
-      document.getElementById('attn-present').value = '';
-      loadAttendancePreview();
-    });
-  };
-
   window.uploadPayment = () => {
     const sId = document.getElementById('pay-student-id').value.trim();
     const year = document.getElementById('pay-year').value;
@@ -3126,46 +3047,155 @@
     });
   };
 
-  window.uploadClassDates = async () => {
-    const sId       = document.getElementById('class-student-id').value.trim();
-    const year      = document.getElementById('class-year').value;
-    const month     = document.getElementById('class-month').value;
-    const classDates = document.getElementById('class-dates-input').value.trim() || "None Entered";
+  // ── Class dates chip state ──
+  let classDatesSelected = [];
 
-    if(!sId) return alert("Student ID is required!");
+  window.addClassDate = () => {
+    const picker = document.getElementById('class-date-picker');
+    const val = picker.value;
+    if(!val) return alert('Please pick a date!');
+    // Format: DD/MM
+    const d = new Date(val);
+    const formatted = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+    if(classDatesSelected.includes(formatted)) return alert(`${formatted} already added!`);
+    classDatesSelected.push(formatted);
+    classDatesSelected.sort();
+    picker.value = '';
+    renderClassDateChips();
+  };
+
+  function renderClassDateChips() {
+    const wrap = document.getElementById('class-dates-chips-wrap');
+    const container = document.getElementById('class-dates-chips');
+    const countEl = document.getElementById('class-dates-count');
+    if(classDatesSelected.length === 0) {
+      wrap.style.display = 'none';
+      return;
+    }
+    wrap.style.display = 'block';
+    countEl.textContent = `(${classDatesSelected.length})`;
+    container.innerHTML = classDatesSelected.map(d => `
+      <span style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:rgba(99,102,241,0.1);border:1.5px solid rgba(99,102,241,0.2);border-radius:20px;font-size:13px;font-weight:600;color:var(--accent);">
+        📅 ${d}
+        <button onclick="removeClassDate('${d}')" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:14px;padding:0;line-height:1;">×</button>
+      </span>
+    `).join('');
+  }
+
+  window.removeClassDate = (d) => {
+    classDatesSelected = classDatesSelected.filter(x => x !== d);
+    renderClassDateChips();
+  };
+
+  window.uploadClassDates = async () => {
+    const sId  = document.getElementById('class-student-id').value.trim();
+    const year = document.getElementById('class-year').value;
+    const month = document.getElementById('class-month').value;
+    if(!sId) return alert('Student ID is required!');
+
+    // Build dates string from chips OR load existing and merge
+    let datesToSave = classDatesSelected.join(', ');
+    if(!datesToSave) return alert('Please add at least one class date using the date picker!');
 
     const key = `${year}_${month}`;
-    await set(ref(db, `classDates/${sId}/${key}`), { dates: classDates, year, month });
-    alert(`Class conducted dates updated for ${month} ${year}!`);
-    document.getElementById('class-dates-input').value = '';
+    await set(ref(db, `classDates/${sId}/${key}`), { dates: datesToSave, year, month });
+    alert(`✅ Class dates saved for ${month} ${year}!`);
+    classDatesSelected = [];
+    renderClassDateChips();
     loadClassDatesPreview();
-
-    // ── Count total classes across all months for this student ──
     await checkAndSendClassEmail(sId);
   };
 
-  // ── Count total class days and send email if >= 12 ──
+  // ── Load preview — also loads dates into chips when student+month selected ──
+  window.loadClassDatesPreview = async () => {
+    const sId  = document.getElementById('class-student-id')?.value.trim() || '';
+    const tbody = document.getElementById('admin-classdate-preview');
+    const label = document.getElementById('classdate-preview-id');
+    const badge = document.getElementById('class-total-badge');
+    const totalEl = document.getElementById('class-total-count');
+    const emailBadge = document.getElementById('class-email-sent-badge');
+    if(!tbody) return;
+    if(!sId) { tbody.innerHTML = ''; if(label) label.innerText = ''; if(badge) badge.style.display='none'; return; }
+    if(label) label.innerText = `for ID: ${sId}`;
+
+    const snap = await get(child(ref(db), `classDates/${sId}`));
+    const saved = snap.exists() ? snap.val() : {};
+    const monthOrder = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+    const entries = Object.entries(saved).map(([key, val]) => {
+      if(typeof val === 'string') return { key, year: '—', month: key, dates: val };
+      const yr = val.year || (key.includes('_') ? key.split('_')[0] : '—');
+      const mo = val.month || (key.includes('_') ? key.split('_')[1] : key);
+      return { key, year: yr, month: mo, dates: val.dates || '' };
+    }).sort((a,b) => b.year !== a.year ? (b.year||'').localeCompare(a.year||'') : monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month));
+
+    // Total class count across all months
+    let total = 0;
+    entries.forEach(e => {
+      if(e.dates && e.dates !== 'None Entered') {
+        total += e.dates.split(',').map(d=>d.trim()).filter(d=>d.length>0).length;
+      }
+    });
+
+    // Show total badge
+    if(badge) {
+      badge.style.display = total > 0 ? 'block' : 'none';
+      if(totalEl) {
+        totalEl.textContent = total;
+        totalEl.style.color = total >= 12 ? 'var(--green)' : 'var(--accent)';
+      }
+    }
+
+    // Show email sent badge
+    if(emailBadge) {
+      const emailSnap = await get(child(ref(db), `emailSent/${sId}/class12`));
+      emailBadge.style.display = emailSnap.exists() ? 'inline' : 'none';
+    }
+
+    if(entries.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:16px;">No class date records for this student.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = entries.map(e => {
+      const cnt = e.dates && e.dates !== 'None Entered'
+        ? e.dates.split(',').map(d=>d.trim()).filter(d=>d.length>0).length : 0;
+      const safeDates = (e.dates||'').replace(/'/g, '&#39;');
+      return `
+        <tr>
+          <td style="font-family:var(--mono); color:var(--purple); font-weight:700;">${e.year}</td>
+          <td style="font-weight:600;">${e.month}</td>
+          <td style="color:var(--gold); font-size:13px;">${e.dates}</td>
+          <td style="font-family:var(--mono); color:var(--accent); font-weight:700;">${cnt}</td>
+          <td style="display:flex; gap:5px; flex-wrap:wrap;">
+            <button class="btn-sm" style="background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.3);color:var(--accent);"
+              onclick="openClassDateEditModal('${sId}','${e.key}','${e.year}','${e.month}','${safeDates}')">✏️ Edit</button>
+            <button class="btn-sm" style="background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:var(--red);"
+              onclick="deleteEntry('classDates/${sId}/${e.key}', loadClassDatesPreview)">Delete</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  };
+
+  // ── Count total classes and send email at 12 ──
   async function checkAndSendClassEmail(sId) {
     const [classDatesSnap, userSnap] = await Promise.all([
       get(child(ref(db), `classDates/${sId}`)),
       get(child(ref(db), `users/${sId}`))
     ]);
-
     if(!classDatesSnap.exists()) return;
 
-    // Count total class dates (comma-separated entries across all months)
     let totalClasses = 0;
     Object.values(classDatesSnap.val()).forEach(rec => {
       const datesStr = typeof rec === 'string' ? rec : (rec.dates || '');
       if(datesStr && datesStr !== 'None Entered') {
-        const count = datesStr.split(',').map(d => d.trim()).filter(d => d.length > 0).length;
-        totalClasses += count;
+        totalClasses += datesStr.split(',').map(d => d.trim()).filter(d => d.length > 0).length;
       }
     });
 
-    // Check if already emailed for this milestone
     const emailSentSnap = await get(child(ref(db), `emailSent/${sId}/class12`));
-    if(emailSentSnap.exists()) return; // already sent
+    if(emailSentSnap.exists()) return;
 
     if(totalClasses >= 12) {
       const student = userSnap.exists() ? userSnap.val() : {};
@@ -3173,45 +3203,39 @@
       const studentEmail = student.email || null;
 
       if(!studentEmail) {
-        alert(`⚠️ Student ${sId} has completed 12 classes but no email address found in their profile!`);
+        alert(`⚠️ ${studentName} has completed ${totalClasses} classes but no email found in their profile!`);
         return;
       }
-
       try {
         await window.emailjs.send('service_c500mo1', 'template_96312d3', {
           student_name: studentName,
           student_id:   sId,
           to_email:     studentEmail,
         });
-
-        // Mark as sent so we don't resend
         await set(ref(db, `emailSent/${sId}/class12`), {
           sentAt: new Date().toISOString(),
           totalClasses,
           email: studentEmail
         });
-
-        alert(`✅ Email sent to ${studentName} (${studentEmail}) — 12 classes completed! 🎓`);
+        alert(`✅ 🎉 Email sent to ${studentName} (${studentEmail}) — ${totalClasses} classes completed!`);
+        // Refresh badge
+        loadClassDatesPreview();
       } catch(err) {
         console.error('EmailJS error:', err);
-        alert(`⚠️ Failed to send email to ${studentName}. Error: ${err.text || err.message || 'Unknown error'}`);
+        alert(`⚠️ Failed to send email. Error: ${err.text || err.message || 'Unknown'}`);
       }
     }
   }
-
   window.checkAndSendClassEmail = checkAndSendClassEmail;
 
-  // ── Manual trigger: admin clicks "Check & Send Email" button ──
   window.manualEmailCheck = async () => {
     const sId = document.getElementById('class-student-id').value.trim();
     if(!sId) return alert('Please enter a Student ID first!');
-
     const emailSentSnap = await get(child(ref(db), `emailSent/${sId}/class12`));
     if(emailSentSnap.exists()) {
       const data = emailSentSnap.val();
-      const confirm_reset = confirm(`Email already sent to this student on ${data.sentAt?.slice(0,10) || 'unknown date'}.\n\nDo you want to resend?`);
-      if(!confirm_reset) return;
-      // Reset so it can be sent again
+      const resend = confirm(`Email already sent on ${data.sentAt?.slice(0,10)||'unknown date'}.\n\nDo you want to resend?`);
+      if(!resend) return;
       await remove(ref(db, `emailSent/${sId}/class12`));
     }
     await checkAndSendClassEmail(sId);
@@ -3776,11 +3800,11 @@
   };
 
   window.saveClassDateEdit = async () => {
-    const sId = document.getElementById('ecd-student-id').value;
-    const oldKey = document.getElementById('ecd-old-key').value;
-    const year = document.getElementById('ecd-year').value;
+    const sId     = document.getElementById('ecd-student-id').value;
+    const oldKey  = document.getElementById('ecd-old-key').value;
+    const year    = document.getElementById('ecd-year').value;
     const newMonth = document.getElementById('ecd-month').value;
-    const dates = document.getElementById('ecd-dates').value.trim();
+    const dates   = document.getElementById('ecd-dates').value.trim();
     if(!dates) return alert('Please enter the class dates!');
     const newKey = `${year}_${newMonth}`;
     if(oldKey !== newKey) {
@@ -3789,6 +3813,8 @@
     await set(ref(db, `classDates/${sId}/${newKey}`), { dates, year, month: newMonth });
     closeClassDateEditModal();
     loadClassDatesPreview();
+    // Re-check email after edit
+    await checkAndSendClassEmail(sId);
   };
 
   window.savePaymentEdit = async () => {
@@ -3914,17 +3940,20 @@
       return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
     });
     if(entries.length > 0) {
-      tbody.innerHTML = entries.map(e => `
+      tbody.innerHTML = entries.map(e => {
+        const safeDates = (e.dates||'').replace(/'/g, '&#39;');
+        return `
         <tr>
           <td style="font-family:var(--mono); color:var(--purple); font-weight:700;">${e.year}</td>
           <td style="font-weight:600;">${e.month}</td>
           <td style="color:var(--gold); font-size:13px;">${e.dates}</td>
           <td style="display:flex; gap:5px; flex-wrap:wrap;">
-            <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="openClassDateEditModal('${sId}','${e.key}','${e.year}','${e.month}','${(e.dates||'').replace(/'/g,"\\'")}')">✏️ Edit</button>
+            <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="openClassDateEditModal('${sId}','${e.key}','${e.year}','${e.month}','${safeDates}')">✏️ Edit</button>
             <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('classDates/${sId}/${e.key}', loadClassDatesPreview)">Delete</button>
           </td>
         </tr>
-      `).join('');
+        `;
+      }).join('');
     } else {
       tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:16px;">No class date records found for this ID.</td></tr>`;
     }
@@ -4677,6 +4706,7 @@
     window.__pendingRestoreTab = null;
   }
 
+}); // end DOMContentLoaded
 </script>
 <!-- EDIT SAVING MODAL -->
 <div id="edit-saving-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeSavingEditModal()">
