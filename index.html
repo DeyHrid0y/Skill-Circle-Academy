@@ -3104,24 +3104,59 @@ window.addEventListener('DOMContentLoaded', function() {
     showMsg('✅ Password updated successfully!', true);
   };
 
-  window.uploadPayment = () => {
-    const sId = document.getElementById('pay-student-id').value.trim();
-    const year = document.getElementById('pay-year').value;
+  window.uploadPayment = async () => {
+    const sId   = document.getElementById('pay-student-id').value.trim();
+    const year  = document.getElementById('pay-year').value;
     const month = document.getElementById('pay-month').value;
     const status = document.getElementById('pay-status').value;
-    const date = document.getElementById('pay-date').value.trim() || "N/A";
+    const date  = document.getElementById('pay-date').value.trim() || "N/A";
     const amount = document.getElementById('pay-amount').value.trim() || "0";
 
     if(!sId) return alert("Student ID is required!");
 
     const key = `${year}_${month}`;
-    set(ref(db, `payments/${sId}/${key}`), { status, date, amount, year, month })
-    .then(() => {
-      alert(`Payment status updated for ${month} ${year}!`);
-      document.getElementById('pay-amount').value = '';
-      loadPaymentPreview();
-    });
+    await set(ref(db, `payments/${sId}/${key}`), { status, date, amount, year, month });
+    alert(`Payment status updated for ${month} ${year}!`);
+    document.getElementById('pay-amount').value = '';
+    loadPaymentPreview();
+
+    // Send email if status is Paid
+    if(status === 'Paid') {
+      await sendPaymentEmail(sId, month, year, amount, date);
+    }
   };
+
+  // ═══════════════════════════════════════════════════
+  //  PAYMENT EMAIL NOTIFICATION
+  // ═══════════════════════════════════════════════════
+  async function sendPaymentEmail(sId, month, year, amount, date) {
+    const userSnap = await get(child(ref(db), `users/${sId}`));
+    if(!userSnap.exists()) return;
+    const student = userSnap.val();
+    const studentName  = student.name  || `Student ${sId}`;
+    const studentEmail = student.email || null;
+
+    if(!studentEmail) {
+      console.warn(`No email for student ${sId} — payment email not sent.`);
+      return;
+    }
+
+    try {
+      await window.emailjs.send('service_c500mo1', 'template_payment_confirm', {
+        student_name: studentName,
+        student_id:   sId,
+        to_email:     studentEmail,
+        month:        `${month} ${year}`,
+        amount:       `৳${parseFloat(amount).toLocaleString('en-BD')}`,
+        pay_date:     date,
+      });
+      console.log(`✅ Payment confirmation email sent to ${studentEmail}`);
+    } catch(err) {
+      console.error('Payment email error:', err);
+    }
+  }
+
+  window.sendPaymentEmail = sendPaymentEmail;
 
   // ── Class dates chip state ──
   let classDatesSelected = [];
@@ -3929,13 +3964,13 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 
   window.savePaymentEdit = async () => {
-    const sId = document.getElementById('ep-student-id').value;
-    const oldKey = document.getElementById('ep-old-key').value;
-    const year = document.getElementById('ep-year').value;
+    const sId      = document.getElementById('ep-student-id').value;
+    const oldKey   = document.getElementById('ep-old-key').value;
+    const year     = document.getElementById('ep-year').value;
     const newMonth = document.getElementById('ep-month').value;
-    const date = document.getElementById('ep-date').value.trim() || 'N/A';
-    const status = document.getElementById('ep-status').value;
-    const amount = document.getElementById('ep-amount').value.trim() || '0';
+    const date     = document.getElementById('ep-date').value.trim() || 'N/A';
+    const status   = document.getElementById('ep-status').value;
+    const amount   = document.getElementById('ep-amount').value.trim() || '0';
 
     const newKey = `${year}_${newMonth}`;
     if(oldKey !== newKey) {
@@ -3944,6 +3979,11 @@ window.addEventListener('DOMContentLoaded', function() {
     await set(ref(db, `payments/${sId}/${newKey}`), { status, date, amount, year, month: newMonth });
     closePaymentEditModal();
     loadPaymentPreview();
+
+    // Send email if status is Paid
+    if(status === 'Paid') {
+      await sendPaymentEmail(sId, newMonth, year, amount, date);
+    }
   };
 
   // ── Result Edit Modal ──
