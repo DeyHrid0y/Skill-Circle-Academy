@@ -963,6 +963,17 @@
         </select>
       </div>
       <div class="form-group">
+        <label>Student Group</label>
+        <select id="signup-group" style="width:100%; background:#fff6ee; border:1.5px solid rgba(234,88,12,0.14); padding:12px 15px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:14px;">
+          <option value="">— Select your group —</option>
+          <option value="Science">🔬 Science</option>
+          <option value="Science with Higher Math">📐 Science with Higher Math</option>
+          <option value="Humanities">📚 Humanities</option>
+          <option value="Commerce">💼 Commerce</option>
+          <option value="Other">📦 Other</option>
+        </select>
+      </div>
+      <div class="form-group">
         <label>🔑 Registration Secret Key</label>
         <div class="input-icon-wrap"><span class="input-icon">🗝️</span>
           <input type="password" id="signup-secret" placeholder="Key provided by admin">
@@ -1175,6 +1186,14 @@
             <option value="ICT">💻 ICT</option>
             <option value="Other">📦 Other</option>
           </select>
+          <select id="notes-group-filter" onchange="filterStudentNotes()" style="padding:10px 14px; border:1.5px solid rgba(234,88,12,0.14); border-radius:var(--radius-sm); background:#fff6ee; font-family:var(--font); font-size:13px; color:var(--text); outline:none;">
+            <option value="all">All Groups</option>
+            <option value="Science">🔬 Science</option>
+            <option value="Science with Higher Math">📐 Science with Higher Math</option>
+            <option value="Humanities">📚 Humanities</option>
+            <option value="Commerce">💼 Commerce</option>
+            <option value="Other">📦 Other</option>
+          </select>
           <select id="notes-level-filter" onchange="filterStudentNotes()" style="padding:10px 14px; border:1.5px solid rgba(234,88,12,0.14); border-radius:var(--radius-sm); background:#fff6ee; font-family:var(--font); font-size:13px; color:var(--text); outline:none;">
             <option value="all">All Levels</option>
             <option value="SSC">SSC</option>
@@ -1186,7 +1205,7 @@
         <div id="notes-no-result" style="display:none; text-align:center; padding:32px; color:var(--text-muted); font-size:14px;">No notes match your search.</div>
         <div class="table-wrap" id="notes-table-wrap">
           <table>
-            <thead><tr><th>Topic / Note Name</th><th>Subject</th><th>Level</th><th>Type</th><th>Action</th></tr></thead>
+            <thead><tr><th>Topic / Note Name</th><th>Subject</th><th>Group</th><th>Level</th><th>Type</th><th>Action</th></tr></thead>
             <tbody id="notes-table-body"></tbody>
           </table>
         </div>
@@ -1238,6 +1257,10 @@
         <div class="profile-info-item">
           <span class="profile-info-label">Student Level</span>
           <span class="profile-info-value" id="p-level" style="color:var(--purple); font-weight:700;">—</span>
+        </div>
+        <div class="profile-info-item">
+          <span class="profile-info-label">Group</span>
+          <span class="profile-info-value" id="p-group" style="color:var(--accent); font-weight:700;">—</span>
         </div>
         <button class="btn-action" style="margin-top: 16px;" onclick="openEditModal()">Edit Profile</button>
       </div>
@@ -1297,6 +1320,17 @@
               <option value="University">University</option>
             </select>
           </div>
+          <div class="form-group">
+            <label>Student Group</label>
+            <select id="new-student-group">
+              <option value="">— Select Group —</option>
+              <option value="Science">🔬 Science</option>
+              <option value="Science with Higher Math">📐 Science with Higher Math</option>
+              <option value="Humanities">📚 Humanities</option>
+              <option value="Commerce">💼 Commerce</option>
+              <option value="Other">📦 Other</option>
+            </select>
+          </div>
         </div>
         <button class="btn-action" onclick="adminAddStudent()">➕ Create Account</button>
       </div>
@@ -1328,6 +1362,7 @@
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Student ID</span><span id="sp-id" style="font-family:var(--mono); color:var(--accent); font-weight:700; font-size:13px;"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Email</span><span id="sp-email" style="font-size:13px;"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Level</span><span id="sp-level" style="font-size:13px; font-weight:700; color:var(--purple);"></span></div>
+          <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Group</span><span id="sp-group" style="font-size:13px; font-weight:700; color:var(--accent);"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0;"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Password</span><span id="sp-pass" style="font-family:var(--mono); font-size:13px; color:var(--text-dim);"></span></div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
@@ -1347,6 +1382,7 @@
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button class="btn-action" style="flex:1; margin-top:0;" id="sp-edit-btn">✏️ Edit Profile</button>
           <button class="btn-action" style="flex:1; margin-top:0; background:#f0f2ff; color:var(--purple); box-shadow:none; border:1px solid rgba(167,139,250,0.3);" id="sp-edit-level-btn">🎓 Change Level</button>
+          <button class="btn-action" style="flex:1; margin-top:0; background:#f0fff8; color:var(--green); box-shadow:none; border:1px solid rgba(16,185,129,0.3);" id="sp-edit-group-btn">👥 Change Group</button>
           <button id="sp-delete-btn" style="flex:1; padding:11px 20px; background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.3); color:var(--red); border-radius:var(--radius-sm); cursor:pointer; font-weight:700; font-size:13px; font-family:var(--font);">🗑️ Delete Student</button>
         </div>
       </div>
@@ -1489,12 +1525,12 @@
         <div class="grid-3">
           <div class="form-group">
             <label>Student ID</label>
-            <input type="text" id="class-student-id" placeholder="e.g. 101" oninput="loadClassDatesPreview(); fetchStudentName('class-student-id',null,'class-name-display')">
+            <input type="text" id="class-student-id" placeholder="e.g. 101" oninput="loadClassDatesPreview(); fetchStudentName('class-student-id',null,'class-name-display'); loadExistingMonthDates()">
             <div id="class-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
           </div>
           <div class="form-group">
             <label>Select Year</label>
-            <select id="class-year">
+            <select id="class-year" onchange="loadExistingMonthDates()">
               <option value="2026">2026</option><option value="2027">2027</option>
               <option value="2028">2028</option><option value="2029">2029</option>
               <option value="2030">2030</option>
@@ -1502,7 +1538,7 @@
           </div>
           <div class="form-group">
             <label>Select Month</label>
-            <select id="class-month">
+            <select id="class-month" onchange="loadExistingMonthDates()">
               <option>January</option><option>February</option><option>March</option><option>April</option>
               <option>May</option><option>June</option><option>July</option><option>August</option>
               <option>September</option><option>October</option><option>November</option><option>December</option>
@@ -1609,6 +1645,17 @@
             </select>
           </div>
           <div class="form-group">
+            <label>Student Group</label>
+            <select id="note-group">
+              <option value="All">All Groups</option>
+              <option value="Science">🔬 Science</option>
+              <option value="Science with Higher Math">📐 Science with Higher Math</option>
+              <option value="Humanities">📚 Humanities</option>
+              <option value="Commerce">💼 Commerce</option>
+              <option value="Other">📦 Other</option>
+            </select>
+          </div>
+          <div class="form-group">
             <label>Material Type</label>
             <select id="note-type">
               <option value="PDF Document">PDF Document</option>
@@ -1637,7 +1684,7 @@
         <div class="card-title">📄 Published Notes</div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Title</th><th>Subject</th><th>Level</th><th>Type</th><th>Path / URL</th><th>Action</th></tr></thead>
+            <thead><tr><th>Title</th><th>Subject</th><th>Group</th><th>Level</th><th>Type</th><th>Path / URL</th><th>Action</th></tr></thead>
             <tbody id="admin-notes-preview">
               <tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">Loading...</td></tr>
             </tbody>
@@ -2081,14 +2128,22 @@
     <input type="hidden" id="ee-key">
     <div class="form-group">
       <label>Expense Category</label>
-      <select id="ee-category">
+      <select id="ee-category" onchange="handleEECategoryChange(this)">
         <option value="">— Select Category —</option>
         <option value="Mess Cost">🍽️ Mess Cost</option>
         <option value="Transportation">🚗 Transportation</option>
         <option value="Internet">📶 Internet</option>
         <option value="Mobile">📱 Mobile</option>
         <option value="University Tuition Fee">🎓 University Tuition Fee</option>
+        <option disabled>──────────────</option>
+        <option value="__custom__">✏️ Other / Custom…</option>
       </select>
+      <!-- Custom category input for edit modal -->
+      <div id="ee-custom-category-wrap" style="display:none; margin-top:8px;">
+        <input type="text" id="ee-custom-category-input" placeholder="Category name লিখুন…"
+          style="width:100%; box-sizing:border-box; background:#fff6ee; border:1.5px solid var(--accent); padding:10px 13px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:13px; box-shadow:0 0 0 3px rgba(99,102,241,0.1);">
+        <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">এখানে custom category name লিখুন।</div>
+      </div>
     </div>
     <div class="grid-2">
       <div class="form-group">
@@ -2378,21 +2433,21 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 
   window.handleSignUp = async () => {
-    const name = document.getElementById('signup-name').value.trim();
-    const id = document.getElementById('signup-id').value.trim();
-    const email = document.getElementById('signup-email').value.trim();
-    const pass = document.getElementById('signup-pass').value.trim();
-    const level = document.getElementById('signup-level').value;
+    const name   = document.getElementById('signup-name').value.trim();
+    const id     = document.getElementById('signup-id').value.trim();
+    const email  = document.getElementById('signup-email').value.trim();
+    const pass   = document.getElementById('signup-pass').value.trim();
+    const level  = document.getElementById('signup-level').value;
+    const group  = document.getElementById('signup-group').value;
     const secret = document.getElementById('signup-secret').value.trim();
 
     if(!name || !id || !email || !pass || !secret) return alert("Please fill all fields including the Secret Key!");
     if(!level) return alert("Please select your student level (SSC / HSC / University)!");
+    if(!group) return alert("Please select your student group!");
 
-    // Verify selected ID is still in approved list (not snatched by someone else)
     const approvedSnap = await get(child(ref(db), `config/approvedIds/${id}`));
     if(!approvedSnap.exists()) return alert("❌ This Student ID is no longer available. Please reload and try again.");
 
-    // Validate secret key against admin-set key in Firebase
     const keySnap = await get(child(ref(db), 'config/registrationKey'));
     if(!keySnap.exists()) return alert("❌ Registration is currently disabled. Please contact the admin.");
     const validKey = keySnap.val();
@@ -2401,8 +2456,7 @@ window.addEventListener('DOMContentLoaded', function() {
     const snapshot = await get(child(ref(db), `users/${id}`));
     if(snapshot.exists()) return alert("This ID is already registered!");
 
-    await set(ref(db, 'users/' + id), { name, email, pass, role: 'user', level });
-    // Remove from approved list so it cannot be re-used by another person
+    await set(ref(db, 'users/' + id), { name, email, pass, role: 'user', level, group });
     await remove(ref(db, `config/approvedIds/${id}`));
     alert("✅ Account created successfully!");
     window.toggleAuth('login');
@@ -2812,11 +2866,12 @@ window.addEventListener('DOMContentLoaded', function() {
   window.uploadNote = () => {
     const title   = document.getElementById('note-title').value.trim();
     const subject = document.getElementById('note-subject').value;
+    const group   = document.getElementById('note-group').value;
     const type    = document.getElementById('note-type').value;
     const path    = document.getElementById('note-path').value.trim();
     const level   = document.getElementById('note-level').value;
     if(!title || !path) return alert('Note title and path/URL are required!');
-    set(ref(db, 'notes/' + Date.now()), { title, subject, type, path, level }).then(() => {
+    set(ref(db, 'notes/' + Date.now()), { title, subject, group, type, path, level }).then(() => {
       alert('✅ Note published successfully!');
       document.getElementById('note-title').value = '';
       document.getElementById('note-path').value  = '';
@@ -2832,20 +2887,23 @@ window.addEventListener('DOMContentLoaded', function() {
     if(snapshot.exists()) {
       const subjectIcon = { Chemistry:'⚗️', Physics:'⚡', 'Higher Math':'📐', ICT:'💻', Other:'📦' };
       tbody.innerHTML = Object.entries(snapshot.val()).map(([key, n]) => {
-        const lvl = n.level || 'All';
+        const lvl  = n.level || 'All';
         const subj = n.subject || 'Other';
+        const grp  = n.group || 'All';
         const levelColor = lvl === 'SSC' ? 'var(--green)' : lvl === 'HSC' ? 'var(--gold)' : lvl === 'University' ? 'var(--purple)' : 'var(--text-muted)';
         const safeTitle = (n.title || '').replace(/'/g, "\\'");
         return `
           <tr>
             <td style="font-weight:600;" id="note-title-cell-${key}">${n.title}</td>
             <td style="font-size:13px; font-weight:600;">${subjectIcon[subj]||'📦'} ${subj}</td>
+            <td style="font-size:12px; color:var(--accent); font-weight:600;">${grp}</td>
             <td><span style="font-size:11px; font-weight:700; padding:3px 9px; border-radius:12px; background:rgba(0,0,0,0.06); color:${levelColor};">${lvl}</span></td>
             <td><span class="badge badge-user">${n.type}</span></td>
             <td style="font-size:12px; max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${n.path}">${n.path}</td>
             <td style="display:flex; gap:5px; flex-wrap:wrap;">
               <button class="btn-sm" style="background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.3);color:var(--accent);" onclick="editNoteTitle('${key}','${safeTitle}')">✏️ Title</button>
               <button class="btn-sm" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);color:var(--gold);" onclick="editNoteSubject('${key}','${subj}')">📚 Subject</button>
+              <button class="btn-sm" style="background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:var(--green);" onclick="editNoteGroup('${key}','${grp}')">👥 Group</button>
               <button class="btn-sm" style="background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.3);color:var(--purple);" onclick="editNoteLevel('${key}','${lvl}')">🎓 Level</button>
               <button class="btn-sm" style="background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:var(--red);" onclick="deleteEntry('notes/${key}', loadAdminNotesPreview); allNotesCache=[];">Delete</button>
             </td>
@@ -2888,6 +2946,19 @@ window.addEventListener('DOMContentLoaded', function() {
     const idx = parseInt(input) - 1;
     if(isNaN(idx) || idx < 0 || idx >= subjects.length) return alert('Invalid selection!');
     await update(ref(db), { [`/notes/${key}/subject`]: subjects[idx] });
+    loadAdminNotesPreview();
+    allNotesCache = [];
+  };
+
+  window.editNoteGroup = async (key, current) => {
+    const groups  = ['All', 'Science', 'Science with Higher Math', 'Humanities', 'Commerce', 'Other'];
+    const icons   = ['🌐', '🔬', '📐', '📚', '💼', '📦'];
+    const options = groups.map((g, i) => `${i+1}. ${icons[i]} ${g}`).join('\n');
+    const input   = prompt(`Select new group (enter number):\n${options}\n\nCurrent: ${current}`);
+    if(input === null) return;
+    const idx = parseInt(input) - 1;
+    if(isNaN(idx) || idx < 0 || idx >= groups.length) return alert('Invalid selection!');
+    await update(ref(db), { [`/notes/${key}/group`]: groups[idx] });
     loadAdminNotesPreview();
     allNotesCache = [];
   };
@@ -2950,11 +3021,13 @@ window.addEventListener('DOMContentLoaded', function() {
         const isUrl = n.path && n.path.startsWith('http');
         const lvl  = n.level || 'All';
         const subj = n.subject || 'Other';
+        const grp  = n.group || 'All';
         const levelColor = lvl === 'SSC' ? 'var(--green)' : lvl === 'HSC' ? 'var(--gold)' : lvl === 'University' ? 'var(--purple)' : 'var(--text-muted)';
         return `
           <tr>
             <td style="font-weight:600;">${n.title}</td>
             <td style="font-size:13px; font-weight:600;">${subjectIcon[subj]||'📦'} ${subj}</td>
+            <td style="font-size:12px; color:var(--accent); font-weight:600;">${grp}</td>
             <td><span style="font-size:11px; font-weight:700; padding:3px 9px; border-radius:12px; background:rgba(0,0,0,0.06); color:${levelColor};">${lvl}</span></td>
             <td><span class="badge badge-user">${n.type}</span></td>
             <td>${isUrl ? `<a href="${n.path}" target="_blank" class="btn-sm">🔗 Open</a>` : `<span style="color:var(--green); font-family:var(--mono); font-size:12px;">📄 ${n.path}</span>`}</td>
@@ -2968,26 +3041,29 @@ window.addEventListener('DOMContentLoaded', function() {
     const q    = (document.getElementById('notes-search-input')?.value || '').trim().toLowerCase();
     const lvl  = document.getElementById('notes-level-filter')?.value || 'all';
     const subj = document.getElementById('notes-subject-filter')?.value || 'all';
+    const grp  = document.getElementById('notes-group-filter')?.value || 'all';
     const isAdmin = currentSession.role === 'admin';
     const studentLevel = currentSession.level || null;
+    const studentGroup = currentSession.group || null;
 
     let filtered = allNotesCache;
 
-    // Students only see their level + 'All'
-    if(!isAdmin && studentLevel) {
+    // Students see their level + 'All' and their group + 'All'
+    if(!isAdmin) {
       filtered = filtered.filter(n => {
         const noteLevel = n.level || 'All';
-        return noteLevel === 'All' || noteLevel === studentLevel;
+        const noteGroup = n.group || 'All';
+        const levelOk = noteLevel === 'All' || !studentLevel || noteLevel === studentLevel;
+        const groupOk = noteGroup === 'All' || !studentGroup || noteGroup === studentGroup;
+        return levelOk && groupOk;
       });
-    } else if(lvl !== 'all') {
-      filtered = filtered.filter(n => (n.level || 'All') === lvl || (n.level || '') === 'All');
+    } else {
+      if(lvl !== 'all') filtered = filtered.filter(n => (n.level || 'All') === lvl || (n.level || '') === 'All');
     }
 
-    // Filter by subject
+    if(grp  !== 'all') filtered = filtered.filter(n => (n.group || 'All') === grp);
     if(subj !== 'all') filtered = filtered.filter(n => (n.subject || 'Other') === subj);
-
-    // Filter by search text
-    if(q) filtered = filtered.filter(n => n.title && n.title.toLowerCase().includes(q));
+    if(q)              filtered = filtered.filter(n => n.title && n.title.toLowerCase().includes(q));
 
     renderNotesRows(filtered);
   };
@@ -3054,7 +3130,6 @@ window.addEventListener('DOMContentLoaded', function() {
     const picker = document.getElementById('class-date-picker');
     const val = picker.value;
     if(!val) return alert('Please pick a date!');
-    // Format: DD/MM
     const d = new Date(val);
     const formatted = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
     if(classDatesSelected.includes(formatted)) return alert(`${formatted} already added!`);
@@ -3068,10 +3143,7 @@ window.addEventListener('DOMContentLoaded', function() {
     const wrap = document.getElementById('class-dates-chips-wrap');
     const container = document.getElementById('class-dates-chips');
     const countEl = document.getElementById('class-dates-count');
-    if(classDatesSelected.length === 0) {
-      wrap.style.display = 'none';
-      return;
-    }
+    if(classDatesSelected.length === 0) { wrap.style.display = 'none'; return; }
     wrap.style.display = 'block';
     countEl.textContent = `(${classDatesSelected.length})`;
     container.innerHTML = classDatesSelected.map(d => `
@@ -3088,25 +3160,42 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 
   window.uploadClassDates = async () => {
-    const sId  = document.getElementById('class-student-id').value.trim();
-    const year = document.getElementById('class-year').value;
+    const sId   = document.getElementById('class-student-id').value.trim();
+    const year  = document.getElementById('class-year').value;
     const month = document.getElementById('class-month').value;
     if(!sId) return alert('Student ID is required!');
-
-    // Build dates string from chips OR load existing and merge
-    let datesToSave = classDatesSelected.join(', ');
-    if(!datesToSave) return alert('Please add at least one class date using the date picker!');
+    if(classDatesSelected.length === 0) return alert('Please add at least one class date using the date picker!');
 
     const key = `${year}_${month}`;
+    // Save ONLY the chips (replaces that month's entry cleanly)
+    const datesToSave = classDatesSelected.join(', ');
     await set(ref(db, `classDates/${sId}/${key}`), { dates: datesToSave, year, month });
-    alert(`✅ Class dates saved for ${month} ${year}!`);
-    classDatesSelected = [];
-    renderClassDateChips();
+    alert(`✅ Class dates saved for ${month} ${year}! (${classDatesSelected.length} classes)`);
     loadClassDatesPreview();
     await checkAndSendClassEmail(sId);
   };
 
-  // ── Load preview — also loads dates into chips when student+month selected ──
+  // ── Load existing dates for selected student+year+month into chips ──
+  window.loadExistingMonthDates = async () => {
+    const sId   = document.getElementById('class-student-id')?.value.trim() || '';
+    const year  = document.getElementById('class-year')?.value || '';
+    const month = document.getElementById('class-month')?.value || '';
+    if(!sId || !year || !month) return;
+    const key = `${year}_${month}`;
+    const snap = await get(child(ref(db), `classDates/${sId}/${key}`));
+    if(snap.exists()) {
+      const rec = snap.val();
+      const datesStr = typeof rec === 'string' ? rec : (rec.dates || '');
+      classDatesSelected = datesStr
+        ? datesStr.split(',').map(d => d.trim()).filter(d => d.length > 0)
+        : [];
+    } else {
+      classDatesSelected = [];
+    }
+    renderClassDateChips();
+  };
+
+  // ── Load preview ──
   window.loadClassDatesPreview = async () => {
     const sId  = document.getElementById('class-student-id')?.value.trim() || '';
     const tbody = document.getElementById('admin-classdate-preview');
@@ -3474,6 +3563,8 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('p-email').innerText = currentSession.email;
     const lvlEl = document.getElementById('p-level');
     if(lvlEl) lvlEl.innerText = currentSession.level || 'Not Set';
+    const grpEl = document.getElementById('p-group');
+    if(grpEl) grpEl.innerText = currentSession.group || 'Not Set';
   }
 
   window.openEditModal = async (targetId = null) => {
@@ -3554,6 +3645,7 @@ window.addEventListener('DOMContentLoaded', function() {
           <div style="font-family:var(--mono); font-size:12px; color:var(--accent); margin-bottom:6px;">#${id}</div>
           <span style="font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px; background:rgba(79,142,247,0.1); color:${roleColor}; border:1px solid rgba(79,142,247,0.2); text-transform:uppercase;">${u.role}</span>
           ${u.level ? `<div style="margin-top:6px; font-size:10px; font-weight:700; color:var(--purple); background:rgba(167,139,250,0.1); border:1px solid rgba(167,139,250,0.2); border-radius:12px; padding:2px 8px; display:inline-block;">${u.level}</div>` : ''}
+          ${u.group ? `<div style="margin-top:4px; font-size:10px; font-weight:600; color:var(--accent); background:rgba(99,102,241,0.07); border:1px solid rgba(99,102,241,0.18); border-radius:12px; padding:2px 8px; display:inline-block;">${u.group}</div>` : ''}
           <div style="position:absolute; top:10px; right:10px; width:8px; height:8px; border-radius:50%; background:var(--green);"></div>
         </div>
       `;
@@ -3584,6 +3676,8 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('sp-email').innerText = u.email;
     const spLevel = document.getElementById('sp-level');
     if(spLevel) spLevel.innerText = u.level || 'Not Set';
+    const spGroup = document.getElementById('sp-group');
+    if(spGroup) spGroup.innerText = u.group || 'Not Set';
     document.getElementById('sp-pass').innerText = u.pass;
     document.getElementById('sp-role-badge').innerHTML = `<span class="badge badge-${u.role}">${u.role.toUpperCase()}</span>`;
 
@@ -3603,6 +3697,7 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('sp-delete-btn').style.display = userId === 'admin' ? 'none' : '';
     document.getElementById('sp-delete-btn').onclick = () => adminDeleteUser(userId);
     document.getElementById('sp-edit-level-btn').onclick = () => editStudentLevel(userId, u.level || '');
+    document.getElementById('sp-edit-group-btn').onclick = () => editStudentGroup(userId, u.group || '');
 
     const modal = document.getElementById('student-profile-modal');
     modal.style.display = 'flex';
@@ -3625,10 +3720,25 @@ window.addEventListener('DOMContentLoaded', function() {
     await update(ref(db), { [`/users/${userId}/level`]: levels[idx] });
     const spLevel = document.getElementById('sp-level');
     if(spLevel) spLevel.innerText = labels[idx];
-    // Update cache
     if(allUsersCache[userId]) allUsersCache[userId].level = levels[idx];
     renderStudentCards(allUsersCache);
     alert(`✅ Level updated to: ${labels[idx]}`);
+  };
+
+  window.editStudentGroup = async (userId, current) => {
+    const groups = ['', 'Science', 'Science with Higher Math', 'Humanities', 'Commerce', 'Other'];
+    const labels = ['Not Set', '🔬 Science', '📐 Science with Higher Math', '📚 Humanities', '💼 Commerce', '📦 Other'];
+    const options = labels.map((l, i) => `${i+1}. ${l}`).join('\n');
+    const input = prompt(`Change student group (enter number):\n${options}\n\nCurrent: ${current || 'Not Set'}`);
+    if(input === null) return;
+    const idx = parseInt(input) - 1;
+    if(isNaN(idx) || idx < 0 || idx >= groups.length) return alert('Invalid selection!');
+    await update(ref(db), { [`/users/${userId}/group`]: groups[idx] });
+    const spGroup = document.getElementById('sp-group');
+    if(spGroup) spGroup.innerText = groups[idx] || 'Not Set';
+    if(allUsersCache[userId]) allUsersCache[userId].group = groups[idx];
+    renderStudentCards(allUsersCache);
+    alert(`✅ Group updated to: ${labels[idx]}`);
   };
 
   window.adminDeleteUser = async (userId) => {
@@ -3643,19 +3753,20 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 
   window.adminAddStudent = async () => {
-    const name = document.getElementById('new-student-name').value.trim();
-    const id = document.getElementById('new-student-id').value.trim();
+    const name  = document.getElementById('new-student-name').value.trim();
+    const id    = document.getElementById('new-student-id').value.trim();
     const email = document.getElementById('new-student-email').value.trim();
-    const pass = document.getElementById('new-student-pass').value.trim();
-    const role = document.getElementById('new-student-role').value;
+    const pass  = document.getElementById('new-student-pass').value.trim();
+    const role  = document.getElementById('new-student-role').value;
     const level = document.getElementById('new-student-level').value || '';
+    const group = document.getElementById('new-student-group').value || '';
 
     if(!name || !id || !email || !pass) return alert("Please fill all fields to add a new student!");
 
     const snapshot = await get(child(ref(db), `users/${id}`));
     if(snapshot.exists()) return alert(`❌ ID "${id}" is already registered!`);
 
-    await set(ref(db, 'users/' + id), { name, email, pass, role, level });
+    await set(ref(db, 'users/' + id), { name, email, pass, role, level, group });
     alert(`✅ Account created for ${name} (ID: ${id})!`);
     document.getElementById('new-student-name').value = '';
     document.getElementById('new-student-id').value = '';
@@ -4284,10 +4395,37 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 
   // ── Open Edit Modal ──
+  // ── Show/hide custom input in edit modal ──
+  window.handleEECategoryChange = (sel) => {
+    const wrap = document.getElementById('ee-custom-category-wrap');
+    if(sel.value === '__custom__') {
+      wrap.style.display = 'block';
+      setTimeout(() => document.getElementById('ee-custom-category-input').focus(), 50);
+    } else {
+      wrap.style.display = 'none';
+    }
+  };
+
+  // Fixed categories list
+  const FIXED_EXP_CATS = ['Mess Cost','Transportation','Internet','Mobile','University Tuition Fee'];
+
   window.openExpenseEditModal = (key, category, amount, rawDate, note) => {
     document.getElementById('ee-key').value = key;
     const catSel = document.getElementById('ee-category');
-    catSel.value = category;
+    const customWrap = document.getElementById('ee-custom-category-wrap');
+    const customInp  = document.getElementById('ee-custom-category-input');
+
+    if(FIXED_EXP_CATS.includes(category)) {
+      // Fixed category — just select it
+      catSel.value = category;
+      customWrap.style.display = 'none';
+    } else {
+      // Custom category — select "__custom__" and show input pre-filled
+      catSel.value = '__custom__';
+      customInp.value = category;
+      customWrap.style.display = 'block';
+    }
+
     document.getElementById('ee-amount').value = amount || '';
     document.getElementById('ee-date').value   = rawDate || '';
     document.getElementById('ee-note').value   = note === '—' ? '' : (note || '');
@@ -4301,9 +4439,20 @@ window.addEventListener('DOMContentLoaded', function() {
 
   // ── Save Edited Expense ──
   window.saveExpenseEdit = async () => {
-    const key = document.getElementById('ee-key').value;
-    let category = document.getElementById('ee-category').value;
-    if(!category) return alert('Please select a category!');
+    const key    = document.getElementById('ee-key').value;
+    const selVal = document.getElementById('ee-category').value;
+
+    let category = '';
+    if(selVal === '__custom__') {
+      category = document.getElementById('ee-custom-category-input').value.trim();
+      if(!category) {
+        document.getElementById('ee-custom-category-input').focus();
+        return alert('Custom category-র নাম লিখুন!');
+      }
+    } else {
+      category = selVal;
+      if(!category) return alert('Please select a category!');
+    }
 
     const amountVal = document.getElementById('ee-amount').value.trim();
     const rawDate   = document.getElementById('ee-date').value;
