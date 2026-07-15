@@ -3141,7 +3141,15 @@ window.addEventListener('DOMContentLoaded', function() {
   // ═══════════════════════════════════════════════════
   //  PAYMENT EMAIL NOTIFICATION
   // ═══════════════════════════════════════════════════
-  async function sendPaymentEmail(sId, month, year, amount, date) {
+  async function sendPaymentEmail(sId, month, year, amount, date, forceResend = false) {
+    const key = `${year}_${month}`;
+
+    // Check if already sent
+    if(!forceResend) {
+      const sentSnap = await get(child(ref(db), `payEmailSent/${sId}/${key}`));
+      if(sentSnap.exists()) return; // already sent, skip
+    }
+
     const userSnap = await get(child(ref(db), `users/${sId}`));
     if(!userSnap.exists()) return;
     const student = userSnap.val();
@@ -3149,7 +3157,7 @@ window.addEventListener('DOMContentLoaded', function() {
     const studentEmail = student.email || null;
 
     if(!studentEmail) {
-      console.warn(`No email for student ${sId} — payment email not sent.`);
+      alert(`⚠️ Student ${sId} has no email address saved — cannot send email.`);
       return;
     }
 
@@ -3162,13 +3170,28 @@ window.addEventListener('DOMContentLoaded', function() {
         amount:       `৳${parseFloat(amount).toLocaleString('en-BD')}`,
         pay_date:     date,
       });
+      // Mark as sent in Firebase
+      await set(ref(db, `payEmailSent/${sId}/${key}`), {
+        sentAt: new Date().toISOString(),
+        email: studentEmail
+      });
       console.log(`✅ Payment confirmation email sent to ${studentEmail}`);
     } catch(err) {
       console.error('Payment email error:', err);
+      alert(`⚠️ Email failed: ${err.text || err.message || 'Unknown error'}`);
     }
   }
 
   window.sendPaymentEmail = sendPaymentEmail;
+
+  // Admin manually resends email for a specific payment
+  window.resendPaymentEmail = async (sId, key, month, year, amount, date) => {
+    const confirmed = confirm(`Resend payment confirmation email for ${month} ${year}?`);
+    if(!confirmed) return;
+    await sendPaymentEmail(sId, month, year, amount, date, true);
+    alert(`✅ Email resent for ${month} ${year}!`);
+    loadPaymentPreview();
+  };
 
   // ── Class dates chip state ──
   let classDatesSelected = [];
@@ -4042,33 +4065,67 @@ window.addEventListener('DOMContentLoaded', function() {
     const label = document.getElementById('pay-preview-id');
     if(!sId) { tbody.innerHTML = ''; label.innerText = ''; return; }
     label.innerText = `for ID: ${sId}`;
-    const snapshot = await get(child(ref(db), `payments/${sId}`));
-    const savedPayments = snapshot.exists() ? snapshot.val() : {};
-    // Collect all entries; support both new `year_month` keys and legacy `month` keys
+
+    const [paymentsSnap, emailSentSnap] = await Promise.all([
+      get(child(ref(db), `payments/${sId}`)),
+      get(child(ref(db), `payEmailSent/${sId}`))
+    ]);
+
+    const savedPayments = paymentsSnap.exists() ? paymentsSnap.val() : {};
+    const emailSentMap  = emailSentSnap.exists() ? emailSentSnap.val() : {};
+
     const entries = Object.entries(savedPayments).map(([key, rec]) => {
       const year  = rec.year  || (key.includes('_') ? key.split('_')[0] : '—');
       const month = rec.month || (key.includes('_') ? key.split('_')[1] : key);
       return { key, year, month, ...rec };
     });
-    // Sort by year desc then month order
+
     const monthOrder = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     entries.sort((a,b) => {
       if(b.year !== a.year) return (b.year||'').localeCompare(a.year||'');
       return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
     });
+
     if(entries.length > 0) {
       tbody.innerHTML = entries.map(rec => {
         const amt = rec.amount ? `৳ ${parseFloat(rec.amount).toLocaleString('en-BD')}` : '—';
+        const isPaid = (rec.status||'').toLowerCase() === 'paid';
+        const emailSent = emailSentMap[rec.key];
+
+        let emailBtn = '';
+        if(isPaid) {
+          const safeMonth = (rec.month||'').replace(/'/g,'');
+          const safeYear  = (rec.year ||'').replace(/'/g,'');
+          const safeAmt   = (rec.amount||'0');
+          const safeDate  = (rec.date  ||'N/A').replace(/'/g,'');
+          if(emailSent) {
+            const sentDate = emailSent.sentAt ? emailSent.sentAt.slice(0,10) : '';
+            emailBtn = `<button class="btn-sm" style="background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.25);color:var(--green);"
+              onclick="resendPaymentEmail('${sId}','${rec.key}','${safeMonth}','${safeYear}','${safeAmt}','${safeDate}')"
+              title="Email sent ${sentDate}. Click to resend.">📧 Resend</button>`;
+          } else {
+            emailBtn = `<button class="btn-sm" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);color:var(--gold);"
+              onclick="resendPaymentEmail('${sId}','${rec.key}','${safeMonth}','${safeYear}','${safeAmt}','${safeDate}')"
+              title="Send payment confirmation email">📨 Send Email</button>`;
+          }
+        }
+
         return `
           <tr>
             <td style="font-family:var(--mono); color:var(--purple); font-weight:700;">${rec.year||'—'}</td>
             <td style="font-weight:600;">${rec.month||'—'}</td>
             <td style="font-family:var(--mono); color:var(--cyan); font-size:13px;">${rec.date || 'N/A'}</td>
             <td style="font-family:var(--mono); color:var(--gold); font-weight:700;">${amt}</td>
-            <td><span class="badge badge-${(rec.status||'pending').toLowerCase()}">${(rec.status||'Pending').toUpperCase()}</span></td>
+            <td>
+              <span class="badge badge-${(rec.status||'pending').toLowerCase()}">${(rec.status||'Pending').toUpperCase()}</span>
+              ${emailSent && isPaid ? `<div style="font-size:10px; color:var(--green); margin-top:3px;">✓ Email sent</div>` : ''}
+            </td>
             <td style="display:flex; gap:5px; flex-wrap:wrap;">
-              <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="openPaymentEditModal('${sId}','${rec.key}','${rec.year||'2026'}','${rec.month||'January'}','${rec.date||''}','${rec.status||'Pending'}','${rec.amount||''}')">✏️ Edit</button>
-              <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('payments/${sId}/${rec.key}', loadPaymentPreview)">Delete</button>
+              <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);"
+                onclick="openPaymentEditModal('${sId}','${rec.key}','${rec.year||'2026'}','${rec.month||'January'}','${rec.date||''}','${rec.status||'Pending'}','${rec.amount||''}')">✏️ Edit</button>
+              ${emailBtn}
+              <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);"
+                onclick="deleteEntry('payments/${sId}/${rec.key}', loadPaymentPreview)">Delete</button>
             </td>
           </tr>
         `;
