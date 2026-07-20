@@ -1038,7 +1038,7 @@
       <div class="nav-item" id="nav-admin-summary" onclick="switchTab('admin-summary')"><span class="nav-dot"></span>📈 Financial Summary</div>
     </div>
 
-    <div class="sidebar-footer">
+    <div class="sidebar-footer" id="sidebar-logout-footer">
       <button class="btn-logout" onclick="handleLogout()">← Logout</button>
     </div>
   </aside>
@@ -1295,6 +1295,19 @@
         <div id="cp-result" style="display:none; padding:11px 14px; border-radius:var(--radius-sm); font-size:13px; margin-bottom:14px;"></div>
         <button class="btn-action" onclick="changeStudentPassword()">Update Password</button>
       </div>
+
+      <!-- Logout -->
+      <div class="card" style="border-color:rgba(239,68,68,0.2); background:rgba(239,68,68,0.03);">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+          <div>
+            <div style="font-size:14px; font-weight:700; color:var(--text);">Sign Out</div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:3px;">You will be returned to the login page.</div>
+          </div>
+          <button onclick="handleLogout()" style="padding:10px 22px; background:rgba(239,68,68,0.1); border:1.5px solid rgba(239,68,68,0.3); color:var(--red); border-radius:var(--radius-sm); cursor:pointer; font-weight:700; font-size:13px; font-family:var(--font); transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.18)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'">
+            🚪 Logout
+          </button>
+        </div>
+      </div>
     </section>
 
     <!-- ADMIN: USERS -->
@@ -1320,7 +1333,13 @@
             <label>Role</label>
             <select id="new-student-role">
               <option value="user">Student</option>
-              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Student Status</label>
+            <select id="new-student-status">
+              <option value="Present">✅ Present Student</option>
+              <option value="Former">🎓 Former Student</option>
             </select>
           </div>
           <div class="form-group">
@@ -1349,12 +1368,18 @@
 
       <!-- Search + Student Cards -->
       <div class="card">
-        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
           <div class="card-title" style="margin-bottom:0;">👥 All Registered Students</div>
           <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
             <input type="text" id="user-search-input" placeholder="🔍 Search by ID or Name..." oninput="filterStudentCards()" style="padding:9px 14px; border:1px solid rgba(0,0,0,0.13); border-radius:var(--radius-sm); background:#f8f9ff; font-family:var(--font); font-size:13px; color:var(--text); outline:none; width:240px; transition:border-color 0.2s;">
             <span id="user-count-badge" style="font-size:12px; color:var(--text-muted); white-space:nowrap; background:#f0f2ff; padding:5px 10px; border-radius:20px;"></span>
           </div>
+        </div>
+        <!-- Status filter tabs -->
+        <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
+          <button id="filter-btn-all" onclick="setStudentFilter('all')" style="padding:7px 18px; border-radius:20px; border:1.5px solid rgba(99,102,241,0.3); background:rgba(99,102,241,0.12); color:var(--accent); font-size:12px; font-weight:700; cursor:pointer; font-family:var(--font); transition:all 0.15s;">All</button>
+          <button id="filter-btn-present" onclick="setStudentFilter('present')" style="padding:7px 18px; border-radius:20px; border:1.5px solid rgba(16,185,129,0.2); background:transparent; color:var(--text-muted); font-size:12px; font-weight:600; cursor:pointer; font-family:var(--font); transition:all 0.15s;">✅ Present</button>
+          <button id="filter-btn-former" onclick="setStudentFilter('former')" style="padding:7px 18px; border-radius:20px; border:1.5px solid rgba(245,158,11,0.2); background:transparent; color:var(--text-muted); font-size:12px; font-weight:600; cursor:pointer; font-family:var(--font); transition:all 0.15s;">🎓 Former</button>
         </div>
         <div id="student-cards-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:14px;"></div>
         <div id="student-no-result" style="display:none; text-align:center; padding:32px; color:var(--text-muted); font-size:14px;">No students found.</div>
@@ -1375,6 +1400,7 @@
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Email</span><span id="sp-email" style="font-size:13px;"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Level</span><span id="sp-level" style="font-size:13px; font-weight:700; color:var(--purple);"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Group</span><span id="sp-group" style="font-size:13px; font-weight:700; color:var(--accent);"></span></div>
+          <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Status</span><span id="sp-status" style="font-size:13px; font-weight:700;"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0;"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Password</span><span id="sp-pass" style="font-family:var(--mono); font-size:13px; color:var(--text-dim);"></span></div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
@@ -1395,6 +1421,7 @@
           <button class="btn-action" style="flex:1; margin-top:0;" id="sp-edit-btn">✏️ Edit Profile</button>
           <button class="btn-action" style="flex:1; margin-top:0; background:#f0f2ff; color:var(--purple); box-shadow:none; border:1px solid rgba(167,139,250,0.3);" id="sp-edit-level-btn">🎓 Change Level</button>
           <button class="btn-action" style="flex:1; margin-top:0; background:#f0fff8; color:var(--green); box-shadow:none; border:1px solid rgba(16,185,129,0.3);" id="sp-edit-group-btn">👥 Change Group</button>
+          <button class="btn-action" style="flex:1; margin-top:0; background:#fffbf0; color:var(--gold); box-shadow:none; border:1px solid rgba(245,158,11,0.3);" id="sp-edit-status-btn">🔄 Change Status</button>
           <button id="sp-delete-btn" style="flex:1; padding:11px 20px; background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.3); color:var(--red); border-radius:var(--radius-sm); cursor:pointer; font-weight:700; font-size:13px; font-family:var(--font);">🗑️ Delete Student</button>
         </div>
       </div>
@@ -2370,8 +2397,10 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('portal-page').style.display = 'block';
     if(currentSession.role === 'admin') {
       document.getElementById('menu-admin').classList.remove('hidden');
+      document.getElementById('sidebar-logout-footer').style.display = '';
     } else {
       document.getElementById('menu-admin').classList.add('hidden');
+      document.getElementById('sidebar-logout-footer').style.display = 'none';
     }
     // Restore last active tab after all functions are defined
     const lastTab = localStorage.getItem('skillCircleLastTab');
@@ -2499,9 +2528,11 @@ window.addEventListener('DOMContentLoaded', function() {
         
         if(currentSession.role === 'admin' || id === 'admin') {
           document.getElementById('menu-admin').classList.remove('hidden');
+          document.getElementById('sidebar-logout-footer').style.display = '';
           window.switchTab('admin-users');
         } else {
           document.getElementById('menu-admin').classList.add('hidden');
+          document.getElementById('sidebar-logout-footer').style.display = 'none';
           window.switchTab('dash');
         }
         return;
@@ -3681,15 +3712,38 @@ window.addEventListener('DOMContentLoaded', function() {
       grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:24px; color:var(--text-muted);">No users found.</div>';
       return;
     }
-    allUsersCache = snapshot.val();
+    // Exclude admin account from user list
+    const all = snapshot.val();
+    allUsersCache = Object.fromEntries(Object.entries(all).filter(([id, u]) => u.role !== 'admin' && id !== 'admin'));
     renderStudentCards(allUsersCache);
   }
+
+  let currentStudentFilter = 'all';
+
+  window.setStudentFilter = (filter) => {
+    currentStudentFilter = filter;
+    const btns = { all:'filter-btn-all', present:'filter-btn-present', former:'filter-btn-former' };
+    Object.entries(btns).forEach(([k, id]) => {
+      const btn = document.getElementById(id);
+      if(!btn) return;
+      if(k === filter) {
+        btn.style.background = k === 'present' ? 'rgba(16,185,129,0.15)' : k === 'former' ? 'rgba(245,158,11,0.15)' : 'rgba(99,102,241,0.12)';
+        btn.style.color = k === 'present' ? 'var(--green)' : k === 'former' ? 'var(--gold)' : 'var(--accent)';
+        btn.style.borderColor = k === 'present' ? 'rgba(16,185,129,0.4)' : k === 'former' ? 'rgba(245,158,11,0.4)' : 'rgba(99,102,241,0.4)';
+      } else {
+        btn.style.background = 'transparent';
+        btn.style.color = 'var(--text-muted)';
+        btn.style.borderColor = 'rgba(0,0,0,0.1)';
+      }
+    });
+    filterStudentCards();
+  };
 
   function renderStudentCards(users) {
     const grid = document.getElementById('student-cards-grid');
     const noResult = document.getElementById('student-no-result');
     const countBadge = document.getElementById('user-count-badge');
-    const keys = Object.keys(users);
+    const keys = Object.keys(users).filter(id => users[id].role !== 'admin' && id !== 'admin');
     countBadge.innerText = keys.length + ' student' + (keys.length !== 1 ? 's' : '');
     if(keys.length === 0) {
       grid.innerHTML = ''; noResult.style.display = 'block'; return;
@@ -3705,18 +3759,24 @@ window.addEventListener('DOMContentLoaded', function() {
     ];
     grid.innerHTML = keys.map((id, i) => {
       const u = users[id];
+      const isFormer = (u.status || 'Present') === 'Former';
       const initials = u.name ? u.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase() : '??';
-      const color = avatarColors[i % avatarColors.length];
-      const roleColor = u.role === 'admin' ? 'var(--gold)' : 'var(--accent)';
+      const color = isFormer ? 'linear-gradient(135deg,#94a3b8,#64748b)' : avatarColors[i % avatarColors.length];
+      const statusDot = isFormer
+        ? `<div style="position:absolute; top:10px; right:10px; width:8px; height:8px; border-radius:50%; background:var(--gold);"></div>`
+        : `<div style="position:absolute; top:10px; right:10px; width:8px; height:8px; border-radius:50%; background:var(--green);"></div>`;
+      const statusBadge = isFormer
+        ? `<div style="margin-top:5px; font-size:10px; font-weight:700; color:var(--gold); background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.25); border-radius:12px; padding:2px 8px; display:inline-block;">🎓 Former</div>`
+        : `<div style="margin-top:5px; font-size:10px; font-weight:700; color:var(--green); background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); border-radius:12px; padding:2px 8px; display:inline-block;">✅ Present</div>`;
       return `
-        <div onclick="openStudentProfile('${id}')" style="background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:20px 16px; text-align:center; cursor:pointer; transition:all 0.18s; position:relative;" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(79,142,247,0.12)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='';this.style.boxShadow=''">
+        <div onclick="openStudentProfile('${id}')" style="background:#fff; border:1.5px solid ${isFormer ? 'rgba(245,158,11,0.2)' : 'var(--border)'}; border-radius:var(--radius); padding:20px 16px; text-align:center; cursor:pointer; transition:all 0.18s; position:relative; opacity:${isFormer ? '0.82' : '1'};" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(79,142,247,0.12)'" onmouseout="this.style.borderColor='${isFormer ? 'rgba(245,158,11,0.2)' : 'var(--border)'}';this.style.transform='';this.style.boxShadow=''">
+          ${statusDot}
           <div style="width:56px; height:56px; border-radius:50%; background:${color}; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800; color:#fff; margin:0 auto 12px;">${initials}</div>
           <div style="font-weight:700; font-size:14px; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${u.name}</div>
           <div style="font-family:var(--mono); font-size:12px; color:var(--accent); margin-bottom:6px;">#${id}</div>
-          <span style="font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px; background:rgba(79,142,247,0.1); color:${roleColor}; border:1px solid rgba(79,142,247,0.2); text-transform:uppercase;">${u.role}</span>
-          ${u.level ? `<div style="margin-top:6px; font-size:10px; font-weight:700; color:var(--purple); background:rgba(167,139,250,0.1); border:1px solid rgba(167,139,250,0.2); border-radius:12px; padding:2px 8px; display:inline-block;">${u.level}</div>` : ''}
+          ${statusBadge}
+          ${u.level ? `<div style="margin-top:4px; font-size:10px; font-weight:700; color:var(--purple); background:rgba(167,139,250,0.1); border:1px solid rgba(167,139,250,0.2); border-radius:12px; padding:2px 8px; display:inline-block;">${u.level}</div>` : ''}
           ${u.group ? `<div style="margin-top:4px; font-size:10px; font-weight:600; color:var(--accent); background:rgba(99,102,241,0.07); border:1px solid rgba(99,102,241,0.18); border-radius:12px; padding:2px 8px; display:inline-block;">${u.group}</div>` : ''}
-          <div style="position:absolute; top:10px; right:10px; width:8px; height:8px; border-radius:50%; background:var(--green);"></div>
         </div>
       `;
     }).join('');
@@ -3724,14 +3784,21 @@ window.addEventListener('DOMContentLoaded', function() {
 
   window.filterStudentCards = () => {
     const q = document.getElementById('user-search-input').value.trim().toLowerCase();
-    if(!q) { renderStudentCards(allUsersCache); return; }
-    const filtered = {};
-    Object.keys(allUsersCache).forEach(id => {
-      const u = allUsersCache[id];
-      if(id.toLowerCase().includes(q) || (u.name && u.name.toLowerCase().includes(q))) {
-        filtered[id] = u;
-      }
-    });
+    let filtered = { ...allUsersCache };
+
+    // Filter by status
+    if(currentStudentFilter === 'present') {
+      filtered = Object.fromEntries(Object.entries(filtered).filter(([, u]) => (u.status || 'Present') === 'Present'));
+    } else if(currentStudentFilter === 'former') {
+      filtered = Object.fromEntries(Object.entries(filtered).filter(([, u]) => (u.status || 'Present') === 'Former'));
+    }
+
+    // Filter by search
+    if(q) {
+      filtered = Object.fromEntries(Object.entries(filtered).filter(([id, u]) =>
+        id.toLowerCase().includes(q) || (u.name && u.name.toLowerCase().includes(q))
+      ));
+    }
     renderStudentCards(filtered);
   };
 
@@ -3748,6 +3815,12 @@ window.addEventListener('DOMContentLoaded', function() {
     if(spLevel) spLevel.innerText = u.level || 'Not Set';
     const spGroup = document.getElementById('sp-group');
     if(spGroup) spGroup.innerText = u.group || 'Not Set';
+    const spStatus = document.getElementById('sp-status');
+    if(spStatus) {
+      const isFormer = (u.status || 'Present') === 'Former';
+      spStatus.innerText = isFormer ? '🎓 Former' : '✅ Present';
+      spStatus.style.color = isFormer ? 'var(--gold)' : 'var(--green)';
+    }
     document.getElementById('sp-pass').innerText = u.pass;
     document.getElementById('sp-role-badge').innerHTML = `<span class="badge badge-${u.role}">${u.role.toUpperCase()}</span>`;
 
@@ -3768,6 +3841,7 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('sp-delete-btn').onclick = () => adminDeleteUser(userId);
     document.getElementById('sp-edit-level-btn').onclick = () => editStudentLevel(userId, u.level || '');
     document.getElementById('sp-edit-group-btn').onclick = () => editStudentGroup(userId, u.group || '');
+    document.getElementById('sp-edit-status-btn').onclick = () => editStudentStatus(userId, u.status || 'Present');
 
     const modal = document.getElementById('student-profile-modal');
     modal.style.display = 'flex';
@@ -3779,36 +3853,79 @@ window.addEventListener('DOMContentLoaded', function() {
     document.body.style.overflow = '';
   };
 
+  // ── Generic click-to-select modal (used for Level / Group / Status) ──
+  let __qsSelectedValue = null;
+  window.openQuickSelect = (title, options, currentValue, onSave) => {
+    // options: array of { value, label, color }
+    document.getElementById('qs-title').innerText = title;
+    __qsSelectedValue = currentValue;
+    const optsWrap = document.getElementById('qs-options');
+    const renderOptions = () => {
+      optsWrap.innerHTML = options.map(opt => {
+        const active = opt.value === __qsSelectedValue;
+        return `<div data-qs-value="${opt.value}" style="padding:12px 14px; border-radius:12px; cursor:pointer; font-weight:700; font-size:14px; border:1.5px solid ${active ? 'var(--accent)' : 'var(--border)'}; background:${active ? 'rgba(99,102,241,0.1)' : '#fff'}; color:${active ? 'var(--accent)' : 'var(--text)'}; transition:all 0.15s; display:flex; align-items:center; justify-content:space-between;">
+          <span>${opt.label}</span>${active ? '<span>✓</span>' : ''}
+        </div>`;
+      }).join('');
+      optsWrap.querySelectorAll('[data-qs-value]').forEach(el => {
+        el.onclick = () => { __qsSelectedValue = el.getAttribute('data-qs-value'); renderOptions(); };
+      });
+    };
+    renderOptions();
+    document.getElementById('qs-save-btn').onclick = () => {
+      onSave(__qsSelectedValue);
+      closeQuickSelectModal();
+    };
+    document.getElementById('quick-select-modal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeQuickSelectModal = () => {
+    document.getElementById('quick-select-modal').style.display = 'none';
+    document.body.style.overflow = '';
+  };
+
   window.editStudentLevel = async (userId, current) => {
     const levels = ['', 'SSC', 'HSC', 'University'];
     const labels = ['Not Set', 'SSC', 'HSC', 'University'];
-    const options = labels.map((l, i) => `${i+1}. ${l}`).join('\n');
-    const input = prompt(`Change student level (enter number):\n${options}\n\nCurrent: ${current || 'Not Set'}`);
-    if(input === null) return;
-    const idx = parseInt(input) - 1;
-    if(isNaN(idx) || idx < 0 || idx >= levels.length) return alert('Invalid selection!');
-    await update(ref(db), { [`/users/${userId}/level`]: levels[idx] });
-    const spLevel = document.getElementById('sp-level');
-    if(spLevel) spLevel.innerText = labels[idx];
-    if(allUsersCache[userId]) allUsersCache[userId].level = levels[idx];
-    renderStudentCards(allUsersCache);
-    alert(`✅ Level updated to: ${labels[idx]}`);
+    const options = levels.map((v, i) => ({ value: v, label: labels[i] }));
+    openQuickSelect('🎓 Change Student Level', options, current || '', async (selected) => {
+      await update(ref(db), { [`/users/${userId}/level`]: selected });
+      const spLevel = document.getElementById('sp-level');
+      if(spLevel) spLevel.innerText = labels[levels.indexOf(selected)];
+      if(allUsersCache[userId]) allUsersCache[userId].level = selected;
+      renderStudentCards(allUsersCache);
+    });
   };
 
   window.editStudentGroup = async (userId, current) => {
     const groups = ['', 'Science', 'Science with Higher Math', 'Humanities', 'Commerce', 'Other'];
     const labels = ['Not Set', '🔬 Science', '📐 Science with Higher Math', '📚 Humanities', '💼 Commerce', '📦 Other'];
-    const options = labels.map((l, i) => `${i+1}. ${l}`).join('\n');
-    const input = prompt(`Change student group (enter number):\n${options}\n\nCurrent: ${current || 'Not Set'}`);
-    if(input === null) return;
-    const idx = parseInt(input) - 1;
-    if(isNaN(idx) || idx < 0 || idx >= groups.length) return alert('Invalid selection!');
-    await update(ref(db), { [`/users/${userId}/group`]: groups[idx] });
-    const spGroup = document.getElementById('sp-group');
-    if(spGroup) spGroup.innerText = groups[idx] || 'Not Set';
-    if(allUsersCache[userId]) allUsersCache[userId].group = groups[idx];
-    renderStudentCards(allUsersCache);
-    alert(`✅ Group updated to: ${labels[idx]}`);
+    const options = groups.map((v, i) => ({ value: v, label: labels[i] }));
+    openQuickSelect('👥 Change Student Group', options, current || '', async (selected) => {
+      await update(ref(db), { [`/users/${userId}/group`]: selected });
+      const spGroup = document.getElementById('sp-group');
+      if(spGroup) spGroup.innerText = selected || 'Not Set';
+      if(allUsersCache[userId]) allUsersCache[userId].group = selected;
+      renderStudentCards(allUsersCache);
+    });
+  };
+
+  window.editStudentStatus = async (userId, current) => {
+    const statuses = ['Present', 'Former'];
+    const labels = ['✅ Present Student', '🎓 Former Student'];
+    const options = statuses.map((v, i) => ({ value: v, label: labels[i] }));
+    openQuickSelect('🔄 Change Student Status', options, current === 'Former' ? 'Former' : 'Present', async (selected) => {
+      await update(ref(db), { [`/users/${userId}/status`]: selected });
+      const spStatus = document.getElementById('sp-status');
+      if(spStatus) {
+        const isFormer = selected === 'Former';
+        spStatus.innerText = isFormer ? '🎓 Former' : '✅ Present';
+        spStatus.style.color = isFormer ? 'var(--gold)' : 'var(--green)';
+      }
+      if(allUsersCache[userId]) allUsersCache[userId].status = selected;
+      renderStudentCards(allUsersCache);
+    });
   };
 
   window.adminDeleteUser = async (userId) => {
@@ -3823,20 +3940,21 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 
   window.adminAddStudent = async () => {
-    const name  = document.getElementById('new-student-name').value.trim();
-    const id    = document.getElementById('new-student-id').value.trim();
-    const email = document.getElementById('new-student-email').value.trim();
-    const pass  = document.getElementById('new-student-pass').value.trim();
-    const role  = document.getElementById('new-student-role').value;
-    const level = document.getElementById('new-student-level').value || '';
-    const group = document.getElementById('new-student-group').value || '';
+    const name   = document.getElementById('new-student-name').value.trim();
+    const id     = document.getElementById('new-student-id').value.trim();
+    const email  = document.getElementById('new-student-email').value.trim();
+    const pass   = document.getElementById('new-student-pass').value.trim();
+    const role   = document.getElementById('new-student-role').value;
+    const status = document.getElementById('new-student-status').value || 'Present';
+    const level  = document.getElementById('new-student-level').value || '';
+    const group  = document.getElementById('new-student-group').value || '';
 
     if(!name || !id || !email || !pass) return alert("Please fill all fields to add a new student!");
 
     const snapshot = await get(child(ref(db), `users/${id}`));
     if(snapshot.exists()) return alert(`❌ ID "${id}" is already registered!`);
 
-    await set(ref(db, 'users/' + id), { name, email, pass, role, level, group });
+    await set(ref(db, 'users/' + id), { name, email, pass, role, status, level, group });
     alert(`✅ Account created for ${name} (ID: ${id})!`);
     document.getElementById('new-student-name').value = '';
     document.getElementById('new-student-id').value = '';
@@ -4966,6 +5084,19 @@ window.addEventListener('DOMContentLoaded', function() {
 
 }); // end DOMContentLoaded
 </script>
+<!-- QUICK SELECT MODAL (Level / Group / Status) -->
+<div id="quick-select-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3500; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeQuickSelectModal()">
+  <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:28px 26px; width:380px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
+    <button onclick="closeQuickSelectModal()" style="position:absolute;top:14px;right:14px;background:#eef0ff;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+    <div id="qs-title" style="font-size:17px;font-weight:800;margin-bottom:18px;letter-spacing:-0.3px;"></div>
+    <div id="qs-options" style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px;"></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn-action" style="flex:1;" id="qs-save-btn">💾 Save</button>
+      <button class="btn-cancel" style="flex:1;" onclick="closeQuickSelectModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- EDIT SAVING MODAL -->
 <div id="edit-saving-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeSavingEditModal()">
   <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:420px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
