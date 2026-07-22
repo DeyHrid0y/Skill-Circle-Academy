@@ -3005,10 +3005,14 @@ window.addEventListener('DOMContentLoaded', function() {
     const snapshot = await get(child(ref(db), 'notes'));
     if(snapshot.exists()) {
       allNotesCache = Object.entries(snapshot.val()).map(([k, v]) => ({ ...v, _key: k }));
-      // For students, pre-filter to only their level + 'All' level notes
+      // For students, pre-filter to only their level + 'All' level notes, AND their group + 'All' group notes
+      const studentGroup = currentSession.group || null;
       const viewable = isAdmin ? allNotesCache : allNotesCache.filter(n => {
         const noteLevel = n.level || 'All';
-        return noteLevel === 'All' || noteLevel === studentLevel;
+        const noteGroup = n.group || 'All';
+        const levelOk = noteLevel === 'All' || noteLevel === studentLevel;
+        const groupOk = noteGroup === 'All' || !studentGroup || noteGroup === studentGroup;
+        return levelOk && groupOk;
       });
       renderNotesRows(viewable);
     } else {
