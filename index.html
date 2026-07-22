@@ -2736,36 +2736,14 @@ window.addEventListener('DOMContentLoaded', function() {
 
   window.editLibraryLevel = async (key, current) => {
     const levels = ['All', 'SSC', 'HSC', 'University'];
-    const options = levels.map((l, i) => `${i+1}. ${l}`).join('\n');
-    const input = prompt(`Select new level (enter number):\n${options}\n\nCurrent: ${current}`);
-    if(input === null) return;
-    const idx = parseInt(input) - 1;
-    if(isNaN(idx) || idx < 0 || idx >= levels.length) return alert('Invalid selection!');
-    await update(ref(db), { [`/library/${key}/level`]: levels[idx] });
-    loadAdminLibraryPreview();
+    const options = levels.map(v => ({ value: v, label: v }));
+    openQuickSelect('🎓 Change Resource Level', options, current || 'All', async (selected) => {
+      await update(ref(db), { [`/library/${key}/level`]: selected });
+      loadAdminLibraryPreview();
+    });
   };
 
 
-
-  window.editNoteTitle = async (key, currentTitle) => {
-    const newTitle = prompt('Edit note name:', currentTitle);
-    if(newTitle === null) return;
-    const trimmed = newTitle.trim();
-    if(!trimmed) return alert('Note name cannot be empty!');
-    await update(ref(db), { [`/notes/${key}/title`]: trimmed });
-    loadAdminNotesPreview();
-  };
-
-  window.editNoteLevel = async (key, current) => {
-    const levels = ['All', 'SSC', 'HSC', 'University'];
-    const options = levels.map((l, i) => `${i+1}. ${l}`).join('\n');
-    const input = prompt(`Select new level (enter number):\n${options}\n\nCurrent: ${current}`);
-    if(input === null) return;
-    const idx = parseInt(input) - 1;
-    if(isNaN(idx) || idx < 0 || idx >= levels.length) return alert('Invalid selection!');
-    await update(ref(db), { [`/notes/${key}/level`]: levels[idx] });
-    loadAdminNotesPreview();
-  };
 
   async function initUserDash() {
     document.getElementById('user-name-display').innerText = currentSession.name;
@@ -2970,40 +2948,34 @@ window.addEventListener('DOMContentLoaded', function() {
 
   window.editNoteLevel = async (key, current) => {
     const levels  = ['All', 'SSC', 'HSC', 'University'];
-    const options = levels.map((l, i) => `${i+1}. ${l}`).join('\n');
-    const input   = prompt(`Select new level (enter number):\n${options}\n\nCurrent: ${current}`);
-    if(input === null) return;
-    const idx = parseInt(input) - 1;
-    if(isNaN(idx) || idx < 0 || idx >= levels.length) return alert('Invalid selection!');
-    await update(ref(db), { [`/notes/${key}/level`]: levels[idx] });
-    loadAdminNotesPreview();
-    allNotesCache = [];
+    const options = levels.map(v => ({ value: v, label: v }));
+    openQuickSelect('🎓 Change Note Level', options, current || 'All', async (selected) => {
+      await update(ref(db), { [`/notes/${key}/level`]: selected });
+      loadAdminNotesPreview();
+      allNotesCache = [];
+    });
   };
 
   window.editNoteSubject = async (key, current) => {
     const subjects = ['Chemistry', 'Physics', 'Higher Math', 'ICT', 'Other'];
     const icons    = ['⚗️', '⚡', '📐', '💻', '📦'];
-    const options  = subjects.map((s, i) => `${i+1}. ${icons[i]} ${s}`).join('\n');
-    const input    = prompt(`Select new subject (enter number):\n${options}\n\nCurrent: ${current}`);
-    if(input === null) return;
-    const idx = parseInt(input) - 1;
-    if(isNaN(idx) || idx < 0 || idx >= subjects.length) return alert('Invalid selection!');
-    await update(ref(db), { [`/notes/${key}/subject`]: subjects[idx] });
-    loadAdminNotesPreview();
-    allNotesCache = [];
+    const options  = subjects.map((s, i) => ({ value: s, label: `${icons[i]} ${s}` }));
+    openQuickSelect('📚 Change Note Subject', options, current, async (selected) => {
+      await update(ref(db), { [`/notes/${key}/subject`]: selected });
+      loadAdminNotesPreview();
+      allNotesCache = [];
+    });
   };
 
   window.editNoteGroup = async (key, current) => {
     const groups  = ['All', 'Science', 'Science with Higher Math', 'Humanities', 'Commerce', 'Other'];
     const icons   = ['🌐', '🔬', '📐', '📚', '💼', '📦'];
-    const options = groups.map((g, i) => `${i+1}. ${icons[i]} ${g}`).join('\n');
-    const input   = prompt(`Select new group (enter number):\n${options}\n\nCurrent: ${current}`);
-    if(input === null) return;
-    const idx = parseInt(input) - 1;
-    if(isNaN(idx) || idx < 0 || idx >= groups.length) return alert('Invalid selection!');
-    await update(ref(db), { [`/notes/${key}/group`]: groups[idx] });
-    loadAdminNotesPreview();
-    allNotesCache = [];
+    const options = groups.map((g, i) => ({ value: g, label: `${icons[i]} ${g}` }));
+    openQuickSelect('👥 Change Note Group', options, current || 'All', async (selected) => {
+      await update(ref(db), { [`/notes/${key}/group`]: selected });
+      loadAdminNotesPreview();
+      allNotesCache = [];
+    });
   };
 
   let allNotesCache = [];
