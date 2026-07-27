@@ -1274,6 +1274,18 @@
           <span class="profile-info-label">Group</span>
           <span class="profile-info-value" id="p-group" style="color:var(--accent); font-weight:700;">—</span>
         </div>
+        <div class="profile-info-item">
+          <span class="profile-info-label">Institution</span>
+          <span class="profile-info-value" id="p-institution">—</span>
+        </div>
+        <div class="profile-info-item">
+          <span class="profile-info-label">SSC Result</span>
+          <span class="profile-info-value" id="p-ssc-result">—</span>
+        </div>
+        <div class="profile-info-item" id="p-hsc-result-wrap" style="display:none;">
+          <span class="profile-info-label">HSC Result</span>
+          <span class="profile-info-value" id="p-hsc-result">—</span>
+        </div>
         <button class="btn-action" style="margin-top: 16px;" onclick="openEditModal()">Edit Profile</button>
       </div>
 
@@ -1344,7 +1356,7 @@
           </div>
           <div class="form-group">
             <label>Student Level</label>
-            <select id="new-student-level">
+            <select id="new-student-level" onchange="document.getElementById('new-student-hsc-result-wrap').style.display = this.value === 'HSC' ? '' : 'none';">
               <option value="">— Select Level —</option>
               <option value="SSC">SSC</option>
               <option value="HSC">HSC</option>
@@ -1362,6 +1374,13 @@
               <option value="Other">📦 Other</option>
             </select>
           </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label>Institution Name <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label><input type="text" id="new-student-institution" placeholder="e.g. Dhaka Residential Model College"></div>
+          <div class="form-group"><label>SSC Result <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label><input type="text" id="new-student-ssc-result" placeholder="e.g. GPA 5.00"></div>
+        </div>
+        <div class="grid-2" id="new-student-hsc-result-wrap" style="display:none;">
+          <div class="form-group"><label>HSC Result <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label><input type="text" id="new-student-hsc-result" placeholder="e.g. GPA 5.00"></div>
         </div>
         <button class="btn-action" onclick="adminAddStudent()">➕ Create Account</button>
       </div>
@@ -1401,6 +1420,9 @@
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Level</span><span id="sp-level" style="font-size:13px; font-weight:700; color:var(--purple);"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Group</span><span id="sp-group" style="font-size:13px; font-weight:700; color:var(--accent);"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Status</span><span id="sp-status" style="font-size:13px; font-weight:700;"></span></div>
+          <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Institution</span><span id="sp-institution" style="font-size:13px; font-weight:700; text-align:right;"></span></div>
+          <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">SSC Result</span><span id="sp-ssc-result" style="font-size:13px; font-weight:700;"></span></div>
+          <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);" id="sp-hsc-result-wrap"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">HSC Result</span><span id="sp-hsc-result" style="font-size:13px; font-weight:700;"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0;"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Password</span><span id="sp-pass" style="font-family:var(--mono); font-size:13px; color:var(--text-dim);"></span></div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
@@ -2211,6 +2233,9 @@
     <div class="modal-title" id="modal-title">Edit Profile</div>
     <div class="form-group"><label>Full Name</label><input type="text" id="edit-name"></div>
     <div class="form-group"><label>Email</label><input type="text" id="edit-email"></div>
+    <div class="form-group"><label>Institution Name <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label><input type="text" id="edit-institution" placeholder="e.g. Dhaka Residential Model College"></div>
+    <div class="form-group"><label>SSC Result <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label><input type="text" id="edit-ssc-result" placeholder="e.g. GPA 5.00"></div>
+    <div class="form-group" id="edit-hsc-result-wrap" style="display:none;"><label>HSC Result <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label><input type="text" id="edit-hsc-result" placeholder="e.g. GPA 5.00"></div>
     <div class="modal-actions">
       <button class="btn-action" onclick="saveProfile()">Save Changes</button>
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
@@ -2980,6 +3005,16 @@ window.addEventListener('DOMContentLoaded', function() {
 
   let allNotesCache = [];
 
+  // Group visibility rule: 'Science with Higher Math' students can also see plain 'Science' group notes,
+  // since their syllabus is a superset of Science. All other groups only see their own group + 'All'.
+  function canViewNoteGroup(studentGroup, noteGroup) {
+    noteGroup = noteGroup || 'All';
+    if(noteGroup === 'All' || !studentGroup) return true;
+    if(noteGroup === studentGroup) return true;
+    if(studentGroup === 'Science with Higher Math' && noteGroup === 'Science') return true;
+    return false;
+  }
+
   async function loadStudentNotes() {
     const tbody = document.getElementById('notes-table-body');
     const countBadge = document.getElementById('notes-count-badge');
@@ -3009,10 +3044,8 @@ window.addEventListener('DOMContentLoaded', function() {
       const studentGroup = currentSession.group || null;
       const viewable = isAdmin ? allNotesCache : allNotesCache.filter(n => {
         const noteLevel = n.level || 'All';
-        const noteGroup = n.group || 'All';
         const levelOk = noteLevel === 'All' || noteLevel === studentLevel;
-        const groupOk = noteGroup === 'All' || !studentGroup || noteGroup === studentGroup;
-        return levelOk && groupOk;
+        return levelOk && canViewNoteGroup(studentGroup, n.group);
       });
       renderNotesRows(viewable);
     } else {
@@ -3071,10 +3104,8 @@ window.addEventListener('DOMContentLoaded', function() {
     if(!isAdmin) {
       filtered = filtered.filter(n => {
         const noteLevel = n.level || 'All';
-        const noteGroup = n.group || 'All';
         const levelOk = noteLevel === 'All' || !studentLevel || noteLevel === studentLevel;
-        const groupOk = noteGroup === 'All' || !studentGroup || noteGroup === studentGroup;
-        return levelOk && groupOk;
+        return levelOk && canViewNoteGroup(studentGroup, n.group);
       });
     } else {
       if(lvl !== 'all') filtered = filtered.filter(n => (n.level || 'All') === lvl || (n.level || '') === 'All');
@@ -3634,7 +3665,7 @@ window.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  function loadProfileData() {
+  async function loadProfileData() {
     document.getElementById('p-name').innerText = currentSession.name;
     document.getElementById('p-id').innerText = currentSession.id;
     document.getElementById('p-email').innerText = currentSession.email;
@@ -3642,6 +3673,22 @@ window.addEventListener('DOMContentLoaded', function() {
     if(lvlEl) lvlEl.innerText = currentSession.level || 'Not Set';
     const grpEl = document.getElementById('p-group');
     if(grpEl) grpEl.innerText = currentSession.group || 'Not Set';
+    const snapshot = await get(child(ref(db), `users/${currentSession.id}`));
+    const user = snapshot.exists() ? snapshot.val() : {};
+    const instEl = document.getElementById('p-institution');
+    if(instEl) instEl.innerText = user.institution || 'Not Set';
+    const sscEl = document.getElementById('p-ssc-result');
+    if(sscEl) sscEl.innerText = user.sscResult || 'Not Set';
+    const hscWrap = document.getElementById('p-hsc-result-wrap');
+    if(hscWrap) {
+      if((user.level || currentSession.level || '') === 'HSC') {
+        hscWrap.style.display = '';
+        const hscEl = document.getElementById('p-hsc-result');
+        if(hscEl) hscEl.innerText = user.hscResult || 'Not Set';
+      } else {
+        hscWrap.style.display = 'none';
+      }
+    }
   }
 
   window.openEditModal = async (targetId = null) => {
@@ -3652,6 +3699,16 @@ window.addEventListener('DOMContentLoaded', function() {
       document.getElementById('modal-title').innerText = targetId ? "Admin: Edit User" : "Edit My Profile";
       document.getElementById('edit-name').value = user.name;
       document.getElementById('edit-email').value = user.email;
+      document.getElementById('edit-institution').value = user.institution || '';
+      document.getElementById('edit-ssc-result').value = user.sscResult || '';
+      const hscWrap = document.getElementById('edit-hsc-result-wrap');
+      if((user.level || '') === 'HSC') {
+        hscWrap.style.display = '';
+        document.getElementById('edit-hsc-result').value = user.hscResult || '';
+      } else {
+        hscWrap.style.display = 'none';
+        document.getElementById('edit-hsc-result').value = '';
+      }
       document.getElementById('edit-modal').style.display = 'flex';
     }
   };
@@ -3659,10 +3716,17 @@ window.addEventListener('DOMContentLoaded', function() {
   window.saveProfile = () => {
     const newName = document.getElementById('edit-name').value.trim();
     const newEmail = document.getElementById('edit-email').value.trim();
+    const newInstitution = document.getElementById('edit-institution').value.trim();
+    const newSscResult = document.getElementById('edit-ssc-result').value.trim();
+    const hscVisible = document.getElementById('edit-hsc-result-wrap').style.display !== 'none';
+    const newHscResult = hscVisible ? document.getElementById('edit-hsc-result').value.trim() : '';
     if(!newName || !newEmail) return alert("Fields cannot be empty!");
     const updates = {};
     updates[`/users/${editingId}/name`] = newName;
     updates[`/users/${editingId}/email`] = newEmail;
+    updates[`/users/${editingId}/institution`] = newInstitution;
+    updates[`/users/${editingId}/sscResult`] = newSscResult;
+    if(hscVisible) updates[`/users/${editingId}/hscResult`] = newHscResult;
     update(ref(db), updates).then(() => {
       if(editingId === currentSession.id) {
         currentSession.name = newName;
@@ -3798,6 +3862,17 @@ window.addEventListener('DOMContentLoaded', function() {
       spStatus.style.color = isFormer ? 'var(--gold)' : 'var(--green)';
     }
     document.getElementById('sp-pass').innerText = u.pass;
+    document.getElementById('sp-institution').innerText = u.institution || 'Not Set';
+    document.getElementById('sp-ssc-result').innerText = u.sscResult || 'Not Set';
+    const spHscWrap = document.getElementById('sp-hsc-result-wrap');
+    if(spHscWrap) {
+      if((u.level || '') === 'HSC') {
+        spHscWrap.style.display = '';
+        document.getElementById('sp-hsc-result').innerText = u.hscResult || 'Not Set';
+      } else {
+        spHscWrap.style.display = 'none';
+      }
+    }
     document.getElementById('sp-role-badge').innerHTML = `<span class="badge badge-${u.role}">${u.role.toUpperCase()}</span>`;
 
     // Load stats
@@ -3869,6 +3944,16 @@ window.addEventListener('DOMContentLoaded', function() {
       await update(ref(db), { [`/users/${userId}/level`]: selected });
       const spLevel = document.getElementById('sp-level');
       if(spLevel) spLevel.innerText = labels[levels.indexOf(selected)];
+      const spHscWrap = document.getElementById('sp-hsc-result-wrap');
+      if(spHscWrap) {
+        if(selected === 'HSC') {
+          spHscWrap.style.display = '';
+          const u = allUsersCache[userId] || {};
+          document.getElementById('sp-hsc-result').innerText = u.hscResult || 'Not Set';
+        } else {
+          spHscWrap.style.display = 'none';
+        }
+      }
       if(allUsersCache[userId]) allUsersCache[userId].level = selected;
       renderStudentCards(allUsersCache);
     });
@@ -3924,18 +4009,25 @@ window.addEventListener('DOMContentLoaded', function() {
     const status = document.getElementById('new-student-status').value || 'Present';
     const level  = document.getElementById('new-student-level').value || '';
     const group  = document.getElementById('new-student-group').value || '';
+    const institution = document.getElementById('new-student-institution').value.trim();
+    const sscResult   = document.getElementById('new-student-ssc-result').value.trim();
+    const hscResult   = level === 'HSC' ? document.getElementById('new-student-hsc-result').value.trim() : '';
 
     if(!name || !id || !email || !pass) return alert("Please fill all fields to add a new student!");
 
     const snapshot = await get(child(ref(db), `users/${id}`));
     if(snapshot.exists()) return alert(`❌ ID "${id}" is already registered!`);
 
-    await set(ref(db, 'users/' + id), { name, email, pass, role, status, level, group });
+    await set(ref(db, 'users/' + id), { name, email, pass, role, status, level, group, institution, sscResult, hscResult });
     alert(`✅ Account created for ${name} (ID: ${id})!`);
     document.getElementById('new-student-name').value = '';
     document.getElementById('new-student-id').value = '';
     document.getElementById('new-student-email').value = '';
     document.getElementById('new-student-pass').value = '';
+    document.getElementById('new-student-institution').value = '';
+    document.getElementById('new-student-ssc-result').value = '';
+    document.getElementById('new-student-hsc-result').value = '';
+    document.getElementById('new-student-hsc-result-wrap').style.display = 'none';
     renderUserTable();
   };
 
