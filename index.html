@@ -672,8 +672,8 @@
   }
   .notice-item:hover { transform: translateX(3px); box-shadow: var(--shadow); }
 
-  /* ── CGPA ── */
-  .cgpa-result {
+  /* ── GPA ── */
+  .gpa-result {
     background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.08));
     border: 1.5px solid rgba(99,102,241,0.15);
     border-radius: var(--radius);
@@ -682,8 +682,8 @@
     display: flex; align-items: center; gap: 18px;
     box-shadow: var(--shadow-sm);
   }
-  .cgpa-label { font-size: 13px; color: var(--text-muted); }
-  .cgpa-value { font-size: 40px; font-weight: 800; color: var(--gold); font-family: var(--mono); }
+  .gpa-label { font-size: 13px; color: var(--text-muted); }
+  .gpa-value { font-size: 40px; font-weight: 800; color: var(--gold); font-family: var(--mono); }
 
   /* ── Profile ── */
   .profile-info-item {
@@ -788,9 +788,9 @@
     .modal-content { width: 92vw; padding: 24px 18px; }
     .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     table { min-width: 440px; }
-    .cgpa-result { flex-direction: column; gap: 8px; }
+    .gpa-result { flex-direction: column; gap: 8px; }
     .btn-action { width: 100%; }
-    #cgpa-courses-container > div { grid-template-columns: 1fr 80px 80px auto !important; gap:8px !important; }
+    #gpa-courses-container > div { grid-template-columns: 1fr 90px auto !important; gap:8px !important; }
     #student-cards-grid { grid-template-columns: repeat(auto-fill, minmax(160px,1fr)) !important; }
     #user-search-input { width: 100% !important; }
     .card { padding: 16px 18px; }
@@ -1017,7 +1017,7 @@
       <div class="nav-item" id="nav-class-dates" onclick="switchTab('class-dates')"><span class="nav-dot"></span>Classes Held Dates</div>
       <div class="nav-item" id="nav-homework" onclick="switchTab('homework')"><span class="nav-dot"></span>Homework</div>
       <div class="nav-item" id="nav-notes" onclick="switchTab('notes')"><span class="nav-dot"></span>Class Notes & PDFs</div>
-      <div class="nav-item" id="nav-cgpa" onclick="switchTab('cgpa')"><span class="nav-dot"></span>CGPA Calculator</div>
+      <div class="nav-item" id="nav-gpa" onclick="switchTab('gpa')"><span class="nav-dot"></span>GPA Calculator</div>
       <div class="nav-item" id="nav-profile" onclick="switchTab('profile')"><span class="nav-dot"></span>My Profile</div>
     </div>
 
@@ -1224,25 +1224,25 @@
       </div>
     </section>
 
-    <!-- CGPA -->
-    <section id="tab-cgpa" class="tab-content hidden">
+    <!-- GPA -->
+    <section id="tab-gpa" class="tab-content hidden">
       <div class="page-header">
-        <div class="page-title">CGPA Calculator</div>
-        <div class="page-subtitle">Add multiple courses — optional courses are included only if you enter a GPA</div>
+        <div class="page-title">GPA Calculator</div>
+        <div class="page-subtitle">Add your subjects — for the optional subject, only the points above 2.00 are added to your total</div>
       </div>
       <div class="card">
-        <div id="cgpa-courses-container"></div>
+        <div id="gpa-courses-container"></div>
         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:4px; margin-bottom:20px;">
-          <button class="btn-sm" onclick="addCourseRow(false)" style="background:rgba(52,211,153,0.1); border-color:rgba(52,211,153,0.3); color:var(--green);">➕ Add Course</button>
-          <button class="btn-sm" onclick="addCourseRow(true)" style="background:rgba(167,139,250,0.1); border-color:rgba(167,139,250,0.3); color:var(--purple);">➕ Add Optional Course</button>
+          <button class="btn-sm" onclick="addCourseRow(false)" style="background:rgba(52,211,153,0.1); border-color:rgba(52,211,153,0.3); color:var(--green);">➕ Add Subject</button>
+          <button class="btn-sm" onclick="addCourseRow(true)" style="background:rgba(167,139,250,0.1); border-color:rgba(167,139,250,0.3); color:var(--purple);">➕ Add Optional Subject</button>
         </div>
-        <button class="btn-action" onclick="calculateCGPA()">Calculate CGPA</button>
-        <div class="cgpa-result" id="cgpa-result-area">
+        <button class="btn-action" onclick="calculateGPA()">Calculate GPA</button>
+        <div class="gpa-result" id="gpa-result-area">
           <div>
-            <div class="cgpa-label">Estimated CGPA</div>
-            <div class="cgpa-value" id="cgpa-display">0.00</div>
+            <div class="gpa-label">Estimated GPA</div>
+            <div class="gpa-value" id="gpa-display">0.00</div>
           </div>
-          <div id="cgpa-breakdown" style="font-size:12px; color:var(--text-muted); margin-left:auto; text-align:right; line-height:1.7;"></div>
+          <div id="gpa-breakdown" style="font-size:12px; color:var(--text-muted); margin-left:auto; text-align:right; line-height:1.7;"></div>
         </div>
       </div>
     </section>
@@ -1333,7 +1333,7 @@
       <div class="admin-form-card">
         <div class="card-title">➕ Add New Student</div>
         <div class="grid-2">
-          <div class="form-group"><label>Full Name</label><input type="text" id="new-student-name" placeholder="e.g. John Doe"></div>
+          <div class="form-group"><label>Full Name</label><input type="text" id="new-student-name" placeholder="Enter student's name"></div>
           <div class="form-group"><label>Student ID</label><input type="text" id="new-student-id" placeholder="e.g. 202"></div>
         </div>
         <div class="grid-2">
@@ -1376,7 +1376,7 @@
           </div>
         </div>
         <div class="grid-2">
-          <div class="form-group"><label>Institution Name <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label><input type="text" id="new-student-institution" placeholder="e.g. Dhaka Residential Model College"></div>
+          <div class="form-group"><label>Institution Name <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label><input type="text" id="new-student-institution" placeholder="Enter student's school or college name"></div>
           <div class="form-group"><label>SSC Result <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label><input type="text" id="new-student-ssc-result" placeholder="e.g. GPA 5.00"></div>
         </div>
         <div class="grid-2" id="new-student-hsc-result-wrap" style="display:none;">
@@ -1462,7 +1462,7 @@
             <input type="text" id="routine-student-id" placeholder="e.g. 101" oninput="loadRoutinePreview(); fetchStudentName('routine-student-id','routine-student-name','routine-name-display')">
             <div id="routine-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
           </div>
-          <div class="form-group"><label>Student Name</label><input type="text" id="routine-student-name" placeholder="e.g. John Doe"></div>
+          <div class="form-group"><label>Student Name</label><input type="text" id="routine-student-name" placeholder="Enter student's name"></div>
         </div>
         <div class="grid-3">
           <div class="form-group">
@@ -2234,9 +2234,9 @@
 <div id="edit-modal" class="modal">
   <div class="modal-content">
     <div class="modal-title" id="modal-title">Edit Profile</div>
-    <div class="form-group"><label>Full Name</label><input type="text" id="edit-name"></div>
+    <div class="form-group"><label>Full Name</label><input type="text" id="edit-name" placeholder="Enter your name"></div>
     <div class="form-group"><label>Email</label><input type="text" id="edit-email"></div>
-    <div class="form-group"><label>Institution Name <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label><input type="text" id="edit-institution" placeholder="e.g. Dhaka Residential Model College"></div>
+    <div class="form-group"><label>Institution Name <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label><input type="text" id="edit-institution" placeholder="Enter your school or college name"></div>
     <div class="form-group"><label>SSC Result <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label><input type="text" id="edit-ssc-result" placeholder="e.g. GPA 5.00"></div>
     <div class="form-group" id="edit-hsc-result-wrap" style="display:none;"><label>HSC Result <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label><input type="text" id="edit-hsc-result" placeholder="e.g. GPA 5.00"></div>
     <div class="modal-actions">
@@ -2594,7 +2594,7 @@ window.addEventListener('DOMContentLoaded', function() {
     if(tabId === 'homework') loadStudentHomeworks();
     if(tabId === 'notes') loadStudentNotes();
     if(tabId === 'admin-notes') loadAdminNotesPreview();
-    if(tabId === 'cgpa') initCGPACalculator();
+    if(tabId === 'gpa') initGPACalculator();
   };
 
   async function loadStudentRoutine() {
@@ -3612,11 +3612,11 @@ window.addEventListener('DOMContentLoaded', function() {
     });
   };
 
-  // ── Dynamic CGPA Calculator ──
-  let cgpaCourseCount = 0;
+  // ── Dynamic GPA Calculator ──
+  let gpaCourseCount = 0;
 
-  function initCGPACalculator() {
-    const container = document.getElementById('cgpa-courses-container');
+  function initGPACalculator() {
+    const container = document.getElementById('gpa-courses-container');
     if(container && container.children.length === 0) {
       addCourseRow(false);
       addCourseRow(false);
@@ -3625,24 +3625,20 @@ window.addEventListener('DOMContentLoaded', function() {
   }
 
   window.addCourseRow = (isOptional) => {
-    cgpaCourseCount++;
-    const id = cgpaCourseCount;
-    const container = document.getElementById('cgpa-courses-container');
+    gpaCourseCount++;
+    const id = gpaCourseCount;
+    const container = document.getElementById('gpa-courses-container');
     const row = document.createElement('div');
-    row.id = `cgpa-row-${id}`;
-    row.style.cssText = 'display:grid; grid-template-columns:1fr 100px 100px auto; gap:12px; align-items:end; margin-bottom:12px;';
+    row.id = `gpa-row-${id}`;
+    row.style.cssText = 'display:grid; grid-template-columns:1fr 110px auto; gap:12px; align-items:end; margin-bottom:12px;';
     row.innerHTML = `
       <div class="form-group" style="margin-bottom:0;">
-        <label>Course Name ${isOptional ? '<span style="color:var(--purple); font-size:10px;">OPTIONAL</span>' : ''}</label>
-        <input type="text" placeholder="${isOptional ? 'Optional course...' : 'e.g. Structured Programming'}">
-      </div>
-      <div class="form-group" style="margin-bottom:0;">
-        <label>Credits</label>
-        <input type="number" min="1" max="6" step="1" placeholder="3" style="text-align:center;">
+        <label>Subject Name ${isOptional ? '<span style="color:var(--purple); font-size:10px;">OPTIONAL</span>' : ''}</label>
+        <input type="text" placeholder="${isOptional ? 'Optional subject...' : 'e.g. Structured Programming'}">
       </div>
       <div class="form-group" style="margin-bottom:0;">
         <label>GPA ${isOptional ? '(optional)' : ''}</label>
-        <input type="number" min="0" max="4" step="0.01" placeholder="${isOptional ? 'Skip' : '4.00'}" style="text-align:center;" data-optional="${isOptional}">
+        <input type="number" min="0" max="5" step="0.01" placeholder="${isOptional ? 'Skip' : '5.00'}" style="text-align:center;" data-optional="${isOptional}">
       </div>
       <button onclick="removeCourseRow(${id})" style="padding:10px 12px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); color:var(--red); border-radius:var(--radius-sm); cursor:pointer; font-size:16px; flex-shrink:0; margin-bottom:0; height:42px;">✕</button>
     `;
@@ -3650,50 +3646,50 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 
   window.removeCourseRow = (id) => {
-    const row = document.getElementById(`cgpa-row-${id}`);
+    const row = document.getElementById(`gpa-row-${id}`);
     if(row) row.remove();
   };
 
-  window.calculateCGPA = () => {
-    const container = document.getElementById('cgpa-courses-container');
-    const rows = container.querySelectorAll('[id^="cgpa-row-"]');
-    let totalWeighted = 0, totalCredits = 0;
+  window.calculateGPA = () => {
+    const container = document.getElementById('gpa-courses-container');
+    const rows = container.querySelectorAll('[id^="gpa-row-"]');
+    let total = 0, mandatoryCount = 0;
     let breakdown = [];
     let hasError = false;
 
     rows.forEach(row => {
       const inputs = row.querySelectorAll('input');
-      const name = inputs[0].value.trim() || 'Course';
-      const creditVal = inputs[1].value.trim();
-      const gpaVal = inputs[2].value.trim();
-      const isOptional = inputs[2].dataset.optional === 'true';
+      const name = inputs[0].value.trim() || 'Subject';
+      const gpaVal = inputs[1].value.trim();
+      const isOptional = inputs[1].dataset.optional === 'true';
 
-      if(isOptional && !gpaVal) return; // Skip empty optional courses
+      if(isOptional && !gpaVal) return; // Skip empty optional subjects
 
-      const credit = parseFloat(creditVal);
       const gpa = parseFloat(gpaVal);
 
-      if(!creditVal || isNaN(credit) || credit <= 0) {
-        if(gpaVal) { alert(`Please enter valid credit hours for "${name}"`); hasError = true; }
-        return;
-      }
       if(!gpaVal || isNaN(gpa)) {
         if(!isOptional) { alert(`Please enter GPA for "${name}"`); hasError = true; }
         return;
       }
-      if(gpa < 0 || gpa > 4) { alert(`GPA must be between 0 and 4 for "${name}"`); hasError = true; return; }
+      if(gpa < 0 || gpa > 5) { alert(`GPA must be between 0 and 5 for "${name}"`); hasError = true; return; }
 
-      totalWeighted += gpa * credit;
-      totalCredits += credit;
-      breakdown.push(`${name}: ${gpa.toFixed(2)} × ${credit}cr`);
+      if(isOptional) {
+        const bonus = Math.max(0, gpa - 2);
+        total += bonus;
+        breakdown.push(`${name}: ${gpa.toFixed(2)} (+${bonus.toFixed(2)} bonus)`);
+      } else {
+        total += gpa;
+        mandatoryCount++;
+        breakdown.push(`${name}: ${gpa.toFixed(2)}`);
+      }
     });
 
     if(hasError) return;
-    const cgpa = totalCredits > 0 ? (totalWeighted / totalCredits).toFixed(2) : '0.00';
-    document.getElementById('cgpa-display').innerText = cgpa;
-    const breakdownEl = document.getElementById('cgpa-breakdown');
+    const gpa = mandatoryCount > 0 ? Math.min(5, total / mandatoryCount).toFixed(2) : '0.00';
+    document.getElementById('gpa-display').innerText = gpa;
+    const breakdownEl = document.getElementById('gpa-breakdown');
     if(breakdown.length > 0) {
-      breakdownEl.innerHTML = breakdown.join('<br>') + `<br><strong style="color:var(--text);">Total: ${totalCredits} credits</strong>`;
+      breakdownEl.innerHTML = breakdown.join('<br>') + `<br><strong style="color:var(--text);">Total Subjects: ${mandatoryCount}</strong>`;
     } else {
       breakdownEl.innerHTML = '';
     }
