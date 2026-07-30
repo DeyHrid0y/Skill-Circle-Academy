@@ -293,7 +293,8 @@
     letter-spacing: 0.9px;
   }
   .form-group input,
-  .form-group select {
+  .form-group select,
+  .form-group textarea {
     width: 100%;
     background: #fff6ee;
     border: 1.5px solid rgba(234,88,12,0.14);
@@ -306,7 +307,8 @@
     transition: all 0.2s;
   }
   .form-group input:focus,
-  .form-group select:focus {
+  .form-group select:focus,
+  .form-group textarea:focus {
     border-color: var(--accent);
     box-shadow: 0 0 0 4px rgba(99,102,241,0.12);
     background: #fffaf6;
@@ -1012,6 +1014,7 @@
       <div class="nav-section-label">Student</div>
       <div class="nav-item active" id="nav-dash" onclick="switchTab('dash')"><span class="nav-dot"></span>Dashboard</div>
       <div class="nav-item" id="nav-routine" onclick="switchTab('routine')"><span class="nav-dot"></span>Class Routine</div>
+      <div class="nav-item" id="nav-exams" onclick="switchTab('exams')"><span class="nav-dot"></span>Exam Schedule</div>
       <div class="nav-item" id="nav-result" onclick="switchTab('result')"><span class="nav-dot"></span>Academic Result</div>
       <div class="nav-item" id="nav-payment" onclick="switchTab('payment')"><span class="nav-dot"></span>Payment Tracker</div>
       <div class="nav-item" id="nav-class-dates" onclick="switchTab('class-dates')"><span class="nav-dot"></span>Classes Held Dates</div>
@@ -1025,6 +1028,7 @@
       <div class="nav-section-label gold">Admin Controls</div>
       <div class="nav-item" id="nav-admin-users" onclick="switchTab('admin-users')"><span class="nav-dot"></span>Manage Users</div>
       <div class="nav-item" id="nav-admin-routine" onclick="switchTab('admin-routine')"><span class="nav-dot"></span>Manage Class Routine</div>
+      <div class="nav-item" id="nav-admin-exams" onclick="switchTab('admin-exams')"><span class="nav-dot"></span>Manage Exams</div>
       <div class="nav-item" id="nav-admin-results" onclick="switchTab('admin-results')"><span class="nav-dot"></span>Publish Results</div>
       <div class="nav-item" id="nav-admin-payments" onclick="switchTab('admin-payments')"><span class="nav-dot"></span>Manage Payments</div>
       <div class="nav-item" id="nav-admin-class-dates" onclick="switchTab('admin-class-dates')"><span class="nav-dot"></span>Manage Class Dates</div>
@@ -1081,6 +1085,22 @@
           <table>
             <thead><tr><th>Day</th><th>Time</th><th>Subject</th></tr></thead>
             <tbody id="routine-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXAM SCHEDULE (Student) -->
+    <section id="tab-exams" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">Exam Schedule</div>
+        <div class="page-subtitle">Your upcoming exam dates, subjects, and topics</div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Subject</th><th>Topics</th></tr></thead>
+            <tbody id="exams-table-body"></tbody>
           </table>
         </div>
       </div>
@@ -1486,6 +1506,48 @@
           <table>
             <thead><tr><th>Day</th><th>Time</th><th>Subject</th><th>Action</th></tr></thead>
             <tbody id="admin-routine-preview"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN: EXAMS -->
+    <section id="tab-admin-exams" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">Manage Exams</div>
+        <div class="page-subtitle">Assign, edit and delete exam dates, subjects and topics</div>
+      </div>
+      <div class="admin-form-card">
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Student ID</label>
+            <input type="text" id="exam-student-id" placeholder="e.g. 101" oninput="loadExamPreview(); fetchStudentName('exam-student-id','exam-student-name','exam-name-display')">
+            <div id="exam-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
+          </div>
+          <div class="form-group"><label>Student Name</label><input type="text" id="exam-student-name" placeholder="Enter student's name"></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label>Exam Date</label><input type="date" id="exam-date"></div>
+          <div class="form-group"><label>Subject</label><input type="text" id="exam-subject" placeholder="e.g. Structured Programming"></div>
+        </div>
+        <div class="form-group"><label>Topics</label><textarea id="exam-topics" rows="3" placeholder="e.g. Loops, Arrays, Functions"></textarea></div>
+        <button class="btn-action" onclick="uploadExam()">Add Exam</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 <span id="exam-preview-id" style="color:var(--accent); font-family:var(--mono); font-size:12px;"></span> Current Exam Entries</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Subject</th><th>Topics</th><th>Action</th></tr></thead>
+            <tbody id="admin-exam-preview"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🗂️ All Students' Exams</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>Name</th><th>Date</th><th>Subject</th><th>Topics</th></tr></thead>
+            <tbody id="admin-all-exams"></tbody>
           </table>
         </div>
       </div>
@@ -2312,6 +2374,32 @@
   </div>
 </div>
 
+<!-- EDIT EXAM MODAL -->
+<div id="edit-exam-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeExamEditModal()">
+  <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:420px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
+    <button onclick="closeExamEditModal()" style="position:absolute;top:14px;right:14px;background:#eef0ff;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+    <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Exam Entry</div>
+    <input type="hidden" id="er-exam-student-id">
+    <input type="hidden" id="er-exam-key">
+    <div class="form-group">
+      <label>Exam Date</label>
+      <input type="date" id="er-exam-date">
+    </div>
+    <div class="form-group">
+      <label>Subject</label>
+      <input type="text" id="er-exam-subject" placeholder="e.g. Structured Programming">
+    </div>
+    <div class="form-group">
+      <label>Topics</label>
+      <textarea id="er-exam-topics" rows="3" placeholder="e.g. Loops, Arrays, Functions"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn-action" style="flex:1;" onclick="saveExamEdit()">💾 Save Changes</button>
+      <button class="btn-cancel" style="flex:1;" onclick="closeExamEditModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div id="edit-payment-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closePaymentEditModal()">
   <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:420px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
     <button onclick="closePaymentEditModal()" style="position:absolute;top:14px;right:14px;background:#eef0ff;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
@@ -2425,9 +2513,11 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('portal-page').style.display = 'block';
     if(currentSession.role === 'admin') {
       document.getElementById('menu-admin').classList.remove('hidden');
+      document.getElementById('menu-user').classList.add('hidden');
       document.getElementById('sidebar-logout-footer').style.display = '';
     } else {
       document.getElementById('menu-admin').classList.add('hidden');
+      document.getElementById('menu-user').classList.remove('hidden');
       document.getElementById('sidebar-logout-footer').style.display = 'none';
     }
     // Restore last active tab after all functions are defined
@@ -2556,10 +2646,12 @@ window.addEventListener('DOMContentLoaded', function() {
         
         if(currentSession.role === 'admin' || id === 'admin') {
           document.getElementById('menu-admin').classList.remove('hidden');
+          document.getElementById('menu-user').classList.add('hidden');
           document.getElementById('sidebar-logout-footer').style.display = '';
           window.switchTab('admin-users');
         } else {
           document.getElementById('menu-admin').classList.add('hidden');
+          document.getElementById('menu-user').classList.remove('hidden');
           document.getElementById('sidebar-logout-footer').style.display = 'none';
           window.switchTab('dash');
         }
@@ -2579,6 +2671,8 @@ window.addEventListener('DOMContentLoaded', function() {
     
     if(tabId === 'routine') loadStudentRoutine();
     if(tabId === 'admin-routine') {};
+    if(tabId === 'exams') loadStudentExams();
+    if(tabId === 'admin-exams') loadAllExamsPreview();
     if(tabId === 'admin-users') renderUserTable();
     if(tabId === 'admin-passrequests') loadPassRequests();
     if(tabId === 'admin-secretkey') loadSecretKey();
@@ -2616,7 +2710,144 @@ window.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // ── Build an HTML table (matching the email's existing table style) of a student's ENTIRE routine ──
+  // ── EXAMS (Student view): shows only this student's own exam schedule ──
+  async function loadStudentExams() {
+    const tbody = document.getElementById('exams-table-body');
+    const snapshot = await get(child(ref(db), `exams/${currentSession.id}`));
+    if(snapshot.exists()) {
+      const entries = Object.values(snapshot.val());
+      entries.sort((a, b) => new Date(a.date) - new Date(b.date));
+      tbody.innerHTML = entries.map(e => `
+        <tr>
+          <td style="font-family:var(--mono); color:var(--purple); font-weight:600;">${formatExamDate(e.date)}</td>
+          <td style="font-weight:600; color:var(--accent);">${e.subject}</td>
+          <td style="font-weight:500;">${e.topics || '—'}</td>
+        </tr>
+      `).join('');
+    } else {
+      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:24px;">No exams scheduled yet.</td></tr>`;
+    }
+  }
+
+  function formatExamDate(dateStr) {
+    if(!dateStr) return '—';
+    const d = new Date(dateStr + 'T00:00:00');
+    if(isNaN(d)) return dateStr;
+    return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  // ── EXAMS (Admin: add / edit / delete for one student) ──
+  window.uploadExam = () => {
+    const sId = document.getElementById('exam-student-id').value.trim();
+    const name = document.getElementById('exam-student-name').value.trim();
+    const date = document.getElementById('exam-date').value;
+    const subject = document.getElementById('exam-subject').value.trim();
+    const topics = document.getElementById('exam-topics').value.trim();
+    if(!sId || !date || !subject) return alert('Please fill in Student ID, Exam Date, and Subject.');
+
+    const key = `${date}_${Date.now()}`;
+    set(ref(db, `exams/${sId}/${key}`), { date, subject, topics, studentName: name })
+    .then(() => {
+      alert(`Exam entry added for ${name || 'student'} (ID: ${sId})!`);
+      document.getElementById('exam-date').value = '';
+      document.getElementById('exam-subject').value = '';
+      document.getElementById('exam-topics').value = '';
+      loadExamPreview();
+    });
+  };
+
+  window.loadExamPreview = async () => {
+    const sId = document.getElementById('exam-student-id').value.trim();
+    const tbody = document.getElementById('admin-exam-preview');
+    const label = document.getElementById('exam-preview-id');
+    if(!sId) { tbody.innerHTML = ''; label.innerText = ''; return; }
+    label.innerText = `(ID: ${sId})`;
+    const snapshot = await get(child(ref(db), `exams/${sId}`));
+    if(snapshot.exists()) {
+      const data = snapshot.val();
+      const entries = Object.entries(data).map(([key, e]) => ({ key, ...e }));
+      entries.sort((a, b) => new Date(a.date) - new Date(b.date));
+      tbody.innerHTML = entries.map(e => `
+        <tr>
+          <td style="font-family:var(--mono); color:var(--purple); font-weight:600;">${formatExamDate(e.date)}</td>
+          <td style="font-weight:600; color:var(--accent);">${e.subject}</td>
+          <td>${e.topics || '—'}</td>
+          <td style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="openExamEditModal('${sId}','${e.key}','${e.date}','${(e.subject||'').replace(/'/g,"\\'")}','${(e.topics||'').replace(/'/g,"\\'")}')">✏️ Edit</button>
+            <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteExamEntry('${sId}','${e.key}')">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    } else {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:16px;">No exams found.</td></tr>`;
+    }
+  };
+
+  window.deleteExamEntry = async (sId, key) => {
+    if(!confirm('Delete this exam entry?')) return;
+    await remove(ref(db, `exams/${sId}/${key}`));
+    loadExamPreview();
+    loadAllExamsPreview();
+  };
+
+  window.openExamEditModal = (sId, key, date, subject, topics) => {
+    document.getElementById('er-exam-student-id').value = sId;
+    document.getElementById('er-exam-key').value = key;
+    document.getElementById('er-exam-date').value = date;
+    document.getElementById('er-exam-subject').value = subject;
+    document.getElementById('er-exam-topics').value = topics;
+    document.getElementById('edit-exam-modal').style.display = 'flex';
+  };
+
+  window.closeExamEditModal = () => {
+    document.getElementById('edit-exam-modal').style.display = 'none';
+  };
+
+  window.saveExamEdit = async () => {
+    const sId = document.getElementById('er-exam-student-id').value;
+    const key = document.getElementById('er-exam-key').value;
+    const date = document.getElementById('er-exam-date').value;
+    const subject = document.getElementById('er-exam-subject').value.trim();
+    const topics = document.getElementById('er-exam-topics').value.trim();
+    if(!date || !subject) return alert('Please fill in Exam Date and Subject.');
+    await update(ref(db), { [`/exams/${sId}/${key}/date`]: date, [`/exams/${sId}/${key}/subject`]: subject, [`/exams/${sId}/${key}/topics`]: topics });
+    closeExamEditModal();
+    loadExamPreview();
+    loadAllExamsPreview();
+  };
+
+  // ── EXAMS (Admin: overview of every student's exams) ──
+  window.loadAllExamsPreview = async () => {
+    const tbody = document.getElementById('admin-all-exams');
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:16px;">⏳ Loading...</td></tr>`;
+    const [usersSnap, examsSnap] = await Promise.all([
+      get(child(ref(db), 'users')),
+      get(child(ref(db), 'exams'))
+    ]);
+    if(!examsSnap.exists()) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:16px;">No exams scheduled for any student yet.</td></tr>`;
+      return;
+    }
+    const users = usersSnap.exists() ? usersSnap.val() : {};
+    const examsData = examsSnap.val();
+    let rows = [];
+    Object.entries(examsData).forEach(([sId, studentExams]) => {
+      const name = (users[sId] && users[sId].name) || 'Unknown';
+      Object.values(studentExams).forEach(e => {
+        rows.push({ sId, name, date: e.date, subject: e.subject, topics: e.topics || '—' });
+      });
+    });
+    rows.sort((a, b) => new Date(a.date) - new Date(b.date));
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td style="font-family:var(--mono);">${r.sId}</td>
+        <td style="font-weight:600;">${r.name}</td>
+        <td style="font-family:var(--mono); color:var(--purple); font-weight:600;">${formatExamDate(r.date)}</td>
+        <td style="font-weight:600; color:var(--accent);">${r.subject}</td>
+        <td>${r.topics}</td>
+      </tr>
+    `).join('');
+  };
   async function getFullRoutineText(sId) {
     const emptyMsg = '<p style="padding:10px; color:#888;">No routine entries remaining.</p>';
     const snapshot = await get(child(ref(db), `routine/${sId}`));
