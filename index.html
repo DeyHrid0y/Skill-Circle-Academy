@@ -1479,7 +1479,9 @@
         <div class="grid-2">
           <div class="form-group">
             <label>Student ID</label>
-            <input type="text" id="routine-student-id" placeholder="e.g. 101" oninput="loadRoutinePreview(); fetchStudentName('routine-student-id','routine-student-name','routine-name-display')">
+            <select id="routine-student-id" onchange="loadRoutinePreview(); fetchStudentName('routine-student-id','routine-student-name','routine-name-display')">
+              <option value="">Select a student...</option>
+            </select>
             <div id="routine-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
           </div>
           <div class="form-group"><label>Student Name</label><input type="text" id="routine-student-name" placeholder="Enter student's name"></div>
@@ -1521,7 +1523,9 @@
         <div class="grid-2">
           <div class="form-group">
             <label>Student ID</label>
-            <input type="text" id="exam-student-id" placeholder="e.g. 101" oninput="loadExamPreview(); fetchStudentName('exam-student-id','exam-student-name','exam-name-display')">
+            <select id="exam-student-id" onchange="loadExamPreview(); fetchStudentName('exam-student-id','exam-student-name','exam-name-display')">
+              <option value="">Select a student...</option>
+            </select>
             <div id="exam-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
           </div>
           <div class="form-group"><label>Student Name</label><input type="text" id="exam-student-name" placeholder="Enter student's name"></div>
@@ -1563,7 +1567,9 @@
         <div class="grid-3">
           <div class="form-group">
             <label>Student ID</label>
-            <input type="text" id="res-student-id" placeholder="e.g. 101" oninput="loadResultsPreview(); fetchStudentName('res-student-id',null,'res-name-display')">
+            <select id="res-student-id" onchange="loadResultsPreview(); fetchStudentName('res-student-id',null,'res-name-display')">
+              <option value="">Select a student...</option>
+            </select>
             <div id="res-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
           </div>
           <div class="form-group"><label>Course Code</label><input type="text" id="res-code" placeholder="e.g. CSE-1212"></div>
@@ -1598,7 +1604,9 @@
         <div class="grid-3">
           <div class="form-group">
             <label>Student ID</label>
-            <input type="text" id="pay-student-id" placeholder="e.g. 101" oninput="loadPaymentPreview(); fetchStudentName('pay-student-id',null,'pay-name-display')">
+            <select id="pay-student-id" onchange="loadPaymentPreview(); fetchStudentName('pay-student-id',null,'pay-name-display')">
+              <option value="">Select a student...</option>
+            </select>
             <div id="pay-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
           </div>
           <div class="form-group">
@@ -1651,7 +1659,9 @@
         <div class="grid-3">
           <div class="form-group">
             <label>Student ID</label>
-            <input type="text" id="class-student-id" placeholder="e.g. 101" oninput="loadClassDatesPreview(); fetchStudentName('class-student-id',null,'class-name-display'); loadExistingMonthDates()">
+            <select id="class-student-id" onchange="loadClassDatesPreview(); fetchStudentName('class-student-id',null,'class-name-display'); loadExistingMonthDates()">
+              <option value="">Select a student...</option>
+            </select>
             <div id="class-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
           </div>
           <div class="form-group">
@@ -1695,7 +1705,7 @@
         <!-- Total class counter badge -->
         <div id="class-total-badge" style="display:none; margin-top:14px; padding:10px 16px; background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(139,92,246,0.08)); border:1.5px solid rgba(99,102,241,0.18); border-radius:var(--radius-sm); font-size:13px; color:var(--text-dim);">
           📊 Total classes conducted for this student: <strong id="class-total-count" style="color:var(--accent); font-size:16px;"></strong>
-          <span id="class-email-sent-badge" style="display:none; margin-left:10px; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; background:rgba(16,185,129,0.1); color:var(--green); border:1px solid rgba(16,185,129,0.2);">✅ Email Sent</span>
+          <span id="class-email-sent-badge" style="display:none; margin-left:10px; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; background:rgba(16,185,129,0.1); color:var(--green); border:1px solid rgba(16,185,129,0.2);">✅ Email Sent (for selected month)</span>
         </div>
       </div>
 
@@ -1720,7 +1730,9 @@
         <div class="grid-2">
           <div class="form-group">
             <label>Student ID</label>
-            <input type="text" id="hw-student-id" placeholder="e.g. 101" oninput="loadHomeworkPreview(); fetchStudentName('hw-student-id',null,'hw-name-display')">
+            <select id="hw-student-id" onchange="loadHomeworkPreview(); fetchStudentName('hw-student-id',null,'hw-name-display')">
+              <option value="">Select a student...</option>
+            </select>
             <div id="hw-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
           </div>
           <div class="form-group"><label>Course Code</label><input type="text" id="hw-code" placeholder="e.g. CSE-1212"></div>
@@ -2107,7 +2119,9 @@
         <div class="grid-3">
           <div class="form-group">
             <label>Student ID</label>
-            <input type="text" id="sav-student-id" placeholder="e.g. 101" oninput="fetchStudentName('sav-student-id',null,'sav-name-display'); loadSavingPreview()">
+            <select id="sav-student-id" onchange="fetchStudentName('sav-student-id',null,'sav-name-display'); loadSavingPreview()">
+              <option value="">Select a student...</option>
+            </select>
             <div id="sav-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
           </div>
           <div class="form-group">
@@ -2515,6 +2529,7 @@ window.addEventListener('DOMContentLoaded', function() {
       document.getElementById('menu-admin').classList.remove('hidden');
       document.getElementById('menu-user').classList.add('hidden');
       document.getElementById('sidebar-logout-footer').style.display = '';
+      window.__pendingPopulateDropdowns = true;
     } else {
       document.getElementById('menu-admin').classList.add('hidden');
       document.getElementById('menu-user').classList.remove('hidden');
@@ -2648,6 +2663,7 @@ window.addEventListener('DOMContentLoaded', function() {
           document.getElementById('menu-admin').classList.remove('hidden');
           document.getElementById('menu-user').classList.add('hidden');
           document.getElementById('sidebar-logout-footer').style.display = '';
+          window.populateAllStudentDropdowns();
           window.switchTab('admin-users');
         } else {
           document.getElementById('menu-admin').classList.add('hidden');
@@ -3067,7 +3083,29 @@ window.addEventListener('DOMContentLoaded', function() {
     refreshFn();
   };
 
-  // ── Fetch student name as admin types an ID ──
+  // ── Populate every admin "Select a student..." dropdown with the current student list ──
+  window.populateAllStudentDropdowns = async () => {
+    const dropdownIds = ['routine-student-id','exam-student-id','res-student-id','pay-student-id','class-student-id','hw-student-id','sav-student-id'];
+    const snapshot = await get(child(ref(db), 'users'));
+    let optionsHtml = '<option value="">Select a student...</option>';
+    if(snapshot.exists()) {
+      const users = snapshot.val();
+      const students = Object.entries(users)
+        .filter(([id, u]) => u.role !== 'admin')
+        .map(([id, u]) => ({ id, name: u.name || `Student ${id}` }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+      optionsHtml += students.map(s => `<option value="${s.id}">${s.name} (ID: ${s.id})</option>`).join('');
+    }
+    dropdownIds.forEach(elId => {
+      const el = document.getElementById(elId);
+      if(!el) return;
+      const prevValue = el.value;
+      el.innerHTML = optionsHtml;
+      if(prevValue) el.value = prevValue;
+    });
+  };
+
+  // ── Fetch student name as admin selects a student ──
   window.fetchStudentName = async (inputId, nameInputId, displayId) => {
     const id = document.getElementById(inputId).value.trim();
     const display = document.getElementById(displayId);
@@ -3628,7 +3666,8 @@ window.addEventListener('DOMContentLoaded', function() {
     await set(ref(db, `classDates/${sId}/${key}`), { dates: datesToSave, year, month });
     alert(`✅ Class dates saved for ${month} ${year}! (${classDatesSelected.length} classes)`);
     loadClassDatesPreview();
-    await checkAndSendClassEmail(sId);
+    await checkAndSendClassEmail(sId, year, month);
+    await checkAndSetMonthDue(sId, year, month);
   };
 
   // ── Load existing dates for selected student+year+month into chips ──
@@ -3665,6 +3704,8 @@ window.addEventListener('DOMContentLoaded', function() {
 
     const snap = await get(child(ref(db), `classDates/${sId}`));
     const saved = snap.exists() ? snap.val() : {};
+    const emailSentSnapAll = await get(child(ref(db), `emailSent/${sId}`));
+    const emailSentMap = emailSentSnapAll.exists() ? emailSentSnapAll.val() : {};
     const monthOrder = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
     const entries = Object.entries(saved).map(([key, val]) => {
@@ -3691,9 +3732,11 @@ window.addEventListener('DOMContentLoaded', function() {
       }
     }
 
-    // Show email sent badge
+    // Show email sent badge (for the currently selected month/year in the add-form)
     if(emailBadge) {
-      const emailSnap = await get(child(ref(db), `emailSent/${sId}/class12`));
+      const selYear = document.getElementById('class-year')?.value;
+      const selMonth = document.getElementById('class-month')?.value;
+      const emailSnap = await get(child(ref(db), `emailSent/${sId}/${selYear}_${selMonth}`));
       emailBadge.style.display = emailSnap.exists() ? 'inline' : 'none';
     }
 
@@ -3706,12 +3749,13 @@ window.addEventListener('DOMContentLoaded', function() {
       const cnt = e.dates && e.dates !== 'None Entered'
         ? e.dates.split(',').map(d=>d.trim()).filter(d=>d.length>0).length : 0;
       const safeDates = (e.dates||'').replace(/'/g, '&#39;');
+      const emailedForThisMonth = !!emailSentMap[e.key];
       return `
         <tr>
           <td style="font-family:var(--mono); color:var(--purple); font-weight:700;">${e.year}</td>
           <td style="font-weight:600;">${e.month}</td>
           <td style="color:var(--gold); font-size:13px;">${e.dates}</td>
-          <td style="font-family:var(--mono); color:var(--accent); font-weight:700;">${cnt}</td>
+          <td style="font-family:var(--mono); color:var(--accent); font-weight:700;">${cnt}${emailedForThisMonth ? ' <span style="font-size:10px; color:var(--green); font-weight:700;">✓ emailed</span>' : ''}</td>
           <td style="display:flex; gap:5px; flex-wrap:wrap;">
             <button class="btn-sm" style="background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.3);color:var(--accent);"
               onclick="openClassDateEditModal('${sId}','${e.key}','${e.year}','${e.month}','${safeDates}')">✏️ Edit</button>
@@ -3723,24 +3767,23 @@ window.addEventListener('DOMContentLoaded', function() {
     }).join('');
   };
 
-  // ── Count total classes and send email at 12 ──
-  async function checkAndSendClassEmail(sId) {
-    const [classDatesSnap, userSnap] = await Promise.all([
-      get(child(ref(db), `classDates/${sId}`)),
+  // ── Count THAT month's classes and send an email every time a month reaches 12 ──
+  async function checkAndSendClassEmail(sId, year, month) {
+    const key = `${year}_${month}`;
+    const [classSnap, userSnap] = await Promise.all([
+      get(child(ref(db), `classDates/${sId}/${key}`)),
       get(child(ref(db), `users/${sId}`))
     ]);
-    if(!classDatesSnap.exists()) return;
+    if(!classSnap.exists()) return;
 
-    let totalClasses = 0;
-    Object.values(classDatesSnap.val()).forEach(rec => {
-      const datesStr = typeof rec === 'string' ? rec : (rec.dates || '');
-      if(datesStr && datesStr !== 'None Entered') {
-        totalClasses += datesStr.split(',').map(d => d.trim()).filter(d => d.length > 0).length;
-      }
-    });
+    const rec = classSnap.val();
+    const datesStr = typeof rec === 'string' ? rec : (rec.dates || '');
+    const totalClasses = (datesStr && datesStr !== 'None Entered')
+      ? datesStr.split(',').map(d => d.trim()).filter(d => d.length > 0).length
+      : 0;
 
-    const emailSentSnap = await get(child(ref(db), `emailSent/${sId}/class12`));
-    if(emailSentSnap.exists()) return;
+    const emailSentSnap = await get(child(ref(db), `emailSent/${sId}/${key}`));
+    if(emailSentSnap.exists()) return; // Already sent for this specific month
 
     if(totalClasses >= 12) {
       const student = userSnap.exists() ? userSnap.val() : {};
@@ -3748,7 +3791,7 @@ window.addEventListener('DOMContentLoaded', function() {
       const studentEmail = student.email || null;
 
       if(!studentEmail) {
-        alert(`⚠️ ${studentName} has completed ${totalClasses} classes but no email found in their profile!`);
+        alert(`⚠️ ${studentName} has completed ${totalClasses} classes in ${month} ${year} but no email found in their profile!`);
         return;
       }
       try {
@@ -3756,13 +3799,16 @@ window.addEventListener('DOMContentLoaded', function() {
           student_name: studentName,
           student_id:   sId,
           to_email:     studentEmail,
+          month, year,
+          total_classes: totalClasses
         });
-        await set(ref(db, `emailSent/${sId}/class12`), {
+        await set(ref(db, `emailSent/${sId}/${key}`), {
           sentAt: new Date().toISOString(),
           totalClasses,
+          year, month,
           email: studentEmail
         });
-        alert(`✅ 🎉 Email sent to ${studentName} (${studentEmail}) — ${totalClasses} classes completed!`);
+        alert(`✅ 🎉 Email sent to ${studentName} (${studentEmail}) — ${totalClasses} classes completed in ${month} ${year}!`);
         // Refresh badge
         loadClassDatesPreview();
       } catch(err) {
@@ -3773,17 +3819,49 @@ window.addEventListener('DOMContentLoaded', function() {
   }
   window.checkAndSendClassEmail = checkAndSendClassEmail;
 
+  // ── Auto-mark THAT month's payment as "Due" once it reaches 12 classes ──
+  async function checkAndSetMonthDue(sId, year, month) {
+    const key = `${year}_${month}`;
+    const classSnap = await get(child(ref(db), `classDates/${sId}/${key}`));
+    if(!classSnap.exists()) return;
+    const rec = classSnap.val();
+    const datesStr = typeof rec === 'string' ? rec : (rec.dates || '');
+    const count = (datesStr && datesStr !== 'None Entered')
+      ? datesStr.split(',').map(d => d.trim()).filter(d => d.length > 0).length
+      : 0;
+    if(count < 12) return;
+
+    const paySnap = await get(child(ref(db), `payments/${sId}/${key}`));
+    const existing = paySnap.exists() ? paySnap.val() : null;
+    if(existing && existing.status === 'Paid') return; // Never override an already-completed payment
+
+    await set(ref(db, `payments/${sId}/${key}`), {
+      status: 'Due',
+      date: (existing && existing.date) || 'N/A',
+      amount: (existing && existing.amount) || '0',
+      year, month
+    });
+
+    // Refresh the on-screen payment preview if this student/month is currently open
+    const payIdField = document.getElementById('pay-student-id');
+    if(payIdField && payIdField.value.trim() === sId) loadPaymentPreview();
+  }
+  window.checkAndSetMonthDue = checkAndSetMonthDue;
+
   window.manualEmailCheck = async () => {
     const sId = document.getElementById('class-student-id').value.trim();
-    if(!sId) return alert('Please enter a Student ID first!');
-    const emailSentSnap = await get(child(ref(db), `emailSent/${sId}/class12`));
+    const year = document.getElementById('class-year').value;
+    const month = document.getElementById('class-month').value;
+    if(!sId) return alert('Please select a student first!');
+    const key = `${year}_${month}`;
+    const emailSentSnap = await get(child(ref(db), `emailSent/${sId}/${key}`));
     if(emailSentSnap.exists()) {
       const data = emailSentSnap.val();
-      const resend = confirm(`Email already sent on ${data.sentAt?.slice(0,10)||'unknown date'}.\n\nDo you want to resend?`);
+      const resend = confirm(`Email for ${month} ${year} already sent on ${data.sentAt?.slice(0,10)||'unknown date'}.\n\nDo you want to resend?`);
       if(!resend) return;
-      await remove(ref(db, `emailSent/${sId}/class12`));
+      await remove(ref(db, `emailSent/${sId}/${key}`));
     }
-    await checkAndSendClassEmail(sId);
+    await checkAndSendClassEmail(sId, year, month);
   };
 
   window.uploadHomework = async () => {
@@ -4342,6 +4420,7 @@ window.addEventListener('DOMContentLoaded', function() {
     const badge = document.getElementById('user-count-badge');
     const keys = Object.keys(allUsersCache);
     badge.innerText = keys.length + ' student' + (keys.length !== 1 ? 's' : '');
+    populateAllStudentDropdowns();
   };
 
   window.adminAddStudent = async () => {
@@ -4373,6 +4452,7 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('new-student-hsc-result').value = '';
     document.getElementById('new-student-hsc-result-wrap').style.display = 'none';
     renderUserTable();
+    populateAllStudentDropdowns();
   };
 
   window.uploadResult = () => {
@@ -4526,7 +4606,8 @@ window.addEventListener('DOMContentLoaded', function() {
     closeClassDateEditModal();
     loadClassDatesPreview();
     // Re-check email after edit
-    await checkAndSendClassEmail(sId);
+    await checkAndSendClassEmail(sId, year, newMonth);
+    await checkAndSetMonthDue(sId, year, newMonth);
   };
 
   window.savePaymentEdit = async () => {
@@ -4667,49 +4748,6 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 
   // ── Class Dates Preview ──
-  window.loadClassDatesPreview = async () => {
-    const sId = document.getElementById('class-student-id').value.trim();
-    const tbody = document.getElementById('admin-classdate-preview');
-    const label = document.getElementById('classdate-preview-id');
-    if(!sId) { tbody.innerHTML = ''; label.innerText = ''; return; }
-    label.innerText = `for ID: ${sId}`;
-    const snapshot = await get(child(ref(db), `classDates/${sId}`));
-    const saved = snapshot.exists() ? snapshot.val() : {};
-    // Support both new object format {dates, year, month} and legacy string format
-    const entries = Object.entries(saved).map(([key, val]) => {
-      if(typeof val === 'string') {
-        // legacy: key is month name, val is date string
-        return { key, year: '—', month: key, dates: val };
-      }
-      const year  = val.year  || (key.includes('_') ? key.split('_')[0] : '—');
-      const month = val.month || (key.includes('_') ? key.split('_')[1] : key);
-      return { key, year, month, dates: val.dates || val };
-    });
-    const monthOrder = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-    entries.sort((a,b) => {
-      if(b.year !== a.year) return (b.year||'').localeCompare(a.year||'');
-      return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
-    });
-    if(entries.length > 0) {
-      tbody.innerHTML = entries.map(e => {
-        const safeDates = (e.dates||'').replace(/'/g, '&#39;');
-        return `
-        <tr>
-          <td style="font-family:var(--mono); color:var(--purple); font-weight:700;">${e.year}</td>
-          <td style="font-weight:600;">${e.month}</td>
-          <td style="color:var(--gold); font-size:13px;">${e.dates}</td>
-          <td style="display:flex; gap:5px; flex-wrap:wrap;">
-            <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="openClassDateEditModal('${sId}','${e.key}','${e.year}','${e.month}','${safeDates}')">✏️ Edit</button>
-            <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('classDates/${sId}/${e.key}', loadClassDatesPreview)">Delete</button>
-          </td>
-        </tr>
-        `;
-      }).join('');
-    } else {
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:16px;">No class date records found for this ID.</td></tr>`;
-    }
-  };
-
   // ── Password Requests ──
   async function loadPassRequests() {
     const tbody = document.getElementById('passreq-table-body');
@@ -5493,6 +5531,10 @@ window.addEventListener('DOMContentLoaded', function() {
   if(window.__pendingRestoreTab) {
     window.switchTab(window.__pendingRestoreTab);
     window.__pendingRestoreTab = null;
+  }
+  if(window.__pendingPopulateDropdowns) {
+    window.populateAllStudentDropdowns();
+    window.__pendingPopulateDropdowns = false;
   }
 
 }); // end DOMContentLoaded
