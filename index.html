@@ -3800,6 +3800,7 @@ window.addEventListener('DOMContentLoaded', function() {
           student_id:   sId,
           to_email:     studentEmail,
           month, year,
+          payment_month: `${month} ${year}`,
           total_classes: totalClasses
         });
         await set(ref(db, `emailSent/${sId}/${key}`), {
