@@ -1399,6 +1399,9 @@
           <div class="form-group"><label>Institution Name <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label><input type="text" id="new-student-institution" placeholder="Enter student's school or college name"></div>
           <div class="form-group"><label>SSC Result <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label><input type="text" id="new-student-ssc-result" placeholder="e.g. GPA 5.00"></div>
         </div>
+        <div class="grid-2">
+          <div class="form-group"><label>Monthly Tuition Fee (৳) <span style="color:var(--text-muted); font-weight:400;">(admin only — hidden from student)</span></label><input type="number" id="new-student-fee" placeholder="e.g. 1500"></div>
+        </div>
         <div class="grid-2" id="new-student-hsc-result-wrap" style="display:none;">
           <div class="form-group"><label>HSC Result <span style="color:var(--text-muted); font-weight:400;">(optional)</span></label><input type="text" id="new-student-hsc-result" placeholder="e.g. GPA 5.00"></div>
         </div>
@@ -1443,7 +1446,8 @@
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Institution</span><span id="sp-institution" style="font-size:13px; font-weight:700; text-align:right;"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">SSC Result</span><span id="sp-ssc-result" style="font-size:13px; font-weight:700;"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);" id="sp-hsc-result-wrap"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">HSC Result</span><span id="sp-hsc-result" style="font-size:13px; font-weight:700;"></span></div>
-          <div style="display:flex; justify-content:space-between; padding:9px 0;"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Password</span><span id="sp-pass" style="font-family:var(--mono); font-size:13px; color:var(--text-dim);"></span></div>
+          <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Password</span><span id="sp-pass" style="font-family:var(--mono); font-size:13px; color:var(--text-dim);"></span></div>
+          <div style="display:flex; justify-content:space-between; padding:9px 0;"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">💰 Monthly Fee <span style="font-weight:400; text-transform:none; letter-spacing:0;">(admin only)</span></span><span id="sp-fee" style="font-family:var(--mono); font-size:13px; font-weight:700; color:var(--green);"></span></div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
           <div style="background:#f0f2ff; border-radius:var(--radius-sm); padding:12px; text-align:center;">
@@ -1464,6 +1468,7 @@
           <button class="btn-action" style="flex:1; margin-top:0; background:#f0f2ff; color:var(--purple); box-shadow:none; border:1px solid rgba(167,139,250,0.3);" id="sp-edit-level-btn">🎓 Change Level</button>
           <button class="btn-action" style="flex:1; margin-top:0; background:#f0fff8; color:var(--green); box-shadow:none; border:1px solid rgba(16,185,129,0.3);" id="sp-edit-group-btn">👥 Change Group</button>
           <button class="btn-action" style="flex:1; margin-top:0; background:#fffbf0; color:var(--gold); box-shadow:none; border:1px solid rgba(245,158,11,0.3);" id="sp-edit-status-btn">🔄 Change Status</button>
+          <button class="btn-action" style="flex:1; margin-top:0; background:#f0fff4; color:var(--green); box-shadow:none; border:1px solid rgba(52,211,153,0.3);" id="sp-edit-fee-btn">💰 Change Fee</button>
           <button id="sp-delete-btn" style="flex:1; padding:11px 20px; background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.3); color:var(--red); border-radius:var(--radius-sm); cursor:pointer; font-weight:700; font-size:13px; font-family:var(--font);">🗑️ Delete Student</button>
         </div>
       </div>
@@ -2227,6 +2232,13 @@
           <div id="summary-pending-amount" style="font-size:24px;font-weight:800;color:var(--red);font-family:var(--mono);">৳0</div>
           <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Total Pending</div>
         </div>
+      </div>
+
+      <!-- Approximate Monthly Income (from per-student tuition fee) -->
+      <div style="background:linear-gradient(135deg,rgba(6,182,212,0.13),rgba(6,182,212,0.05));border:1px solid rgba(6,182,212,0.28);border-radius:var(--radius);padding:22px 16px;text-align:center;margin-bottom:20px;">
+        <div id="summary-approx-income" style="font-size:26px;font-weight:800;color:var(--cyan);font-family:var(--mono);">৳0</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">💡 Approximate Monthly Income</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Sum of monthly tuition fee for all Present students (admin-set, estimate only)</div>
       </div>
 
       <!-- Income by source breakdown -->
@@ -4285,6 +4297,7 @@ window.addEventListener('DOMContentLoaded', function() {
       spStatus.style.color = isFormer ? 'var(--gold)' : 'var(--green)';
     }
     document.getElementById('sp-pass').innerText = u.pass;
+    document.getElementById('sp-fee').innerText = u.monthlyFee ? `৳${parseFloat(u.monthlyFee).toLocaleString('en-BD')}` : 'Not Set';
     document.getElementById('sp-institution').innerText = u.institution || 'Not Set';
     document.getElementById('sp-ssc-result').innerText = u.sscResult || 'Not Set';
     const spHscWrap = document.getElementById('sp-hsc-result-wrap');
@@ -4316,6 +4329,7 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('sp-edit-level-btn').onclick = () => editStudentLevel(userId, u.level || '');
     document.getElementById('sp-edit-group-btn').onclick = () => editStudentGroup(userId, u.group || '');
     document.getElementById('sp-edit-status-btn').onclick = () => editStudentStatus(userId, u.status || 'Present');
+    document.getElementById('sp-edit-fee-btn').onclick = () => editStudentFee(userId, u.monthlyFee || 0);
 
     const modal = document.getElementById('student-profile-modal');
     modal.style.display = 'flex';
@@ -4412,6 +4426,21 @@ window.addEventListener('DOMContentLoaded', function() {
     });
   };
 
+  window.editStudentFee = async (userId, current) => {
+    const input = prompt(`Enter monthly tuition fee for this student (৳):`, current || '');
+    if(input === null) return; // cancelled
+    const fee = parseFloat(input);
+    if(isNaN(fee) || fee < 0) return alert("Please enter a valid amount!");
+    await update(ref(db), { [`/users/${userId}/monthlyFee`]: fee });
+    const spFee = document.getElementById('sp-fee');
+    if(spFee) spFee.innerText = `৳${fee.toLocaleString('en-BD')}`;
+    if(allUsersCache[userId]) allUsersCache[userId].monthlyFee = fee;
+    const summaryTab = document.getElementById('tab-admin-summary');
+    if(typeof loadFinancialSummary === 'function' && summaryTab && !summaryTab.classList.contains('hidden')) {
+      loadFinancialSummary();
+    }
+  };
+
   window.adminDeleteUser = async (userId) => {
     if(!confirm(`Delete student "${userId}"? This cannot be undone.`)) return;
     await remove(ref(db, `users/${userId}`));
@@ -4436,13 +4465,14 @@ window.addEventListener('DOMContentLoaded', function() {
     const institution = document.getElementById('new-student-institution').value.trim();
     const sscResult   = document.getElementById('new-student-ssc-result').value.trim();
     const hscResult   = level === 'HSC' ? document.getElementById('new-student-hsc-result').value.trim() : '';
+    const monthlyFee  = parseFloat(document.getElementById('new-student-fee').value) || 0;
 
     if(!name || !id || !email || !pass) return alert("Please fill all fields to add a new student!");
 
     const snapshot = await get(child(ref(db), `users/${id}`));
     if(snapshot.exists()) return alert(`❌ ID "${id}" is already registered!`);
 
-    await set(ref(db, 'users/' + id), { name, email, pass, role, status, level, group, institution, sscResult, hscResult });
+    await set(ref(db, 'users/' + id), { name, email, pass, role, status, level, group, institution, sscResult, hscResult, monthlyFee });
     alert(`✅ Account created for ${name} (ID: ${id})!`);
     document.getElementById('new-student-name').value = '';
     document.getElementById('new-student-id').value = '';
@@ -4451,6 +4481,7 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('new-student-institution').value = '';
     document.getElementById('new-student-ssc-result').value = '';
     document.getElementById('new-student-hsc-result').value = '';
+    document.getElementById('new-student-fee').value = '';
     document.getElementById('new-student-hsc-result-wrap').style.display = 'none';
     renderUserTable();
     populateAllStudentDropdowns();
@@ -5457,6 +5488,14 @@ window.addEventListener('DOMContentLoaded', function() {
       });
     });
 
+    // ── APPROXIMATE MONTHLY INCOME: sum of monthlyFee for all Present students ──
+    let approxMonthlyIncome = 0;
+    Object.values(users).forEach(u => {
+      if(u.role === 'admin') return;
+      if((u.status || 'Present') !== 'Present') return;
+      approxMonthlyIncome += parseFloat(u.monthlyFee) || 0;
+    });
+
     // ── EXPENSES: walk every expense entry, group by category ──
     let totalExpense = 0;
     const perCategory = {}; // category -> {count, total}
@@ -5479,6 +5518,8 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('summary-other-income').textContent   = `৳${totalOtherIncome.toLocaleString('en-BD')}`;
     document.getElementById('summary-due-amount').textContent     = `৳${totalDue.toLocaleString('en-BD')}`;
     document.getElementById('summary-pending-amount').textContent = `৳${totalPending.toLocaleString('en-BD')}`;
+    const approxIncomeEl = document.getElementById('summary-approx-income');
+    if(approxIncomeEl) approxIncomeEl.textContent = `৳${approxMonthlyIncome.toLocaleString('en-BD')}`;
 
     const net = (totalIncome + totalOtherIncome) - totalExpense;
     const netEl = document.getElementById('summary-net-balance');
