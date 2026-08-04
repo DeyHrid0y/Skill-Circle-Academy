@@ -1702,15 +1702,10 @@
           <div id="class-dates-chips" style="display:flex; flex-wrap:wrap; gap:8px; min-height:32px;"></div>
         </div>
 
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
           <button class="btn-action" onclick="uploadClassDates()" style="margin-top:0;">💾 Save Class Dates</button>
           <button class="btn-action" style="margin-top:0; background:linear-gradient(135deg,#10b981,#059669);" onclick="manualEmailCheck()">📧 Check & Send Email</button>
-        </div>
-
-        <!-- Total class counter badge -->
-        <div id="class-total-badge" style="display:none; margin-top:14px; padding:10px 16px; background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(139,92,246,0.08)); border:1.5px solid rgba(99,102,241,0.18); border-radius:var(--radius-sm); font-size:13px; color:var(--text-dim);">
-          📊 Total classes conducted for this student: <strong id="class-total-count" style="color:var(--accent); font-size:16px;"></strong>
-          <span id="class-email-sent-badge" style="display:none; margin-left:10px; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; background:rgba(16,185,129,0.1); color:var(--green); border:1px solid rgba(16,185,129,0.2);">✅ Email Sent (for selected month)</span>
+          <span id="class-email-sent-badge" style="display:none; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; background:rgba(16,185,129,0.1); color:var(--green); border:1px solid rgba(16,185,129,0.2);">✅ Email Sent (for selected month)</span>
         </div>
       </div>
 
@@ -3103,7 +3098,7 @@ window.addEventListener('DOMContentLoaded', function() {
     if(snapshot.exists()) {
       const users = snapshot.val();
       const students = Object.entries(users)
-        .filter(([id, u]) => u.role !== 'admin')
+        .filter(([id, u]) => u.role !== 'admin' && (u.status || 'Present') === 'Present')
         .map(([id, u]) => ({ id, name: u.name || `Student ${id}` }))
         .sort((a, b) => a.name.localeCompare(b.name));
       optionsHtml += students.map(s => `<option value="${s.id}">${s.name} (ID: ${s.id})</option>`).join('');
@@ -3707,11 +3702,9 @@ window.addEventListener('DOMContentLoaded', function() {
     const sId  = document.getElementById('class-student-id')?.value.trim() || '';
     const tbody = document.getElementById('admin-classdate-preview');
     const label = document.getElementById('classdate-preview-id');
-    const badge = document.getElementById('class-total-badge');
-    const totalEl = document.getElementById('class-total-count');
     const emailBadge = document.getElementById('class-email-sent-badge');
     if(!tbody) return;
-    if(!sId) { tbody.innerHTML = ''; if(label) label.innerText = ''; if(badge) badge.style.display='none'; return; }
+    if(!sId) { tbody.innerHTML = ''; if(label) label.innerText = ''; return; }
     if(label) label.innerText = `for ID: ${sId}`;
 
     const snap = await get(child(ref(db), `classDates/${sId}`));
@@ -3726,23 +3719,6 @@ window.addEventListener('DOMContentLoaded', function() {
       const mo = val.month || (key.includes('_') ? key.split('_')[1] : key);
       return { key, year: yr, month: mo, dates: val.dates || '' };
     }).sort((a,b) => b.year !== a.year ? (b.year||'').localeCompare(a.year||'') : monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month));
-
-    // Total class count across all months
-    let total = 0;
-    entries.forEach(e => {
-      if(e.dates && e.dates !== 'None Entered') {
-        total += e.dates.split(',').map(d=>d.trim()).filter(d=>d.length>0).length;
-      }
-    });
-
-    // Show total badge
-    if(badge) {
-      badge.style.display = total > 0 ? 'block' : 'none';
-      if(totalEl) {
-        totalEl.textContent = total;
-        totalEl.style.color = total >= 12 ? 'var(--green)' : 'var(--accent)';
-      }
-    }
 
     // Show email sent badge (for the currently selected month/year in the add-form)
     if(emailBadge) {
