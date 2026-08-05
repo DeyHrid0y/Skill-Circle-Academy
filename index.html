@@ -1446,7 +1446,7 @@
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Institution</span><span id="sp-institution" style="font-size:13px; font-weight:700; text-align:right;"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">SSC Result</span><span id="sp-ssc-result" style="font-size:13px; font-weight:700;"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);" id="sp-hsc-result-wrap"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">HSC Result</span><span id="sp-hsc-result" style="font-size:13px; font-weight:700;"></span></div>
-          <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Password</span><span id="sp-pass" style="font-family:var(--mono); font-size:13px; color:var(--text-dim);"></span></div>
+          <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Password</span><span id="sp-pass" style="font-family:var(--mono); font-size:13px; color:var(--text-dim);">🔒 Secured (hashed)</span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0;"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">💰 Monthly Fee <span style="font-weight:400; text-transform:none; letter-spacing:0;">(admin only)</span></span><span id="sp-fee" style="font-family:var(--mono); font-size:13px; font-weight:700; color:var(--green);"></span></div>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
@@ -1469,6 +1469,7 @@
           <button class="btn-action" style="flex:1; margin-top:0; background:#f0fff8; color:var(--green); box-shadow:none; border:1px solid rgba(16,185,129,0.3);" id="sp-edit-group-btn">👥 Change Group</button>
           <button class="btn-action" style="flex:1; margin-top:0; background:#fffbf0; color:var(--gold); box-shadow:none; border:1px solid rgba(245,158,11,0.3);" id="sp-edit-status-btn">🔄 Change Status</button>
           <button class="btn-action" style="flex:1; margin-top:0; background:#f0fff4; color:var(--green); box-shadow:none; border:1px solid rgba(52,211,153,0.3);" id="sp-edit-fee-btn">💰 Change Fee</button>
+          <button class="btn-action" style="flex:1; margin-top:0; background:#eef2ff; color:var(--accent); box-shadow:none; border:1px solid rgba(99,102,241,0.3);" id="sp-reset-pass-btn">🔑 Reset Password</button>
           <button id="sp-delete-btn" style="flex:1; padding:11px 20px; background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.3); color:var(--red); border-radius:var(--radius-sm); cursor:pointer; font-weight:700; font-size:13px; font-family:var(--font);">🗑️ Delete Student</button>
         </div>
       </div>
@@ -2523,6 +2524,63 @@ window.addEventListener('DOMContentLoaded', function() {
   function get(r)           { return r.once('value'); }
   const db = _db;
 
+  // ══════════════════ SECURITY HELPERS ══════════════════
+
+  // SHA-256 hash (via built-in Web Crypto API, no library needed)
+  async function sha256Hex(text) {
+    const enc = new TextEncoder().encode(text);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  const HASH_RE = /^[a-f0-9]{64}$/i;
+
+  // Verifies an entered password against a stored value. Supports both:
+  //  - new hashed passwords (64-char hex SHA-256)
+  //  - legacy plaintext passwords still in the DB (auto-migrated on next successful login)
+  async function verifyPassword(stored, entered) {
+    if(!stored) return false;
+    if(HASH_RE.test(stored)) {
+      return (await sha256Hex(entered)) === stored;
+    }
+    return stored === entered; // legacy plaintext fallback
+  }
+
+  // Escapes text before it is inserted via innerHTML, to prevent stored XSS
+  // from user-supplied fields (names, requested passwords, notes, etc.)
+  function escapeHtml(str) {
+    if(str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  // Basic client-side login throttling — slows down brute-force attempts.
+  // Not a substitute for server-side rate limiting, but raises the bar.
+  function loginRateLimitCheck(id) {
+    const key = 'skillCircleLoginAttempts_' + id;
+    const raw = localStorage.getItem(key);
+    const data = raw ? JSON.parse(raw) : { count: 0, lockUntil: 0 };
+    if(data.lockUntil && Date.now() < data.lockUntil) {
+      const secsLeft = Math.ceil((data.lockUntil - Date.now()) / 1000);
+      return { blocked: true, secsLeft };
+    }
+    return { blocked: false, data, key };
+  }
+  function loginRateLimitFail(key, data) {
+    data.count = (data.count || 0) + 1;
+    if(data.count >= 5) {
+      data.lockUntil = Date.now() + 60 * 1000; // 60s lockout after 5 failed tries
+      data.count = 0;
+    }
+    localStorage.setItem(key, JSON.stringify(data));
+  }
+  function loginRateLimitReset(key) {
+    localStorage.removeItem(key);
+  }
+
   let currentSession = null;
   let editingId = null;
 
@@ -2637,7 +2695,8 @@ window.addEventListener('DOMContentLoaded', function() {
     const snapshot = await get(child(ref(db), `users/${id}`));
     if(snapshot.exists()) return alert("This ID is already registered!");
 
-    await set(ref(db, 'users/' + id), { name, email, pass, role: 'user', level, group });
+    const hashedPass = await sha256Hex(pass);
+    await set(ref(db, 'users/' + id), { name, email, pass: hashedPass, role: 'user', level, group });
     await remove(ref(db, `config/approvedIds/${id}`));
     alert("✅ Account created successfully!");
     window.toggleAuth('login');
@@ -2650,22 +2709,45 @@ window.addEventListener('DOMContentLoaded', function() {
 
     if(!id || !pass) return alert("Fields cannot be empty!");
 
-    if(id === 'admin' && pass === 'admin123') {
-       const checkAdmin = await get(child(ref(db), 'users/admin'));
-       if(!checkAdmin.exists()){
-          await set(ref(db, 'users/admin'), { name: 'System Admin', email: 'admin@lu.com', pass: 'admin123', role: 'admin' });
-       }
+    // ── Client-side brute-force throttle ──
+    const rl = loginRateLimitCheck(id);
+    if(rl.blocked) return alert(`Too many failed attempts. Please try again in ${rl.secsLeft} seconds.`);
+
+    // ── First-run admin setup (no hardcoded default password anymore) ──
+    if(id === 'admin') {
+      const checkAdmin = await get(child(ref(db), 'users/admin'));
+      if(!checkAdmin.exists()) {
+        if(pass.length < 6) return alert("No admin account exists yet. Enter a new password (min 6 characters) here and click Login again to create it.");
+        const confirmSetup = confirm("No admin account was found. Create one now with the password you just typed?");
+        if(!confirmSetup) return;
+        const hashed = await sha256Hex(pass);
+        await set(ref(db, 'users/admin'), { name: 'System Admin', email: 'admin@lu.com', pass: hashed, role: 'admin' });
+        alert("✅ Admin account created. Logging you in...");
+      }
     }
 
     const snapshot = await get(child(ref(db), `users/${id}`));
     if (snapshot.exists()) {
       const userData = snapshot.val();
-      if(userData.pass === pass) {
+      const valid = await verifyPassword(userData.pass, pass);
+      if(valid) {
+        loginRateLimitReset(rl.key);
+
+        // Auto-migrate legacy plaintext passwords to hashed on successful login
+        if(!HASH_RE.test(userData.pass)) {
+          const hashed = await sha256Hex(pass);
+          update(ref(db), { [`/users/${id}/pass`]: hashed });
+          userData.pass = hashed;
+        }
+
         currentSession = { ...userData, id: id };
+        delete currentSession.pass;
+        // Never persist the password (hashed or not) in memory or localStorage
         localStorage.setItem('skillCircleSession', JSON.stringify(currentSession));
+
         document.getElementById('login-page').style.display = 'none';
         document.getElementById('portal-page').style.display = 'block';
-        
+
         if(currentSession.role === 'admin' || id === 'admin') {
           document.getElementById('menu-admin').classList.remove('hidden');
           document.getElementById('menu-user').classList.add('hidden');
@@ -2681,6 +2763,7 @@ window.addEventListener('DOMContentLoaded', function() {
         return;
       }
     }
+    if(rl.data && rl.key) loginRateLimitFail(rl.key, rl.data);
     alert("Wrong ID or Password!");
   };
 
@@ -3533,12 +3616,13 @@ window.addEventListener('DOMContentLoaded', function() {
     const snapshot = await get(child(ref(db), `users/${currentSession.id}`));
     if(!snapshot.exists()) return showMsg('❌ Account not found.', false);
     const userData = snapshot.val();
-    if(userData.pass !== current) return showMsg('❌ Current password is incorrect.', false);
+    const currentValid = await verifyPassword(userData.pass, current);
+    if(!currentValid) return showMsg('❌ Current password is incorrect.', false);
     if(current === newPass) return showMsg('❌ New password must be different from the current one.', false);
 
-    // Update password directly in Firebase
-    await update(ref(db), { [`/users/${currentSession.id}/pass`]: newPass });
-    currentSession.pass = newPass;
+    // Update password directly in Firebase (hashed)
+    const hashedNew = await sha256Hex(newPass);
+    await update(ref(db), { [`/users/${currentSession.id}/pass`]: hashedNew });
     localStorage.setItem('skillCircleSession', JSON.stringify(currentSession));
 
     document.getElementById('cp-current').value = '';
@@ -4272,7 +4356,7 @@ window.addEventListener('DOMContentLoaded', function() {
       spStatus.innerText = isFormer ? '🎓 Former' : '✅ Present';
       spStatus.style.color = isFormer ? 'var(--gold)' : 'var(--green)';
     }
-    document.getElementById('sp-pass').innerText = u.pass;
+    // Password is hashed in the DB now — never display it, even the hash.
     document.getElementById('sp-fee').innerText = u.monthlyFee ? `৳${parseFloat(u.monthlyFee).toLocaleString('en-BD')}` : 'Not Set';
     document.getElementById('sp-institution').innerText = u.institution || 'Not Set';
     document.getElementById('sp-ssc-result').innerText = u.sscResult || 'Not Set';
@@ -4306,6 +4390,7 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('sp-edit-group-btn').onclick = () => editStudentGroup(userId, u.group || '');
     document.getElementById('sp-edit-status-btn').onclick = () => editStudentStatus(userId, u.status || 'Present');
     document.getElementById('sp-edit-fee-btn').onclick = () => editStudentFee(userId, u.monthlyFee || 0);
+    document.getElementById('sp-reset-pass-btn').onclick = () => adminResetStudentPassword(userId);
 
     const modal = document.getElementById('student-profile-modal');
     modal.style.display = 'flex';
@@ -4417,6 +4502,15 @@ window.addEventListener('DOMContentLoaded', function() {
     }
   };
 
+  window.adminResetStudentPassword = async (userId) => {
+    const newPass = prompt(`Set a new password for Student ID ${userId} (min 4 characters):`);
+    if(newPass === null) return; // cancelled
+    if(newPass.length < 4) return alert("Password must be at least 4 characters!");
+    const hashed = await sha256Hex(newPass);
+    await update(ref(db), { [`/users/${userId}/pass`]: hashed });
+    alert(`✅ Password updated for ${userId}. Please share the new password with the student directly (it cannot be viewed again).`);
+  };
+
   window.adminDeleteUser = async (userId) => {
     if(!confirm(`Delete student "${userId}"? This cannot be undone.`)) return;
     await remove(ref(db, `users/${userId}`));
@@ -4448,7 +4542,8 @@ window.addEventListener('DOMContentLoaded', function() {
     const snapshot = await get(child(ref(db), `users/${id}`));
     if(snapshot.exists()) return alert(`❌ ID "${id}" is already registered!`);
 
-    await set(ref(db, 'users/' + id), { name, email, pass, role, status, level, group, institution, sscResult, hscResult, monthlyFee });
+    const hashedPass = await sha256Hex(pass);
+    await set(ref(db, 'users/' + id), { name, email, pass: hashedPass, role, status, level, group, institution, sscResult, hscResult, monthlyFee });
     alert(`✅ Account created for ${name} (ID: ${id})!`);
     document.getElementById('new-student-name').value = '';
     document.getElementById('new-student-id').value = '';
@@ -4765,18 +4860,29 @@ window.addEventListener('DOMContentLoaded', function() {
       return;
     }
     const requests = snapshot.val();
+    // NOTE: requestedPass/name/studentId can contain attacker-supplied text from the
+    // unauthenticated "Forgot Password" form, so everything here is HTML-escaped and
+    // action buttons use data-attributes (never inline string concatenation) to avoid
+    // both stored XSS and onclick-string injection.
     tbody.innerHTML = Object.entries(requests).map(([key, req]) => `
       <tr>
-        <td style="font-family:var(--mono); color:var(--accent); font-weight:700;">${req.studentId}</td>
-        <td style="font-weight:500;">${req.name}</td>
-        <td style="font-family:var(--mono); color:var(--gold);">${req.requestedPass}</td>
-        <td style="color:var(--text-muted); font-size:12px;">${req.time}</td>
+        <td style="font-family:var(--mono); color:var(--accent); font-weight:700;">${escapeHtml(req.studentId)}</td>
+        <td style="font-weight:500;">${escapeHtml(req.name)}</td>
+        <td style="font-family:var(--mono); color:var(--gold);">${escapeHtml(req.requestedPass)}</td>
+        <td style="color:var(--text-muted); font-size:12px;">${escapeHtml(req.time)}</td>
         <td style="display:flex; gap:6px; flex-wrap:wrap;">
-          <button class="btn-sm" style="background:rgba(52,211,153,0.12);border-color:rgba(52,211,153,0.3);color:var(--green);" onclick="approvePassRequest('${key}', '${req.studentId}', '${req.requestedPass}')">✅ Approve</button>
-          <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('passRequests/${key}', loadPassRequests)">❌ Reject</button>
+          <button class="btn-sm passreq-approve-btn" style="background:rgba(52,211,153,0.12);border-color:rgba(52,211,153,0.3);color:var(--green);" data-key="${escapeHtml(key)}" data-sid="${escapeHtml(req.studentId)}" data-newpass="${escapeHtml(req.requestedPass)}">✅ Approve</button>
+          <button class="btn-sm passreq-reject-btn" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" data-key="${escapeHtml(key)}">❌ Reject</button>
         </td>
       </tr>
     `).join('');
+
+    tbody.querySelectorAll('.passreq-approve-btn').forEach(btn => {
+      btn.addEventListener('click', () => approvePassRequest(btn.dataset.key, btn.dataset.sid, btn.dataset.newpass));
+    });
+    tbody.querySelectorAll('.passreq-reject-btn').forEach(btn => {
+      btn.addEventListener('click', () => deleteEntry(`passRequests/${btn.dataset.key}`, loadPassRequests));
+    });
   }
   window.loadPassRequests = loadPassRequests;
 
@@ -4864,8 +4970,9 @@ window.addEventListener('DOMContentLoaded', function() {
 
   window.approvePassRequest = async (reqKey, studentId, newPass) => {
     if(!confirm(`Approve password reset for Student ID: ${studentId}?\nNew password will be set to: ${newPass}`)) return;
+    const hashedPass = await sha256Hex(newPass);
     const updates = {};
-    updates[`/users/${studentId}/pass`] = newPass;
+    updates[`/users/${studentId}/pass`] = hashedPass;
     await update(ref(db), updates);
     await remove(ref(db, `passRequests/${reqKey}`));
     alert(`✅ Password updated for Student ID: ${studentId}`);
