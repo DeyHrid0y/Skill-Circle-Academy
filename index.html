@@ -805,6 +805,7 @@
     .page-title { font-size: 18px; }
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -949,11 +950,23 @@
         </div>
       </div>
       <div class="form-group">
-        <label>Student ID <span style="color:var(--accent); font-size:10px; font-weight:700; background:rgba(99,102,241,0.1); padding:2px 8px; border-radius:10px; margin-left:4px;">Admin Approved</span></label>
-        <select id="signup-id" style="width:100%; background:#fff6ee; border:1.5px solid rgba(234,88,12,0.14); padding:12px 15px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:14px;">
-          <option value="">— Loading approved IDs... —</option>
+        <label>Batch (Year)</label>
+        <select id="signup-batch" onchange="generateSignupId()" style="width:100%; background:#fff6ee; border:1.5px solid rgba(234,88,12,0.14); padding:12px 15px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:14px;">
+          <option value="22">2022</option><option value="23">2023</option>
+          <option value="24">2024</option><option value="25">2025</option>
+          <option value="26">2026</option><option value="27">2027</option>
+          <option value="28">2028</option><option value="29">2029</option>
         </select>
-        <div id="signup-id-notice" style="font-size:11px; color:var(--text-muted); margin-top:5px;">Only admin-approved IDs are available.</div>
+      </div>
+      <div class="form-group">
+        <label>Student ID <span style="color:var(--text-muted); font-size:10px; font-weight:600;">(auto-generated)</span></label>
+        <input type="text" id="signup-id" readonly style="width:100%; background:#f4f5fa; border:1.5px solid rgba(234,88,12,0.14); padding:12px 15px; color:var(--accent); font-weight:700; font-family:var(--mono); border-radius:var(--radius-sm); outline:none; font-size:14px; cursor:not-allowed;" placeholder="Select a batch above...">
+      </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <div class="input-icon-wrap"><span class="input-icon">📱</span>
+          <input type="tel" id="signup-phone" placeholder="01XXXXXXXXX">
+        </div>
       </div>
       <div class="form-group">
         <label>Email</label>
@@ -1080,7 +1093,14 @@
         <div class="page-title">Class Routine</div>
         <div class="page-subtitle">Your weekly class schedule</div>
       </div>
-      <div class="card">
+      <div style="margin-bottom:14px;">
+        <button class="btn-action" style="margin-top:0;" onclick="downloadMyRoutine()">📥 Download Routine</button>
+      </div>
+      <div class="card" id="routine-download-card">
+        <div style="text-align:center; margin-bottom:14px; display:none;" id="routine-download-header">
+          <div style="font-size:16px; font-weight:800; color:var(--accent);">Skill Circle Academy</div>
+          <div style="font-size:12px; color:var(--text-muted);" id="routine-download-studentline"></div>
+        </div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Day</th><th>Time</th><th>Subject</th></tr></thead>
@@ -1354,7 +1374,22 @@
         <div class="card-title">➕ Add New Student</div>
         <div class="grid-2">
           <div class="form-group"><label>Full Name</label><input type="text" id="new-student-name" placeholder="Enter student's name"></div>
-          <div class="form-group"><label>Student ID</label><input type="text" id="new-student-id" placeholder="e.g. 202"></div>
+          <div class="form-group">
+            <label>Batch (Year)</label>
+            <select id="new-student-batch" onchange="generateNewStudentId()">
+              <option value="22">2022</option><option value="23">2023</option>
+              <option value="24">2024</option><option value="25">2025</option>
+              <option value="26">2026</option><option value="27">2027</option>
+              <option value="28">2028</option><option value="29">2029</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Student ID <span style="color:var(--text-muted); font-weight:400;">(auto-generated)</span></label>
+            <input type="text" id="new-student-id" readonly style="background:#f4f5fa; font-family:var(--mono); font-weight:700; color:var(--accent); cursor:not-allowed;" placeholder="Select a batch above...">
+          </div>
+          <div class="form-group"><label>Phone Number</label><input type="tel" id="new-student-phone" placeholder="01XXXXXXXXX"></div>
         </div>
         <div class="grid-2">
           <div class="form-group"><label>Email</label><input type="email" id="new-student-email" placeholder="student@lu.com"></div>
@@ -1443,6 +1478,7 @@
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Level</span><span id="sp-level" style="font-size:13px; font-weight:700; color:var(--purple);"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Group</span><span id="sp-group" style="font-size:13px; font-weight:700; color:var(--accent);"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Status</span><span id="sp-status" style="font-size:13px; font-weight:700;"></span></div>
+          <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Phone</span><span id="sp-phone" style="font-size:13px; font-weight:700; text-align:right;"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Institution</span><span id="sp-institution" style="font-size:13px; font-weight:700; text-align:right;"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">SSC Result</span><span id="sp-ssc-result" style="font-size:13px; font-weight:700;"></span></div>
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);" id="sp-hsc-result-wrap"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">HSC Result</span><span id="sp-hsc-result" style="font-size:13px; font-weight:700;"></span></div>
@@ -2112,19 +2148,12 @@
     <!-- ADMIN: MONTHLY SAVING -->
     <section id="tab-admin-saving" class="tab-content hidden">
       <div class="page-header">
-        <div class="page-title">🏦 Monthly Saving</div>
-        <div class="page-subtitle">Add and manage year &amp; month-wise saving records</div>
+        <div class="page-title">🏦 Academy Savings</div>
+        <div class="page-subtitle">Admin-only — a single shared savings record for the academy (not tied to any student)</div>
       </div>
       <div class="admin-form-card">
         <div class="card-title" style="margin-bottom:16px;">➕ Add / Update Saving Record</div>
         <div class="grid-3">
-          <div class="form-group">
-            <label>Student ID</label>
-            <select id="sav-student-id" onchange="fetchStudentName('sav-student-id',null,'sav-name-display'); loadSavingPreview()">
-              <option value="">Select a student...</option>
-            </select>
-            <div id="sav-name-display" style="margin-top:5px; font-size:12px; color:var(--accent); font-weight:600; min-height:16px;"></div>
-          </div>
           <div class="form-group">
             <label>Select Year</label>
             <select id="sav-year">
@@ -2145,7 +2174,7 @@
             <label>Amount Saved (৳)</label>
             <input type="number" id="sav-amount" placeholder="e.g. 2000" min="0" step="0.01">
           </div>
-          <div class="form-group" style="grid-column:span 2;">
+          <div class="form-group" style="grid-column:span 3;">
             <label>Note (Optional)</label>
             <input type="text" id="sav-note" placeholder="e.g. Bank deposit, cash saved…">
           </div>
@@ -2153,7 +2182,7 @@
         <button class="btn-action" onclick="uploadSaving()">💾 Save Record</button>
       </div>
       <div class="card">
-        <div class="card-title">🏦 Saving Records <span id="sav-preview-id" style="color:var(--accent); font-family:var(--mono); font-size:12px;"></span></div>
+        <div class="card-title">🏦 Academy Saving Records</div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Year</th><th>Month</th><th>Amount (৳)</th><th>Note</th><th>Action</th></tr></thead>
@@ -2584,6 +2613,30 @@ window.addEventListener('DOMContentLoaded', function() {
   let currentSession = null;
   let editingId = null;
 
+  // ── Shared short-lived cache for the full 'users' node ──
+  // Several features (dropdowns, student table, ID generator, financial summary)
+  // each used to fetch the ENTIRE users list separately, causing 3-5x redundant
+  // network round-trips on a single page load. This cache serves repeat reads
+  // for a few seconds, and any add/edit/delete invalidates it immediately.
+  let _usersCache = null;
+  let _usersCacheAt = 0;
+  let _usersFetchInFlight = null;
+  const USERS_CACHE_TTL = 8000; // 8 seconds
+  async function fetchUsersData(forceRefresh = false) {
+    const fresh = _usersCache && (Date.now() - _usersCacheAt < USERS_CACHE_TTL);
+    if(fresh && !forceRefresh) return _usersCache;
+    if(_usersFetchInFlight && !forceRefresh) return _usersFetchInFlight; // dedupe concurrent calls
+    _usersFetchInFlight = (async () => {
+      const snapshot = await get(child(ref(db), 'users'));
+      _usersCache = snapshot.exists() ? snapshot.val() : {};
+      _usersCacheAt = Date.now();
+      _usersFetchInFlight = null;
+      return _usersCache;
+    })();
+    return _usersFetchInFlight;
+  }
+  function invalidateUsersCache() { _usersCache = null; }
+
   // ── Session Persistence — localStorage keeps session after refresh & browser close ──
   const savedSession = localStorage.getItem('skillCircleSession');
   if(savedSession) {
@@ -2611,7 +2664,7 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('signup-page').style.display = 'none';
     document.getElementById('forgot-page').style.display = 'none';
-    if(page === 'signup') { document.getElementById('signup-page').style.display = 'flex'; populateSignupIdDropdown(); }
+    if(page === 'signup') { document.getElementById('signup-page').style.display = 'flex'; generateSignupId(); }
     else if(page === 'forgot') {
       document.getElementById('forgot-page').style.display = 'flex';
       document.getElementById('forgot-result').style.display = 'none';
@@ -2674,30 +2727,33 @@ window.addEventListener('DOMContentLoaded', function() {
   window.handleSignUp = async () => {
     const name   = document.getElementById('signup-name').value.trim();
     const id     = document.getElementById('signup-id').value.trim();
+    const phone  = document.getElementById('signup-phone').value.trim();
     const email  = document.getElementById('signup-email').value.trim();
     const pass   = document.getElementById('signup-pass').value.trim();
     const level  = document.getElementById('signup-level').value;
     const group  = document.getElementById('signup-group').value;
     const secret = document.getElementById('signup-secret').value.trim();
 
-    if(!name || !id || !email || !pass || !secret) return alert("Please fill all fields including the Secret Key!");
+    if(!name || !id || id === 'Generating...' || !phone || !email || !pass || !secret) return alert("Please fill all fields including the Secret Key!");
     if(!level) return alert("Please select your student level (SSC / HSC / University)!");
     if(!group) return alert("Please select your student group!");
-
-    const approvedSnap = await get(child(ref(db), `config/approvedIds/${id}`));
-    if(!approvedSnap.exists()) return alert("❌ This Student ID is no longer available. Please reload and try again.");
 
     const keySnap = await get(child(ref(db), 'config/registrationKey'));
     if(!keySnap.exists()) return alert("❌ Registration is currently disabled. Please contact the admin.");
     const validKey = keySnap.val();
     if(secret !== validKey) return alert("❌ Invalid Secret Key! Please get the correct key from your admin.");
 
+    // Re-check freshness right before writing, in case someone else grabbed this ID meanwhile
     const snapshot = await get(child(ref(db), `users/${id}`));
-    if(snapshot.exists()) return alert("This ID is already registered!");
+    if(snapshot.exists()) {
+      alert("This ID was just taken by someone else — generating a new one for you, please try again.");
+      invalidateUsersCache();
+      return generateSignupId();
+    }
 
     const hashedPass = await sha256Hex(pass);
-    await set(ref(db, 'users/' + id), { name, email, pass: hashedPass, role: 'user', level, group });
-    await remove(ref(db, `config/approvedIds/${id}`));
+    await set(ref(db, 'users/' + id), { name, email, phone, pass: hashedPass, role: 'user', level, group });
+    invalidateUsersCache();
     alert("✅ Account created successfully!");
     window.toggleAuth('login');
     document.getElementById('login-id').value = id;
@@ -2816,7 +2872,35 @@ window.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // ── EXAMS (Student view): shows only this student's own exam schedule ──
+  // ── Download the logged-in student's own routine as an image (student-only feature) ──
+  window.downloadMyRoutine = async () => {
+    if(!currentSession || currentSession.role === 'admin') return; // safety: students only
+    const tbody = document.getElementById('routine-table-body');
+    if(!tbody || !tbody.querySelector('tr') || tbody.innerText.includes('No routine assigned')) {
+      return alert('No routine assigned yet — nothing to download.');
+    }
+    if(typeof html2canvas === 'undefined') return alert('Download tool failed to load. Please check your internet connection and try again.');
+
+    const header = document.getElementById('routine-download-header');
+    const line = document.getElementById('routine-download-studentline');
+    line.innerText = `${currentSession.name} • ID: ${currentSession.id}`;
+    header.style.display = 'block';
+
+    const card = document.getElementById('routine-download-card');
+    try {
+      const canvas = await html2canvas(card, { backgroundColor: '#ffffff', scale: 2 });
+      const link = document.createElement('a');
+      link.download = `Class_Routine_${currentSession.id}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch(e) {
+      alert('Download failed. Please try again.');
+    } finally {
+      header.style.display = 'none';
+    }
+  };
+
+
   async function loadStudentExams() {
     const tbody = document.getElementById('exams-table-body');
     const snapshot = await get(child(ref(db), `exams/${currentSession.id}`));
@@ -2926,15 +3010,14 @@ window.addEventListener('DOMContentLoaded', function() {
   window.loadAllExamsPreview = async () => {
     const tbody = document.getElementById('admin-all-exams');
     tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:16px;">⏳ Loading...</td></tr>`;
-    const [usersSnap, examsSnap] = await Promise.all([
-      get(child(ref(db), 'users')),
+    const [users, examsSnap] = await Promise.all([
+      fetchUsersData(),
       get(child(ref(db), 'exams'))
     ]);
     if(!examsSnap.exists()) {
       tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:16px;">No exams scheduled for any student yet.</td></tr>`;
       return;
     }
-    const users = usersSnap.exists() ? usersSnap.val() : {};
     const examsData = examsSnap.val();
     let rows = [];
     Object.entries(examsData).forEach(([sId, studentExams]) => {
@@ -3175,11 +3258,10 @@ window.addEventListener('DOMContentLoaded', function() {
 
   // ── Populate every admin "Select a student..." dropdown with the current student list ──
   window.populateAllStudentDropdowns = async () => {
-    const dropdownIds = ['routine-student-id','exam-student-id','res-student-id','pay-student-id','class-student-id','hw-student-id','sav-student-id'];
-    const snapshot = await get(child(ref(db), 'users'));
+    const dropdownIds = ['routine-student-id','exam-student-id','res-student-id','pay-student-id','class-student-id','hw-student-id'];
+    const users = await fetchUsersData();
     let optionsHtml = '<option value="">Select a student...</option>';
-    if(snapshot.exists()) {
-      const users = snapshot.val();
+    if(Object.keys(users).length) {
       const students = Object.entries(users)
         .filter(([id, u]) => u.role !== 'admin' && (u.status || 'Present') === 'Present')
         .map(([id, u]) => ({ id, name: u.name || `Student ${id}` }))
@@ -4134,32 +4216,6 @@ window.addEventListener('DOMContentLoaded', function() {
     loadApprovedIds();
   };
 
-  // ── Populate approved IDs on signup page ──
-  async function populateSignupIdDropdown() {
-    const select = document.getElementById('signup-id');
-    const notice = document.getElementById('signup-id-notice');
-    if(!select) return;
-    select.innerHTML = '<option value="">Loading...</option>';
-
-    const [approvedSnap, usersSnap] = await Promise.all([
-      get(child(ref(db), 'config/approvedIds')),
-      get(child(ref(db), 'users'))
-    ]);
-
-    const approved = approvedSnap.exists() ? Object.keys(approvedSnap.val()) : [];
-    const registered = usersSnap.exists() ? Object.keys(usersSnap.val()) : [];
-    const available = approved.filter(id => !registered.includes(id));
-
-    if(available.length === 0) {
-      select.innerHTML = '<option value="">No available IDs — contact admin</option>';
-      if(notice) notice.style.color = 'var(--red)';
-    } else {
-      select.innerHTML = '<option value="">— Select your Student ID —</option>' +
-        available.map(id => `<option value="${id}">${id}</option>`).join('');
-      if(notice) notice.style.color = 'var(--text-muted)';
-    }
-  }
-
   async function loadProfileData() {
     document.getElementById('p-name').innerText = currentSession.name;
     document.getElementById('p-id').innerText = currentSession.id;
@@ -4238,17 +4294,18 @@ window.addEventListener('DOMContentLoaded', function() {
   let allUsersCache = {};
 
   async function renderUserTable() {
+    const idField = document.getElementById('new-student-id');
+    if(idField && !idField.value) generateNewStudentId();
     const grid = document.getElementById('student-cards-grid');
     const noResult = document.getElementById('student-no-result');
     const countBadge = document.getElementById('user-count-badge');
     grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:24px; color:var(--text-muted); font-size:13px;">Loading students...</div>';
-    const snapshot = await get(child(ref(db), 'users'));
-    if(!snapshot.exists()) {
+    const all = await fetchUsersData();
+    if(!Object.keys(all).length) {
       grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:24px; color:var(--text-muted);">No users found.</div>';
       return;
     }
     // Exclude admin account from user list
-    const all = snapshot.val();
     allUsersCache = Object.fromEntries(Object.entries(all).filter(([id, u]) => u.role !== 'admin' && id !== 'admin'));
     renderStudentCards(allUsersCache);
   }
@@ -4358,6 +4415,7 @@ window.addEventListener('DOMContentLoaded', function() {
     }
     // Password is hashed in the DB now — never display it, even the hash.
     document.getElementById('sp-fee').innerText = u.monthlyFee ? `৳${parseFloat(u.monthlyFee).toLocaleString('en-BD')}` : 'Not Set';
+    document.getElementById('sp-phone').innerText = u.phone || 'Not Set';
     document.getElementById('sp-institution').innerText = u.institution || 'Not Set';
     document.getElementById('sp-ssc-result').innerText = u.sscResult || 'Not Set';
     const spHscWrap = document.getElementById('sp-hsc-result-wrap');
@@ -4440,6 +4498,7 @@ window.addEventListener('DOMContentLoaded', function() {
     const options = levels.map((v, i) => ({ value: v, label: labels[i] }));
     openQuickSelect('🎓 Change Student Level', options, current || '', async (selected) => {
       await update(ref(db), { [`/users/${userId}/level`]: selected });
+      invalidateUsersCache();
       const spLevel = document.getElementById('sp-level');
       if(spLevel) spLevel.innerText = labels[levels.indexOf(selected)];
       const spHscWrap = document.getElementById('sp-hsc-result-wrap');
@@ -4463,6 +4522,7 @@ window.addEventListener('DOMContentLoaded', function() {
     const options = groups.map((v, i) => ({ value: v, label: labels[i] }));
     openQuickSelect('👥 Change Student Group', options, current || '', async (selected) => {
       await update(ref(db), { [`/users/${userId}/group`]: selected });
+      invalidateUsersCache();
       const spGroup = document.getElementById('sp-group');
       if(spGroup) spGroup.innerText = selected || 'Not Set';
       if(allUsersCache[userId]) allUsersCache[userId].group = selected;
@@ -4476,6 +4536,7 @@ window.addEventListener('DOMContentLoaded', function() {
     const options = statuses.map((v, i) => ({ value: v, label: labels[i] }));
     openQuickSelect('🔄 Change Student Status', options, current === 'Former' ? 'Former' : 'Present', async (selected) => {
       await update(ref(db), { [`/users/${userId}/status`]: selected });
+      invalidateUsersCache();
       const spStatus = document.getElementById('sp-status');
       if(spStatus) {
         const isFormer = selected === 'Former';
@@ -4493,6 +4554,7 @@ window.addEventListener('DOMContentLoaded', function() {
     const fee = parseFloat(input);
     if(isNaN(fee) || fee < 0) return alert("Please enter a valid amount!");
     await update(ref(db), { [`/users/${userId}/monthlyFee`]: fee });
+    invalidateUsersCache();
     const spFee = document.getElementById('sp-fee');
     if(spFee) spFee.innerText = `৳${fee.toLocaleString('en-BD')}`;
     if(allUsersCache[userId]) allUsersCache[userId].monthlyFee = fee;
@@ -4514,6 +4576,7 @@ window.addEventListener('DOMContentLoaded', function() {
   window.adminDeleteUser = async (userId) => {
     if(!confirm(`Delete student "${userId}"? This cannot be undone.`)) return;
     await remove(ref(db, `users/${userId}`));
+    invalidateUsersCache();
     closeStudentProfileModal();
     delete allUsersCache[userId];
     renderStudentCards(allUsersCache);
@@ -4523,9 +4586,40 @@ window.addEventListener('DOMContentLoaded', function() {
     populateAllStudentDropdowns();
   };
 
+  // ── Auto-generate the next available 6-digit Student ID for a batch ──
+  // Format: 20 + YY(batch, 22-29) + NN(01-99 serial), e.g. batch 2024 → 202401, 202402, ...
+  // ── Generic 6-digit ID generator: 20 + batch(22-29) + serial(01-99) ──
+  async function generateStudentId(batchElId, idElId) {
+    const batch = document.getElementById(batchElId).value; // e.g. "24"
+    const idField = document.getElementById(idElId);
+    idField.value = 'Generating...';
+    const prefix = '20' + batch;
+    const users = await fetchUsersData();
+    let maxSerial = 0;
+    Object.keys(users).forEach(uid => {
+      if(uid.startsWith(prefix) && uid.length === 6) {
+        const serial = parseInt(uid.slice(4), 10);
+        if(!isNaN(serial) && serial > maxSerial) maxSerial = serial;
+      }
+    });
+    const nextSerial = maxSerial + 1;
+    if(nextSerial > 99) {
+      idField.value = '';
+      alert(`❌ Batch 20${batch} is full (99 students max). Please choose a different batch year.`);
+      return null;
+    }
+    const newId = prefix + String(nextSerial).padStart(2, '0');
+    idField.value = newId;
+    return newId;
+  }
+
+  window.generateNewStudentId = () => generateStudentId('new-student-batch', 'new-student-id');
+  window.generateSignupId = () => generateStudentId('signup-batch', 'signup-id');
+
   window.adminAddStudent = async () => {
     const name   = document.getElementById('new-student-name').value.trim();
     const id     = document.getElementById('new-student-id').value.trim();
+    const phone  = document.getElementById('new-student-phone').value.trim();
     const email  = document.getElementById('new-student-email').value.trim();
     const pass   = document.getElementById('new-student-pass').value.trim();
     const role   = document.getElementById('new-student-role').value;
@@ -4537,16 +4631,18 @@ window.addEventListener('DOMContentLoaded', function() {
     const hscResult   = level === 'HSC' ? document.getElementById('new-student-hsc-result').value.trim() : '';
     const monthlyFee  = parseFloat(document.getElementById('new-student-fee').value) || 0;
 
-    if(!name || !id || !email || !pass) return alert("Please fill all fields to add a new student!");
+    if(!name || !id || id === 'Generating...' || !email || !pass) return alert("Please fill all fields — click the Batch dropdown to generate a Student ID first!");
 
     const snapshot = await get(child(ref(db), `users/${id}`));
-    if(snapshot.exists()) return alert(`❌ ID "${id}" is already registered!`);
+    if(snapshot.exists()) return alert(`❌ ID "${id}" is already registered! Click the batch dropdown again to regenerate.`);
 
     const hashedPass = await sha256Hex(pass);
-    await set(ref(db, 'users/' + id), { name, email, pass: hashedPass, role, status, level, group, institution, sscResult, hscResult, monthlyFee });
+    await set(ref(db, 'users/' + id), { name, email, phone, pass: hashedPass, role, status, level, group, institution, sscResult, hscResult, monthlyFee });
+    invalidateUsersCache();
     alert(`✅ Account created for ${name} (ID: ${id})!`);
     document.getElementById('new-student-name').value = '';
     document.getElementById('new-student-id').value = '';
+    document.getElementById('new-student-phone').value = '';
     document.getElementById('new-student-email').value = '';
     document.getElementById('new-student-pass').value = '';
     document.getElementById('new-student-institution').value = '';
@@ -4554,6 +4650,7 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('new-student-hsc-result').value = '';
     document.getElementById('new-student-fee').value = '';
     document.getElementById('new-student-hsc-result-wrap').style.display = 'none';
+    generateNewStudentId(); // pre-fill the next ID for the same batch
     renderUserTable();
     populateAllStudentDropdowns();
   };
@@ -4896,12 +4993,11 @@ window.addEventListener('DOMContentLoaded', function() {
     tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:24px;">⏳ Loading data...</td></tr>`;
     resultArea.style.display = 'block';
 
-    const [usersSnap, paymentsSnap] = await Promise.all([
-      get(child(ref(db), 'users')),
+    const [users, paymentsSnap] = await Promise.all([
+      fetchUsersData(),
       get(child(ref(db), 'payments'))
     ]);
 
-    const users = usersSnap.exists() ? usersSnap.val() : {};
     const payments = paymentsSnap.exists() ? paymentsSnap.val() : {};
 
     let totalIncome = 0;
@@ -5375,22 +5471,20 @@ window.addEventListener('DOMContentLoaded', function() {
   //  MONTHLY SAVING MODULE
   // ═══════════════════════════════════════════════════
 
-  // ── Upload / update saving record ──
+  // ── Upload / update saving record (single Academy Savings pot, admin only) ──
   window.uploadSaving = async () => {
-    const sId = document.getElementById('sav-student-id').value.trim();
     const year = document.getElementById('sav-year').value;
     const month = document.getElementById('sav-month').value;
     const amountVal = document.getElementById('sav-amount').value.trim();
     const note = document.getElementById('sav-note').value.trim();
 
-    if(!sId) return alert('Student ID is required!');
     if(!amountVal || isNaN(parseFloat(amountVal)) || parseFloat(amountVal) < 0)
       return alert('Please enter a valid amount!');
 
     const amount = parseFloat(amountVal);
     const key = `${year}_${month}`;
-    await set(ref(db, `savings/${sId}/${key}`), { amount, year, month, note });
-    alert(`✅ Saving record saved: ${month} ${year} — ৳${amount.toLocaleString('en-BD')}`);
+    await set(ref(db, `academySavings/${key}`), { amount, year, month, note });
+    alert(`✅ Academy saving record saved: ${month} ${year} — ৳${amount.toLocaleString('en-BD')}`);
     document.getElementById('sav-amount').value = '';
     document.getElementById('sav-note').value = '';
     loadSavingPreview();
@@ -5398,14 +5492,10 @@ window.addEventListener('DOMContentLoaded', function() {
 
   // ── Admin preview ──
   window.loadSavingPreview = async () => {
-    const sId = document.getElementById('sav-student-id')?.value.trim() || '';
     const tbody = document.getElementById('admin-sav-preview');
-    const label = document.getElementById('sav-preview-id');
     if(!tbody) return;
-    if(!sId) { tbody.innerHTML = ''; if(label) label.innerText = ''; return; }
-    if(label) label.innerText = `for ID: ${sId}`;
 
-    const snap = await get(child(ref(db), `savings/${sId}`));
+    const snap = await get(child(ref(db), 'academySavings'));
     const saved = snap.exists() ? snap.val() : {};
     const monthOrder = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     const entries = Object.entries(saved).map(([key, rec]) => {
@@ -5415,26 +5505,28 @@ window.addEventListener('DOMContentLoaded', function() {
     }).sort((a, b) => b.year !== a.year ? (b.year||'').localeCompare(a.year||'') : monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month));
 
     if(entries.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:16px;">No saving records for this student.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:16px;">No academy saving records yet.</td></tr>`;
       return;
     }
     tbody.innerHTML = entries.map(e => `
       <tr>
-        <td style="font-family:var(--mono); color:var(--purple); font-weight:700;">${e.year}</td>
-        <td style="font-weight:600;">${e.month}</td>
+        <td style="font-family:var(--mono); color:var(--purple); font-weight:700;">${escapeHtml(e.year)}</td>
+        <td style="font-weight:600;">${escapeHtml(e.month)}</td>
         <td style="font-family:var(--mono); color:var(--green); font-weight:700;">৳${parseFloat(e.amount).toLocaleString('en-BD')}</td>
-        <td style="color:var(--text-muted); font-size:13px;">${e.note || '—'}</td>
+        <td style="color:var(--text-muted); font-size:13px;">${escapeHtml(e.note) || '—'}</td>
         <td style="display:flex; gap:5px;">
-          <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="openSavingEditModal('${sId}','${e.key}','${e.year}','${e.month}','${e.amount}','${(e.note||'').replace(/'/g,"\\'")}')">✏️ Edit</button>
-          <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('savings/${sId}/${e.key}', loadSavingPreview)">Delete</button>
+          <button class="btn-sm sav-edit-btn" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" data-key="${escapeHtml(e.key)}" data-year="${escapeHtml(e.year)}" data-month="${escapeHtml(e.month)}" data-amount="${escapeHtml(e.amount)}" data-note="${escapeHtml(e.note)}">✏️ Edit</button>
+          <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('academySavings/${e.key}', loadSavingPreview)">Delete</button>
         </td>
       </tr>
     `).join('');
+    tbody.querySelectorAll('.sav-edit-btn').forEach(btn => {
+      btn.addEventListener('click', () => openSavingEditModal(btn.dataset.key, btn.dataset.year, btn.dataset.month, btn.dataset.amount, btn.dataset.note));
+    });
   };
 
   // ── Edit modal open/close/save ──
-  window.openSavingEditModal = (sId, key, year, month, amount, note) => {
-    document.getElementById('esav-student-id').value = sId;
+  window.openSavingEditModal = (key, year, month, amount, note) => {
     document.getElementById('esav-old-key').value = key;
     document.getElementById('esav-year').value = year;
     document.getElementById('esav-month').value = month;
@@ -5446,7 +5538,6 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('edit-saving-modal').style.display = 'none';
   };
   window.saveSavingEdit = async () => {
-    const sId = document.getElementById('esav-student-id').value;
     const oldKey = document.getElementById('esav-old-key').value;
     const year = document.getElementById('esav-year').value;
     const month = document.getElementById('esav-month').value;
@@ -5455,39 +5546,10 @@ window.addEventListener('DOMContentLoaded', function() {
     if(!amountVal || isNaN(parseFloat(amountVal))) return alert('Enter a valid amount!');
     const amount = parseFloat(amountVal);
     const newKey = `${year}_${month}`;
-    if(oldKey !== newKey) await remove(ref(db, `savings/${sId}/${oldKey}`));
-    await set(ref(db, `savings/${sId}/${newKey}`), { amount, year, month, note });
+    if(oldKey !== newKey) await remove(ref(db, `academySavings/${oldKey}`));
+    await set(ref(db, `academySavings/${newKey}`), { amount, year, month, note });
     closeSavingEditModal();
     loadSavingPreview();
-  };
-
-  // ── Student view ──
-  window.loadStudentSaving = async () => {
-    const tbody = document.getElementById('saving-table-body');
-    if(!tbody || !currentSession) return;
-    const filterYear = document.getElementById('saving-filter-year')?.value || '';
-    const snap = await get(child(ref(db), `savings/${currentSession.id}`));
-    const saved = snap.exists() ? snap.val() : {};
-    const monthOrder = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-    let entries = Object.entries(saved).map(([key, rec]) => {
-      const year = rec.year || (key.includes('_') ? key.split('_')[0] : '—');
-      const month = rec.month || (key.includes('_') ? key.split('_')[1] : key);
-      return { year, month, amount: rec.amount || 0, note: rec.note || '' };
-    });
-    if(filterYear) entries = entries.filter(e => e.year === filterYear);
-    entries.sort((a, b) => b.year !== a.year ? (b.year||'').localeCompare(a.year||'') : monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month));
-    if(entries.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:24px;">No saving records found${filterYear ? ' for '+filterYear : ''}.</td></tr>`;
-      return;
-    }
-    tbody.innerHTML = entries.map(e => `
-      <tr>
-        <td style="font-family:var(--mono); color:var(--purple); font-weight:700;">${e.year}</td>
-        <td style="font-weight:600;">${e.month}</td>
-        <td style="font-family:var(--mono); color:var(--green); font-weight:700;">৳${parseFloat(e.amount).toLocaleString('en-BD')}</td>
-        <td style="color:var(--text-muted); font-size:13px;">${e.note || '—'}</td>
-      </tr>
-    `).join('');
   };
 
   // ═══════════════════════════════════════════════════
@@ -5503,31 +5565,28 @@ window.addEventListener('DOMContentLoaded', function() {
     const filterYear = document.getElementById('summary-filter-year')?.value || '';
     const filterMonth = document.getElementById('summary-filter-month')?.value || '';
 
-    const [usersSnap, paymentsSnap, expensesSnap, savingsSnap, otherIncomeSnap] = await Promise.all([
-      get(child(ref(db), 'users')),
+    const [users, paymentsSnap, expensesSnap, savingsSnap, otherIncomeSnap] = await Promise.all([
+      fetchUsersData(),
       get(child(ref(db), 'payments')),
       get(child(ref(db), 'expenses')),
-      get(child(ref(db), 'savings')),
+      get(child(ref(db), 'academySavings')),
       get(child(ref(db), 'otherIncome'))
     ]);
 
-    const users       = usersSnap.exists()       ? usersSnap.val()       : {};
     const payments    = paymentsSnap.exists()    ? paymentsSnap.val()    : {};
     const expenses    = expensesSnap.exists()    ? expensesSnap.val()    : {};
     const savingsAll  = savingsSnap.exists()     ? savingsSnap.val()     : {};
     const otherIncome = otherIncomeSnap.exists() ? otherIncomeSnap.val() : {};
 
-    // ── SAVINGS total ──
+    // ── SAVINGS total (single academy-wide pot, not per-student) ──
     let totalSaving = 0;
-    Object.values(savingsAll).forEach(studentSavings => {
-      Object.entries(studentSavings).forEach(([key, rec]) => {
-        if(typeof rec !== 'object' || rec === null) return;
-        const recYear = rec.year || (key.includes('_') ? key.split('_')[0] : '');
-        const recMonth = rec.month || (key.includes('_') ? key.split('_')[1] : key);
-        if(filterYear && recYear !== filterYear) return;
-        if(filterMonth && recMonth !== filterMonth) return;
-        totalSaving += parseFloat(rec.amount) || 0;
-      });
+    Object.entries(savingsAll).forEach(([key, rec]) => {
+      if(typeof rec !== 'object' || rec === null) return;
+      const recYear = rec.year || (key.includes('_') ? key.split('_')[0] : '');
+      const recMonth = rec.month || (key.includes('_') ? key.split('_')[1] : key);
+      if(filterYear && recYear !== filterYear) return;
+      if(filterMonth && recMonth !== filterMonth) return;
+      totalSaving += parseFloat(rec.amount) || 0;
     });
 
     // ── OTHER INCOME total ──
@@ -5682,7 +5741,6 @@ window.addEventListener('DOMContentLoaded', function() {
   <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:420px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
     <button onclick="closeSavingEditModal()" style="position:absolute;top:14px;right:14px;background:#eef0ff;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
     <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Saving Record</div>
-    <input type="hidden" id="esav-student-id">
     <input type="hidden" id="esav-old-key">
     <div class="grid-2">
       <div class="form-group">
