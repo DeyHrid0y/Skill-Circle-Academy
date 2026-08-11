@@ -316,6 +316,17 @@
   .form-group input::placeholder { color: #a0aec0; }
   .form-group select option { background: #fffaf6; color: var(--text); }
 
+  .site-footer {
+    margin-left: var(--sidebar-w);
+    padding: 18px 36px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    letter-spacing: 0.2px;
+  }
+
   /* ── Sidebar ── */
   .sidebar {
     position: fixed;
@@ -798,7 +809,7 @@
     .card { padding: 16px 18px; }
     .admin-form-card { padding: 16px 18px; }
     .profile-info-label { width: 72px; font-size: 11px; }
-    #portal-page footer { margin-left: 0; padding: 16px; }
+    #portal-page .site-footer { margin-left: 0; padding: 16px; }
   }
   @media (max-width: 400px) {
     .auth-card { padding: 28px 16px; }
@@ -1291,21 +1302,48 @@
     <section id="tab-gpa" class="tab-content hidden">
       <div class="page-header">
         <div class="page-title">GPA Calculator</div>
-        <div class="page-subtitle">Add your subjects — for the optional subject, only the points above 2.00 are added to your total</div>
+        <div class="page-subtitle">Enter your marks per subject — grade and point are calculated automatically. For the optional subject, only the points above 2.00 are added to your total</div>
       </div>
       <div class="card">
+        <div class="form-group" style="max-width:320px;">
+          <label>Exam Type</label>
+          <input type="text" id="gpa-exam-type" placeholder="e.g. Class Test, Half Yearly, Final Exam">
+        </div>
         <div id="gpa-courses-container"></div>
         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:4px; margin-bottom:20px;">
           <button class="btn-sm" onclick="addCourseRow(false)" style="background:rgba(52,211,153,0.1); border-color:rgba(52,211,153,0.3); color:var(--green);">➕ Add Subject</button>
           <button class="btn-sm" onclick="addCourseRow(true)" style="background:rgba(167,139,250,0.1); border-color:rgba(167,139,250,0.3); color:var(--purple);">➕ Add Optional Subject</button>
         </div>
         <button class="btn-action" onclick="calculateGPA()">Calculate GPA</button>
-        <div class="gpa-result" id="gpa-result-area">
-          <div>
-            <div class="gpa-label">Estimated GPA</div>
+        <div id="gpa-download-wrap" style="margin-top:16px;">
+          <div style="text-align:center; margin-bottom:14px; display:none; background:#fff; padding:14px; border-radius:var(--radius-sm);" id="gpa-download-header">
+            <div style="font-size:16px; font-weight:800; color:var(--accent);">Skill Circle Academy</div>
+            <div style="font-size:12px; color:var(--text-muted);" id="gpa-download-studentline"></div>
+          </div>
+          <div id="gpa-result-summary" style="text-align:center; padding:16px; background:#f4f5fa; border-radius:var(--radius-sm); display:none;">
+            <div class="gpa-label">Overall GPA <span id="gpa-result-examtype" style="font-weight:600; color:var(--text-muted);"></span></div>
             <div class="gpa-value" id="gpa-display">0.00</div>
           </div>
-          <div id="gpa-breakdown" style="font-size:12px; color:var(--text-muted); margin-left:auto; text-align:right; line-height:1.7;"></div>
+          <div class="table-wrap" id="gpa-resultsheet-wrap" style="display:none; margin-top:14px;">
+            <table>
+              <thead><tr><th>Subject</th><th>Marks</th><th>Grade</th><th>GPA Point</th></tr></thead>
+              <tbody id="gpa-resultsheet-table"></tbody>
+            </table>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;">
+          <button class="btn-sm" style="background:rgba(79,142,247,0.1); border-color:rgba(79,142,247,0.3); color:var(--accent);" onclick="downloadMyGpaResult()">📥 Download Result</button>
+          <button class="btn-sm" style="background:rgba(52,211,153,0.1); border-color:rgba(52,211,153,0.3); color:var(--green);" onclick="saveMyGpaResult()">💾 Save to My Account</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📜 My Saved GPA Sheets</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Exam Type</th><th>Date</th><th>Subjects</th><th>Overall GPA</th><th></th></tr></thead>
+            <tbody id="gpa-saved-sheets-table"></tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -2340,7 +2378,7 @@
   </main>
 
   <!-- FOOTER -->
-  <footer style="margin-left: var(--sidebar-w); padding: 18px 36px; border-top: 1px solid var(--border); background: var(--surface); text-align: center; font-size: 12.5px; color: var(--text-muted); letter-spacing: 0.2px;">
+  <footer class="site-footer">
     © 2026 <strong style="color: var(--text-dim);">Skill Circle Academy</strong> &nbsp;|&nbsp; All Rights Reserved
   </footer>
 </div>
@@ -2876,7 +2914,7 @@ window.addEventListener('DOMContentLoaded', function() {
     if(tabId === 'homework') loadStudentHomeworks();
     if(tabId === 'notes') loadStudentNotes();
     if(tabId === 'admin-notes') loadAdminNotesPreview();
-    if(tabId === 'gpa') initGPACalculator();
+    if(tabId === 'gpa') { initGPACalculator(); loadMySavedGpaSheets(); }
   };
 
   async function loadStudentRoutine() {
@@ -4412,20 +4450,44 @@ window.addEventListener('DOMContentLoaded', function() {
     const id = gpaCourseCount;
     const container = document.getElementById('gpa-courses-container');
     const row = document.createElement('div');
+    row.className = 'gpa-course-row';
     row.id = `gpa-row-${id}`;
     row.style.cssText = 'display:grid; grid-template-columns:1fr 110px auto; gap:12px; align-items:end; margin-bottom:12px;';
     row.innerHTML = `
       <div class="form-group" style="margin-bottom:0;">
         <label>Subject Name ${isOptional ? '<span style="color:var(--purple); font-size:10px;">OPTIONAL</span>' : ''}</label>
-        <input type="text" placeholder="${isOptional ? 'Optional subject...' : 'e.g. Structured Programming'}">
+        <input type="text" class="gpa-subject-input" placeholder="${isOptional ? 'Optional subject...' : 'e.g. Physics'}">
       </div>
       <div class="form-group" style="margin-bottom:0;">
-        <label>GPA ${isOptional ? '(optional)' : ''}</label>
-        <input type="number" min="0" max="5" step="0.01" placeholder="${isOptional ? 'Skip' : '5.00'}" style="text-align:center;" data-optional="${isOptional}">
+        <label>Marks ${isOptional ? '(optional)' : ''}</label>
+        <input type="number" min="0" max="100" step="0.01" placeholder="${isOptional ? 'Skip' : 'e.g. 78'}" style="text-align:center;" data-optional="${isOptional}" class="gpa-marks-input" oninput="updateGpaRowDisplay(${id})">
       </div>
       <button onclick="removeCourseRow(${id})" style="padding:10px 12px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); color:var(--red); border-radius:var(--radius-sm); cursor:pointer; font-size:16px; flex-shrink:0; margin-bottom:0; height:42px;">✕</button>
+      <div id="gpa-row-result-${id}" style="grid-column: 1 / -1; font-size:12px; color:var(--text-muted); margin-top:-6px; min-height:16px;"></div>
     `;
     container.appendChild(row);
+  };
+
+  window.updateGpaRowDisplay = (id) => {
+    const row = document.getElementById(`gpa-row-${id}`);
+    const resultEl = document.getElementById(`gpa-row-result-${id}`);
+    if(!row || !resultEl) return;
+    const marksInput = row.querySelector('.gpa-marks-input');
+    const marksVal = marksInput.value.trim();
+    if(!marksVal) { resultEl.innerHTML = ''; return; }
+    const marks = parseFloat(marksVal);
+    if(isNaN(marks) || marks < 0 || marks > 100) {
+      resultEl.innerHTML = '<span style="color:var(--red);">Marks must be between 0–100</span>';
+      return;
+    }
+    const { gpa, grade } = marksToGpaGrade(marks);
+    const isOptional = marksInput.dataset.optional === 'true';
+    if(isOptional) {
+      const bonus = Math.max(0, gpa - 2);
+      resultEl.innerHTML = `Grade: <strong style="color:var(--accent);">${grade}</strong> &nbsp;•&nbsp; Point: <strong style="color:var(--green);">${gpa.toFixed(2)}</strong> &nbsp;•&nbsp; Bonus added: <strong style="color:var(--purple);">+${bonus.toFixed(2)}</strong>`;
+    } else {
+      resultEl.innerHTML = `Grade: <strong style="color:var(--accent);">${grade}</strong> &nbsp;•&nbsp; Point: <strong style="color:var(--green);">${gpa.toFixed(2)}</strong>`;
+    }
   };
 
   window.removeCourseRow = (id) => {
@@ -4433,48 +4495,141 @@ window.addEventListener('DOMContentLoaded', function() {
     if(row) row.remove();
   };
 
+  let lastGpaCalculation = null; // holds the most recent successful calculation, for Save/Download
+
   window.calculateGPA = () => {
     const container = document.getElementById('gpa-courses-container');
-    const rows = container.querySelectorAll('[id^="gpa-row-"]');
+    const rows = container.querySelectorAll('.gpa-course-row');
     let total = 0, mandatoryCount = 0;
-    let breakdown = [];
+    let subjects = [];
     let hasError = false;
 
     rows.forEach(row => {
-      const inputs = row.querySelectorAll('input');
-      const name = inputs[0].value.trim() || 'Subject';
-      const gpaVal = inputs[1].value.trim();
-      const isOptional = inputs[1].dataset.optional === 'true';
+      const nameInput = row.querySelector('.gpa-subject-input');
+      const marksInput = row.querySelector('.gpa-marks-input');
+      const name = nameInput.value.trim() || 'Subject';
+      const marksVal = marksInput.value.trim();
+      const isOptional = marksInput.dataset.optional === 'true';
 
-      if(isOptional && !gpaVal) return; // Skip empty optional subjects
+      if(isOptional && !marksVal) return; // Skip empty optional subjects
 
-      const gpa = parseFloat(gpaVal);
+      const marks = parseFloat(marksVal);
 
-      if(!gpaVal || isNaN(gpa)) {
-        if(!isOptional) { alert(`Please enter GPA for "${name}"`); hasError = true; }
+      if(!marksVal || isNaN(marks)) {
+        if(!isOptional) { alert(`Please enter marks for "${name}"`); hasError = true; }
         return;
       }
-      if(gpa < 0 || gpa > 5) { alert(`GPA must be between 0 and 5 for "${name}"`); hasError = true; return; }
+      if(marks < 0 || marks > 100) { alert(`Marks must be between 0 and 100 for "${name}"`); hasError = true; return; }
+
+      const { gpa, grade } = marksToGpaGrade(marks);
 
       if(isOptional) {
         const bonus = Math.max(0, gpa - 2);
         total += bonus;
-        breakdown.push(`${name}: ${gpa.toFixed(2)} (+${bonus.toFixed(2)} bonus)`);
+        subjects.push({ name, marks, grade, point: gpa, isOptional: true, bonus });
       } else {
         total += gpa;
         mandatoryCount++;
-        breakdown.push(`${name}: ${gpa.toFixed(2)}`);
+        subjects.push({ name, marks, grade, point: gpa, isOptional: false });
       }
     });
 
     if(hasError) return;
-    const gpa = mandatoryCount > 0 ? Math.min(5, total / mandatoryCount).toFixed(2) : '0.00';
-    document.getElementById('gpa-display').innerText = gpa;
-    const breakdownEl = document.getElementById('gpa-breakdown');
-    if(breakdown.length > 0) {
-      breakdownEl.innerHTML = breakdown.join('<br>') + `<br><strong style="color:var(--text);">Total Subjects: ${mandatoryCount}</strong>`;
-    } else {
-      breakdownEl.innerHTML = '';
+    if(subjects.length === 0) return alert('Please add at least one subject with marks!');
+
+    const overallGpa = mandatoryCount > 0 ? Math.min(5, total / mandatoryCount) : 0;
+    const examType = document.getElementById('gpa-exam-type').value.trim();
+
+    lastGpaCalculation = { examType, subjects, overallGpa, mandatoryCount };
+
+    document.getElementById('gpa-display').innerText = overallGpa.toFixed(2);
+    document.getElementById('gpa-result-examtype').innerText = examType ? `— ${examType}` : '';
+    document.getElementById('gpa-result-summary').style.display = 'block';
+
+    const sheetBody = document.getElementById('gpa-resultsheet-table');
+    sheetBody.innerHTML = subjects.map(s => `
+      <tr>
+        <td style="font-weight:700;">${escapeHtml(s.name)}${s.isOptional ? ' <span style="color:var(--purple); font-size:10px;">(OPTIONAL, +' + s.bonus.toFixed(2) + ')</span>' : ''}</td>
+        <td style="font-family:var(--mono);">${s.marks}</td>
+        <td style="font-weight:700; color:var(--accent);">${escapeHtml(s.grade)}</td>
+        <td style="font-family:var(--mono); color:var(--green); font-weight:700;">${s.point.toFixed(2)}</td>
+      </tr>
+    `).join('');
+    document.getElementById('gpa-resultsheet-wrap').style.display = 'block';
+  };
+
+  // ── Save the calculated result sheet to the student's own account ──
+  window.saveMyGpaResult = async () => {
+    if(!currentSession || currentSession.role === 'admin') return; // safety: students only
+    if(!lastGpaCalculation) return alert('Please click "Calculate GPA" first, then save.');
+
+    const newRef = ref(db, `gpaCalculations/${currentSession.id}`).push();
+    await set(newRef, {
+      examType: lastGpaCalculation.examType || 'General',
+      subjects: lastGpaCalculation.subjects,
+      overallGpa: lastGpaCalculation.overallGpa,
+      savedAt: new Date().toISOString()
+    });
+    alert('✅ Saved to your account!');
+    loadMySavedGpaSheets();
+  };
+
+  // ── List previously saved GPA sheets for the logged-in student ──
+  window.loadMySavedGpaSheets = async () => {
+    const tbody = document.getElementById('gpa-saved-sheets-table');
+    if(!tbody || !currentSession) return;
+    const snap = await get(child(ref(db), `gpaCalculations/${currentSession.id}`));
+    if(!snap.exists()) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:16px;">No saved GPA sheets yet.</td></tr>`;
+      return;
+    }
+    const sheets = Object.entries(snap.val()).map(([key, s]) => ({ key, ...s }))
+      .sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+    tbody.innerHTML = sheets.map(s => {
+      const dateStr = s.savedAt ? new Date(s.savedAt).toLocaleDateString('en-BD', { day:'numeric', month:'short', year:'numeric' }) : '—';
+      const subjectNames = (s.subjects || []).map(sub => escapeHtml(sub.name)).join(', ');
+      return `
+        <tr>
+          <td style="font-weight:700;">${escapeHtml(s.examType || 'General')}</td>
+          <td style="font-size:12px; color:var(--text-muted);">${dateStr}</td>
+          <td style="font-size:12px; color:var(--text-dim);">${subjectNames}</td>
+          <td style="font-family:var(--mono); color:var(--green); font-weight:700;">${parseFloat(s.overallGpa).toFixed(2)}</td>
+          <td><button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteSavedGpaSheet('${s.key}')">🗑️</button></td>
+        </tr>`;
+    }).join('');
+  };
+
+  window.deleteSavedGpaSheet = async (key) => {
+    if(!confirm('Delete this saved GPA sheet?')) return;
+    await remove(ref(db, `gpaCalculations/${currentSession.id}/${key}`));
+    loadMySavedGpaSheets();
+  };
+
+  // ── Download the student's own GPA calculation result as an image ──
+  window.downloadMyGpaResult = async () => {
+    if(!currentSession || currentSession.role === 'admin') return; // safety: students only
+    if(!lastGpaCalculation) {
+      return alert('Please click "Calculate GPA" first, then download.');
+    }
+    if(typeof html2canvas === 'undefined') return alert('Download tool failed to load. Please check your internet connection and try again.');
+
+    const header = document.getElementById('gpa-download-header');
+    const line = document.getElementById('gpa-download-studentline');
+    const examLabel = lastGpaCalculation.examType ? ` — ${lastGpaCalculation.examType}` : '';
+    line.innerText = `${currentSession.name} • ID: ${currentSession.id} — GPA Calculation${examLabel}`;
+    header.style.display = 'block';
+
+    const wrap = document.getElementById('gpa-download-wrap');
+    try {
+      const canvas = await html2canvas(wrap, { backgroundColor: '#ffffff', scale: 2 });
+      const link = document.createElement('a');
+      link.download = `GPA_Calculation_${currentSession.id}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch(e) {
+      alert('Download failed. Please try again.');
+    } finally {
+      header.style.display = 'none';
     }
   };
 
