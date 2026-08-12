@@ -803,7 +803,7 @@
     table { min-width: 440px; }
     .gpa-result { flex-direction: column; gap: 8px; }
     .btn-action { width: 100%; }
-    #gpa-courses-container > div { grid-template-columns: 1fr 90px auto !important; gap:8px !important; }
+    #gpa-courses-container .gpa-course-row input[type="number"] { padding:8px 4px !important; font-size:13px; }
     #student-cards-grid { grid-template-columns: repeat(auto-fill, minmax(160px,1fr)) !important; }
     #user-search-input { width: 100% !important; }
     .card { padding: 16px 18px; }
@@ -4541,41 +4541,65 @@ window.addEventListener('DOMContentLoaded', function() {
     const row = document.createElement('div');
     row.className = 'gpa-course-row';
     row.id = `gpa-row-${id}`;
-    row.style.cssText = 'display:grid; grid-template-columns:1fr 110px auto; gap:12px; align-items:end; margin-bottom:12px;';
+    row.dataset.optional = isOptional;
+    row.style.cssText = 'border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:12px; background:#fbfbfd;';
     row.innerHTML = `
-      <div class="form-group" style="margin-bottom:0;">
-        <label>Subject Name ${isOptional ? '<span style="color:var(--purple); font-size:10px;">OPTIONAL</span>' : ''}</label>
-        <input type="text" class="gpa-subject-input" placeholder="${isOptional ? 'Optional subject...' : 'e.g. Physics'}">
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:10px; margin-bottom:10px;">
+        <div class="form-group" style="margin-bottom:0; flex:1;">
+          <label>Subject Name ${isOptional ? '<span style="color:var(--purple); font-size:10px;">OPTIONAL</span>' : ''}</label>
+          <input type="text" class="gpa-subject-input" placeholder="${isOptional ? 'Optional subject...' : 'e.g. Physics'}">
+        </div>
+        <button onclick="removeCourseRow(${id})" style="padding:10px 12px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); color:var(--red); border-radius:var(--radius-sm); cursor:pointer; font-size:16px; flex-shrink:0; height:42px;">✕</button>
       </div>
-      <div class="form-group" style="margin-bottom:0;">
-        <label>Marks ${isOptional ? '(optional)' : ''}</label>
-        <input type="number" min="0" max="100" step="0.01" placeholder="${isOptional ? 'Skip' : 'e.g. 78'}" style="text-align:center;" data-optional="${isOptional}" class="gpa-marks-input" oninput="updateGpaRowDisplay(${id})">
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="font-size:10px;">MCQ</label>
+          <input type="number" min="0" step="0.01" placeholder="0" style="text-align:center; padding:8px;" class="gpa-mcq-input" oninput="updateGpaRowDisplay(${id})">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="font-size:10px;">CQ</label>
+          <input type="number" min="0" step="0.01" placeholder="0" style="text-align:center; padding:8px;" class="gpa-cq-input" oninput="updateGpaRowDisplay(${id})">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="font-size:10px;">Practical</label>
+          <input type="number" min="0" step="0.01" placeholder="0" style="text-align:center; padding:8px;" class="gpa-practical-input" oninput="updateGpaRowDisplay(${id})">
+        </div>
       </div>
-      <button onclick="removeCourseRow(${id})" style="padding:10px 12px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); color:var(--red); border-radius:var(--radius-sm); cursor:pointer; font-size:16px; flex-shrink:0; margin-bottom:0; height:42px;">✕</button>
-      <div id="gpa-row-result-${id}" style="grid-column: 1 / -1; font-size:12px; color:var(--text-muted); margin-top:-6px; min-height:16px;"></div>
+      <div id="gpa-row-result-${id}" style="font-size:12px; color:var(--text-muted); margin-top:8px; min-height:16px;"></div>
     `;
     container.appendChild(row);
   };
+
+  // Reads MCQ + CQ + Practical from a row and returns their sum (or null if all blank)
+  function readRowTotalMarks(row) {
+    const mcqVal = row.querySelector('.gpa-mcq-input').value.trim();
+    const cqVal = row.querySelector('.gpa-cq-input').value.trim();
+    const pracVal = row.querySelector('.gpa-practical-input').value.trim();
+    if(!mcqVal && !cqVal && !pracVal) return { total: null, mcq: 0, cq: 0, practical: 0 };
+    const mcq = parseFloat(mcqVal) || 0;
+    const cq = parseFloat(cqVal) || 0;
+    const practical = parseFloat(pracVal) || 0;
+    return { total: mcq + cq + practical, mcq, cq, practical };
+  }
 
   window.updateGpaRowDisplay = (id) => {
     const row = document.getElementById(`gpa-row-${id}`);
     const resultEl = document.getElementById(`gpa-row-result-${id}`);
     if(!row || !resultEl) return;
-    const marksInput = row.querySelector('.gpa-marks-input');
-    const marksVal = marksInput.value.trim();
-    if(!marksVal) { resultEl.innerHTML = ''; return; }
-    const marks = parseFloat(marksVal);
-    if(isNaN(marks) || marks < 0 || marks > 100) {
-      resultEl.innerHTML = '<span style="color:var(--red);">Marks must be between 0–100</span>';
+    const { total } = readRowTotalMarks(row);
+    if(total === null) { resultEl.innerHTML = ''; return; }
+    if(total < 0 || total > 100) {
+      resultEl.innerHTML = `<span style="color:var(--red);">Total (${total.toFixed(2)}) must be between 0–100</span>`;
       return;
     }
-    const { gpa, grade } = marksToGpaGrade(marks);
-    const isOptional = marksInput.dataset.optional === 'true';
+    const { gpa, grade } = marksToGpaGrade(total);
+    const isOptional = row.dataset.optional === 'true';
+    const totalLine = `Total: <strong style="color:var(--text-dim);">${total.toFixed(2)}</strong> &nbsp;•&nbsp; `;
     if(isOptional) {
       const bonus = Math.max(0, gpa - 2);
-      resultEl.innerHTML = `Grade: <strong style="color:var(--accent);">${grade}</strong> &nbsp;•&nbsp; Point: <strong style="color:var(--green);">${gpa.toFixed(2)}</strong> &nbsp;•&nbsp; Bonus added: <strong style="color:var(--purple);">+${bonus.toFixed(2)}</strong>`;
+      resultEl.innerHTML = totalLine + `Grade: <strong style="color:var(--accent);">${grade}</strong> &nbsp;•&nbsp; Point: <strong style="color:var(--green);">${gpa.toFixed(2)}</strong> &nbsp;•&nbsp; Bonus added: <strong style="color:var(--purple);">+${bonus.toFixed(2)}</strong>`;
     } else {
-      resultEl.innerHTML = `Grade: <strong style="color:var(--accent);">${grade}</strong> &nbsp;•&nbsp; Point: <strong style="color:var(--green);">${gpa.toFixed(2)}</strong>`;
+      resultEl.innerHTML = totalLine + `Grade: <strong style="color:var(--accent);">${grade}</strong> &nbsp;•&nbsp; Point: <strong style="color:var(--green);">${gpa.toFixed(2)}</strong>`;
     }
   };
 
@@ -4607,31 +4631,28 @@ window.addEventListener('DOMContentLoaded', function() {
 
     rows.forEach(row => {
       const nameInput = row.querySelector('.gpa-subject-input');
-      const marksInput = row.querySelector('.gpa-marks-input');
       const name = nameInput.value.trim() || 'Subject';
-      const marksVal = marksInput.value.trim();
-      const isOptional = marksInput.dataset.optional === 'true';
+      const isOptional = row.dataset.optional === 'true';
+      const { total: marks, mcq, cq, practical } = readRowTotalMarks(row);
 
-      if(isOptional && !marksVal) return; // Skip empty optional subjects
+      if(isOptional && marks === null) return; // Skip empty optional subjects
 
-      const marks = parseFloat(marksVal);
-
-      if(!marksVal || isNaN(marks)) {
-        if(!isOptional) { alert(`Please enter marks for "${name}"`); hasError = true; }
+      if(marks === null) {
+        if(!isOptional) { alert(`Please enter MCQ / CQ / Practical marks for "${name}"`); hasError = true; }
         return;
       }
-      if(marks < 0 || marks > 100) { alert(`Marks must be between 0 and 100 for "${name}"`); hasError = true; return; }
+      if(marks < 0 || marks > 100) { alert(`Total marks (${marks.toFixed(2)}) must be between 0 and 100 for "${name}"`); hasError = true; return; }
 
       const { gpa, grade } = marksToGpaGrade(marks);
 
       if(isOptional) {
         const bonus = Math.max(0, gpa - 2);
         total += bonus;
-        subjects.push({ name, marks, grade, point: gpa, isOptional: true, bonus });
+        subjects.push({ name, marks, mcq, cq, practical, grade, point: gpa, isOptional: true, bonus });
       } else {
         total += gpa;
         mandatoryCount++;
-        subjects.push({ name, marks, grade, point: gpa, isOptional: false });
+        subjects.push({ name, marks, mcq, cq, practical, grade, point: gpa, isOptional: false });
         if(grade === 'F') hasFailedMandatory = true;
       }
     });
@@ -4660,7 +4681,7 @@ window.addEventListener('DOMContentLoaded', function() {
     sheetBody.innerHTML = subjects.map(s => `
       <tr${s.grade === 'F' ? ' style="background:rgba(248,113,113,0.06);"' : ''}>
         <td style="font-weight:700;">${escapeHtml(s.name)}${s.isOptional ? ' <span style="color:var(--purple); font-size:10px;">(OPTIONAL, +' + s.bonus.toFixed(2) + ')</span>' : ''}</td>
-        <td style="font-family:var(--mono);">${s.marks}</td>
+        <td style="font-family:var(--mono);">${s.marks.toFixed(2)}<br><span style="font-size:10px; color:var(--text-muted); font-weight:400;">MCQ ${s.mcq} • CQ ${s.cq} • Prac ${s.practical}</span></td>
         <td style="font-weight:700; color:${s.grade === 'F' ? 'var(--red)' : 'var(--accent)'};">${escapeHtml(s.grade)}</td>
         <td style="font-family:var(--mono); color:var(--green); font-weight:700;">${s.point.toFixed(2)}</td>
       </tr>
@@ -4745,7 +4766,7 @@ window.addEventListener('DOMContentLoaded', function() {
     sheetBody.innerHTML = (s.subjects || []).map(sub => `
       <tr${sub.grade === 'F' ? ' style="background:rgba(248,113,113,0.06);"' : ''}>
         <td style="font-weight:700;">${escapeHtml(sub.name)}${sub.isOptional ? ' <span style="color:var(--purple); font-size:10px;">(OPTIONAL, +' + (sub.bonus || 0).toFixed(2) + ')</span>' : ''}</td>
-        <td style="font-family:var(--mono);">${sub.marks}</td>
+        <td style="font-family:var(--mono);">${parseFloat(sub.marks).toFixed(2)}${sub.mcq !== undefined ? `<br><span style="font-size:10px; color:var(--text-muted); font-weight:400;">MCQ ${sub.mcq} • CQ ${sub.cq} • Prac ${sub.practical}</span>` : ''}</td>
         <td style="font-weight:700; color:${sub.grade === 'F' ? 'var(--red)' : 'var(--accent)'};">${escapeHtml(sub.grade)}</td>
         <td style="font-family:var(--mono); color:var(--green); font-weight:700;">${parseFloat(sub.point).toFixed(2)}</td>
       </tr>
