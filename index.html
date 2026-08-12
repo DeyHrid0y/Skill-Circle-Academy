@@ -4575,26 +4575,47 @@ window.addEventListener('DOMContentLoaded', function() {
     const mcqVal = row.querySelector('.gpa-mcq-input').value.trim();
     const cqVal = row.querySelector('.gpa-cq-input').value.trim();
     const pracVal = row.querySelector('.gpa-practical-input').value.trim();
-    if(!mcqVal && !cqVal && !pracVal) return { total: null, mcq: 0, cq: 0, practical: 0 };
+    if(!mcqVal && !cqVal && !pracVal) return { total: null, mcq: 0, cq: 0, practical: 0, hasPractical: false };
     const mcq = parseFloat(mcqVal) || 0;
     const cq = parseFloat(cqVal) || 0;
     const practical = parseFloat(pracVal) || 0;
-    return { total: mcq + cq + practical, mcq, cq, practical };
+    const hasPractical = pracVal !== ''; // subject has a practical component if this field was filled in at all (even "0")
+    return { total: mcq + cq + practical, mcq, cq, practical, hasPractical };
+  }
+
+  // Pass thresholds shift depending on whether the subject has a practical component.
+  // Without practical: MCQ pass ≥ 9, CQ pass ≥ 23. With practical: MCQ pass ≥ 8, CQ pass ≥ 16.
+  // Failing either component fails the subject outright, regardless of total marks.
+  function checkComponentFail(mcq, cq, hasPractical) {
+    const mcqPass = hasPractical ? 8 : 9;
+    const cqPass = hasPractical ? 16 : 23;
+    return mcq < mcqPass || cq < cqPass;
   }
 
   window.updateGpaRowDisplay = (id) => {
     const row = document.getElementById(`gpa-row-${id}`);
     const resultEl = document.getElementById(`gpa-row-result-${id}`);
     if(!row || !resultEl) return;
-    const { total } = readRowTotalMarks(row);
+    const { total, mcq, cq, hasPractical } = readRowTotalMarks(row);
     if(total === null) { resultEl.innerHTML = ''; return; }
     if(total < 0 || total > 100) {
       resultEl.innerHTML = `<span style="color:var(--red);">Total (${total.toFixed(2)}) must be between 0–100</span>`;
       return;
     }
-    const { gpa, grade } = marksToGpaGrade(total);
+    let { gpa, grade } = marksToGpaGrade(total);
+    const componentFailed = checkComponentFail(mcq, cq, hasPractical);
     const isOptional = row.dataset.optional === 'true';
     const totalLine = `Total: <strong style="color:var(--text-dim);">${total.toFixed(2)}</strong> &nbsp;•&nbsp; `;
+
+    if(componentFailed) {
+      gpa = 0; grade = 'F';
+      const mcqPass = hasPractical ? 8 : 9;
+      const cqPass = hasPractical ? 16 : 23;
+      const reason = mcq < mcqPass ? `MCQ below ${mcqPass}` : `CQ below ${cqPass}`;
+      resultEl.innerHTML = totalLine + `Grade: <strong style="color:var(--red);">F</strong> &nbsp;•&nbsp; Point: <strong style="color:var(--red);">0.00</strong> &nbsp;•&nbsp; <span style="color:var(--red);">⚠️ Failed — ${reason}</span>`;
+      return;
+    }
+
     if(isOptional) {
       const bonus = Math.max(0, gpa - 2);
       resultEl.innerHTML = totalLine + `Grade: <strong style="color:var(--accent);">${grade}</strong> &nbsp;•&nbsp; Point: <strong style="color:var(--green);">${gpa.toFixed(2)}</strong> &nbsp;•&nbsp; Bonus added: <strong style="color:var(--purple);">+${bonus.toFixed(2)}</strong>`;
@@ -4633,7 +4654,7 @@ window.addEventListener('DOMContentLoaded', function() {
       const nameInput = row.querySelector('.gpa-subject-input');
       const name = nameInput.value.trim() || 'Subject';
       const isOptional = row.dataset.optional === 'true';
-      const { total: marks, mcq, cq, practical } = readRowTotalMarks(row);
+      const { total: marks, mcq, cq, practical, hasPractical } = readRowTotalMarks(row);
 
       if(isOptional && marks === null) return; // Skip empty optional subjects
 
@@ -4643,16 +4664,20 @@ window.addEventListener('DOMContentLoaded', function() {
       }
       if(marks < 0 || marks > 100) { alert(`Total marks (${marks.toFixed(2)}) must be between 0 and 100 for "${name}"`); hasError = true; return; }
 
-      const { gpa, grade } = marksToGpaGrade(marks);
+      // Grade/point are normally derived from the total, but failing the MCQ or CQ
+      // pass threshold overrides the subject to F/0.00 regardless of the total.
+      let { gpa, grade } = marksToGpaGrade(marks);
+      const componentFailed = checkComponentFail(mcq, cq, hasPractical);
+      if(componentFailed) { gpa = 0; grade = 'F'; }
 
       if(isOptional) {
         const bonus = Math.max(0, gpa - 2);
         total += bonus;
-        subjects.push({ name, marks, mcq, cq, practical, grade, point: gpa, isOptional: true, bonus });
+        subjects.push({ name, marks, mcq, cq, practical, grade, point: gpa, isOptional: true, bonus, componentFailed });
       } else {
         total += gpa;
         mandatoryCount++;
-        subjects.push({ name, marks, mcq, cq, practical, grade, point: gpa, isOptional: false });
+        subjects.push({ name, marks, mcq, cq, practical, grade, point: gpa, isOptional: false, componentFailed });
         if(grade === 'F') hasFailedMandatory = true;
       }
     });
@@ -4682,7 +4707,7 @@ window.addEventListener('DOMContentLoaded', function() {
       <tr${s.grade === 'F' ? ' style="background:rgba(248,113,113,0.06);"' : ''}>
         <td style="font-weight:700;">${escapeHtml(s.name)}${s.isOptional ? ' <span style="color:var(--purple); font-size:10px;">(OPTIONAL, +' + s.bonus.toFixed(2) + ')</span>' : ''}</td>
         <td style="font-family:var(--mono);">${s.marks.toFixed(2)}<br><span style="font-size:10px; color:var(--text-muted); font-weight:400;">MCQ ${s.mcq} • CQ ${s.cq} • Prac ${s.practical}</span></td>
-        <td style="font-weight:700; color:${s.grade === 'F' ? 'var(--red)' : 'var(--accent)'};">${escapeHtml(s.grade)}</td>
+        <td style="font-weight:700; color:${s.grade === 'F' ? 'var(--red)' : 'var(--accent)'};">${escapeHtml(s.grade)}${s.componentFailed ? '<br><span style="font-size:9px; color:var(--red); font-weight:600;">MCQ/CQ below pass mark</span>' : ''}</td>
         <td style="font-family:var(--mono); color:var(--green); font-weight:700;">${s.point.toFixed(2)}</td>
       </tr>
     `).join('');
