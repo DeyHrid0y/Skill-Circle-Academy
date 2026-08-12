@@ -1759,6 +1759,16 @@
           </table>
         </div>
       </div>
+      <div class="card" id="admin-gpaappr-detail-wrap" style="display:none;">
+        <div class="card-title" id="admin-gpaappr-detail-title">📋 Result Sheet Detail</div>
+        <div id="admin-gpaappr-detail-summary" style="text-align:center; padding:14px; background:#f4f5fa; border-radius:var(--radius-sm); margin-bottom:14px;"></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Subject</th><th>Marks</th><th>Grade</th><th>GPA Point</th></tr></thead>
+            <tbody id="admin-gpaappr-detail-table"></tbody>
+          </table>
+        </div>
+      </div>
     </section>
 
 
@@ -3308,6 +3318,8 @@ window.addEventListener('DOMContentLoaded', function() {
     const sId = document.getElementById('gpaappr-student-id').value.trim();
     const tbody = document.getElementById('admin-gpaappr-table');
     const label = document.getElementById('gpaappr-preview-id');
+    const detailWrap = document.getElementById('admin-gpaappr-detail-wrap');
+    if(detailWrap) detailWrap.style.display = 'none';
     if(!tbody) return;
     if(!sId) { tbody.innerHTML = ''; if(label) label.innerText = ''; return; }
     if(label) label.innerText = `for ID: ${sId}`;
@@ -3319,6 +3331,7 @@ window.addEventListener('DOMContentLoaded', function() {
     }
     const sheets = Object.entries(snap.val()).map(([key, s]) => ({ key, ...s }))
       .sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+    window._adminGpaSheetsCache = Object.fromEntries(sheets.map(s => [s.key, s]));
 
     tbody.innerHTML = sheets.map(s => {
       const dateStr = s.savedAt ? new Date(s.savedAt).toLocaleDateString('en-BD', { day:'numeric', month:'short', year:'numeric' }) : '—';
@@ -3337,11 +3350,46 @@ window.addEventListener('DOMContentLoaded', function() {
           <td style="font-weight:700; color:${gradeColor};">${escapeHtml(grade)}</td>
           <td>${s.approved ? '<span style="font-size:11px; color:var(--green); font-weight:700;">✅ Approved</span>' : '<span style="font-size:11px; color:var(--gold); font-weight:700;">⏳ Pending</span>'}</td>
           <td style="display:flex; gap:5px; flex-wrap:wrap;">
+            <button class="btn-sm" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" onclick="viewAdminGpaSheet('${s.key}')">👁️ View</button>
             ${actionCell}
             <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('gpaCalculations/${sId}/${s.key}', loadAdminGpaApprovals)">🗑️</button>
           </td>
         </tr>`;
     }).join('');
+  };
+
+  // ── Admin: view a saved sheet's full subject-wise breakdown ──
+  window.viewAdminGpaSheet = (key) => {
+    const s = (window._adminGpaSheetsCache || {})[key];
+    if(!s) return;
+    const wrap = document.getElementById('admin-gpaappr-detail-wrap');
+    const grade = s.overallGrade || gpaValueToGrade(parseFloat(s.overallGpa) || 0);
+    const gradeColor = grade === 'F' ? 'var(--red)' : 'var(--gold)';
+
+    document.getElementById('admin-gpaappr-detail-title').innerText = `📋 ${s.examType || 'General'} — Result Sheet Detail`;
+    document.getElementById('admin-gpaappr-detail-summary').innerHTML = `
+      <div style="display:flex; justify-content:center; align-items:baseline; gap:22px; flex-wrap:wrap;">
+        <div>
+          <div style="font-size:32px; font-weight:800; color:var(--gold); font-family:var(--mono);">${parseFloat(s.overallGpa).toFixed(2)}</div>
+          <div style="font-size:11px; color:var(--text-muted); font-weight:600;">GPA</div>
+        </div>
+        <div>
+          <div style="font-size:32px; font-weight:800; color:${gradeColor}; font-family:var(--mono);">${escapeHtml(grade)}</div>
+          <div style="font-size:11px; color:var(--text-muted); font-weight:600;">GRADE</div>
+        </div>
+      </div>`;
+
+    document.getElementById('admin-gpaappr-detail-table').innerHTML = (s.subjects || []).map(sub => `
+      <tr${sub.grade === 'F' ? ' style="background:rgba(248,113,113,0.06);"' : ''}>
+        <td style="font-weight:700;">${escapeHtml(sub.name)}${sub.isOptional ? ' <span style="color:var(--purple); font-size:10px;">(OPTIONAL, +' + (sub.bonus || 0).toFixed(2) + ')</span>' : ''}</td>
+        <td style="font-family:var(--mono);">${parseFloat(sub.marks).toFixed(2)}${sub.mcq !== undefined ? `<br><span style="font-size:10px; color:var(--text-muted); font-weight:400;">MCQ ${sub.mcq} • CQ ${sub.cq} • Prac ${sub.practical}</span>` : ''}</td>
+        <td style="font-weight:700; color:${sub.grade === 'F' ? 'var(--red)' : 'var(--accent)'};">${escapeHtml(sub.grade)}</td>
+        <td style="font-family:var(--mono); color:var(--green); font-weight:700;">${parseFloat(sub.point).toFixed(2)}</td>
+      </tr>
+    `).join('');
+
+    wrap.style.display = 'block';
+    wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
   window.approveGpaSheet = async (sId, key) => {
@@ -4575,35 +4623,38 @@ window.addEventListener('DOMContentLoaded', function() {
     const mcqVal = row.querySelector('.gpa-mcq-input').value.trim();
     const cqVal = row.querySelector('.gpa-cq-input').value.trim();
     const pracVal = row.querySelector('.gpa-practical-input').value.trim();
-    if(!mcqVal && !cqVal && !pracVal) return { total: null, mcq: 0, cq: 0, practical: 0, hasPractical: false };
+    if(!mcqVal && !cqVal && !pracVal) return { total: null, mcq: 0, cq: 0, practical: 0, hasPractical: false, hasMcq: false };
     const mcq = parseFloat(mcqVal) || 0;
     const cq = parseFloat(cqVal) || 0;
     const practical = parseFloat(pracVal) || 0;
     const hasPractical = pracVal !== ''; // subject has a practical component if this field was filled in at all (even "0")
-    return { total: mcq + cq + practical, mcq, cq, practical, hasPractical };
+    const hasMcq = mcqVal !== ''; // subject has an MCQ component if this field was filled in at all (even "0")
+    return { total: mcq + cq + practical, mcq, cq, practical, hasPractical, hasMcq };
   }
 
   // Pass thresholds shift depending on whether the subject has a practical component.
   // Without practical: MCQ pass ≥ 9, CQ pass ≥ 23. With practical: MCQ pass ≥ 8, CQ pass ≥ 16.
   // Failing either component fails the subject outright, regardless of total marks.
-  function checkComponentFail(mcq, cq, hasPractical) {
+  // If MCQ wasn't entered at all (subject has no MCQ portion), only CQ is checked.
+  function checkComponentFail(mcq, cq, hasPractical, hasMcq) {
     const mcqPass = hasPractical ? 8 : 9;
     const cqPass = hasPractical ? 16 : 23;
-    return mcq < mcqPass || cq < cqPass;
+    const mcqFailed = hasMcq && mcq < mcqPass;
+    return mcqFailed || cq < cqPass;
   }
 
   window.updateGpaRowDisplay = (id) => {
     const row = document.getElementById(`gpa-row-${id}`);
     const resultEl = document.getElementById(`gpa-row-result-${id}`);
     if(!row || !resultEl) return;
-    const { total, mcq, cq, hasPractical } = readRowTotalMarks(row);
+    const { total, mcq, cq, hasPractical, hasMcq } = readRowTotalMarks(row);
     if(total === null) { resultEl.innerHTML = ''; return; }
     if(total < 0 || total > 100) {
       resultEl.innerHTML = `<span style="color:var(--red);">Total (${total.toFixed(2)}) must be between 0–100</span>`;
       return;
     }
     let { gpa, grade } = marksToGpaGrade(total);
-    const componentFailed = checkComponentFail(mcq, cq, hasPractical);
+    const componentFailed = checkComponentFail(mcq, cq, hasPractical, hasMcq);
     const isOptional = row.dataset.optional === 'true';
     const totalLine = `Total: <strong style="color:var(--text-dim);">${total.toFixed(2)}</strong> &nbsp;•&nbsp; `;
 
@@ -4611,7 +4662,7 @@ window.addEventListener('DOMContentLoaded', function() {
       gpa = 0; grade = 'F';
       const mcqPass = hasPractical ? 8 : 9;
       const cqPass = hasPractical ? 16 : 23;
-      const reason = mcq < mcqPass ? `MCQ below ${mcqPass}` : `CQ below ${cqPass}`;
+      const reason = (hasMcq && mcq < mcqPass) ? `MCQ below ${mcqPass}` : `CQ below ${cqPass}`;
       resultEl.innerHTML = totalLine + `Grade: <strong style="color:var(--red);">F</strong> &nbsp;•&nbsp; Point: <strong style="color:var(--red);">0.00</strong> &nbsp;•&nbsp; <span style="color:var(--red);">⚠️ Failed — ${reason}</span>`;
       return;
     }
@@ -4654,7 +4705,7 @@ window.addEventListener('DOMContentLoaded', function() {
       const nameInput = row.querySelector('.gpa-subject-input');
       const name = nameInput.value.trim() || 'Subject';
       const isOptional = row.dataset.optional === 'true';
-      const { total: marks, mcq, cq, practical, hasPractical } = readRowTotalMarks(row);
+      const { total: marks, mcq, cq, practical, hasPractical, hasMcq } = readRowTotalMarks(row);
 
       if(isOptional && marks === null) return; // Skip empty optional subjects
 
@@ -4667,7 +4718,7 @@ window.addEventListener('DOMContentLoaded', function() {
       // Grade/point are normally derived from the total, but failing the MCQ or CQ
       // pass threshold overrides the subject to F/0.00 regardless of the total.
       let { gpa, grade } = marksToGpaGrade(marks);
-      const componentFailed = checkComponentFail(mcq, cq, hasPractical);
+      const componentFailed = checkComponentFail(mcq, cq, hasPractical, hasMcq);
       if(componentFailed) { gpa = 0; grade = 'F'; }
 
       if(isOptional) {
@@ -4698,7 +4749,7 @@ window.addEventListener('DOMContentLoaded', function() {
     const gradeEl = document.getElementById('gpa-grade-display');
     gradeEl.innerText = overallGrade;
     gradeEl.style.color = overallGrade === 'F' ? 'var(--red)' : 'var(--gold)';
-    document.getElementById('gpa-result-examtype').innerText = examType ? `— ${examType}` : '';
+    document.getElementById('gpa-result-examtype').innerText = examType ? `(${examType})` : '';
     document.getElementById('gpa-result-summary').style.display = 'block';
     document.getElementById('gpa-fail-notice').style.display = hasFailedMandatory ? 'block' : 'none';
 
@@ -4783,7 +4834,7 @@ window.addEventListener('DOMContentLoaded', function() {
     const gradeEl = document.getElementById('gpa-grade-display');
     gradeEl.innerText = lastGpaCalculation.overallGrade;
     gradeEl.style.color = lastGpaCalculation.overallGrade === 'F' ? 'var(--red)' : 'var(--gold)';
-    document.getElementById('gpa-result-examtype').innerText = s.examType ? `— ${s.examType}` : '';
+    document.getElementById('gpa-result-examtype').innerText = s.examType ? `(${s.examType})` : '';
     document.getElementById('gpa-result-summary').style.display = 'block';
     document.getElementById('gpa-fail-notice').style.display = s.failed ? 'block' : 'none';
 
