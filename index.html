@@ -1352,7 +1352,7 @@
         <div class="card-title">📜 My Saved GPA Sheets</div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Exam Type</th><th>Date</th><th>Subjects</th><th>GPA</th><th>Grade</th><th>Status</th><th></th></tr></thead>
+            <thead><tr><th>Exam Type</th><th>Subjects</th><th>GPA</th><th>Grade</th><th>Status</th><th></th></tr></thead>
             <tbody id="gpa-saved-sheets-table"></tbody>
           </table>
         </div>
@@ -3381,8 +3381,8 @@ window.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('admin-gpaappr-detail-table').innerHTML = (s.subjects || []).map(sub => `
       <tr${sub.grade === 'F' ? ' style="background:rgba(248,113,113,0.06);"' : ''}>
-        <td style="font-weight:700;">${escapeHtml(sub.name)}${sub.isOptional ? ' <span style="color:var(--purple); font-size:10px;">(OPTIONAL, +' + (sub.bonus || 0).toFixed(2) + ')</span>' : ''}</td>
-        <td style="font-family:var(--mono);">${parseFloat(sub.marks).toFixed(2)}${sub.mcq !== undefined ? `<br><span style="font-size:10px; color:var(--text-muted); font-weight:400;">MCQ ${sub.mcq} • CQ ${sub.cq} • Prac ${sub.practical}</span>` : ''}</td>
+        <td style="font-weight:700;">${escapeHtml(sub.name)}${sub.isOptional ? ' <span style="color:var(--purple); font-size:10px;">(OPTIONAL, +' + (sub.bonus || 0).toFixed(2) + ')</span>' : ''}${sub.hasPapers ? ' <span style="color:var(--accent); font-size:10px;">(1st+2nd Paper)</span>' : ''}</td>
+        <td style="font-family:var(--mono);">${parseFloat(sub.marks).toFixed(2)}${sub.hasPapers ? ' / 200' : ''}<br>${marksBreakdownLine(sub)}</td>
         <td style="font-weight:700; color:${sub.grade === 'F' ? 'var(--red)' : 'var(--accent)'};">${escapeHtml(sub.grade)}</td>
         <td style="font-family:var(--mono); color:var(--green); font-weight:700;">${parseFloat(sub.point).toFixed(2)}</td>
       </tr>
@@ -4595,22 +4595,44 @@ window.addEventListener('DOMContentLoaded', function() {
       <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:10px; margin-bottom:10px;">
         <div class="form-group" style="margin-bottom:0; flex:1;">
           <label>Subject Name ${isOptional ? '<span style="color:var(--purple); font-size:10px;">OPTIONAL</span>' : ''}</label>
-          <input type="text" class="gpa-subject-input" placeholder="${isOptional ? 'Optional subject...' : 'e.g. Physics'}">
+          <input type="text" class="gpa-subject-input" placeholder="${isOptional ? 'Optional subject...' : 'e.g. Physics / Bangla'}">
         </div>
         <button onclick="removeCourseRow(${id})" style="padding:10px 12px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); color:var(--red); border-radius:var(--radius-sm); cursor:pointer; font-size:16px; flex-shrink:0; height:42px;">✕</button>
       </div>
+      <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-dim); margin-bottom:10px; cursor:pointer;">
+        <input type="checkbox" class="gpa-haspapers-input" onchange="toggleGpaPapers(${id})">
+        Has 1st &amp; 2nd Paper <span style="color:var(--text-muted); font-weight:400;">(marks will be combined into one subject)</span>
+      </label>
+      <div class="gpa-paper-label" style="display:none; font-size:11px; font-weight:700; color:var(--accent); margin-bottom:4px;">1st Paper</div>
       <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;">
         <div class="form-group" style="margin-bottom:0;">
           <label style="font-size:10px;">MCQ</label>
-          <input type="number" min="0" step="0.01" placeholder="0" style="text-align:center; padding:8px;" class="gpa-mcq-input" oninput="updateGpaRowDisplay(${id})">
+          <input type="number" min="0" step="0.01" placeholder="0" style="text-align:center; padding:8px;" class="gpa-mcq-input-p1" oninput="updateGpaRowDisplay(${id})">
         </div>
         <div class="form-group" style="margin-bottom:0;">
           <label style="font-size:10px;">CQ</label>
-          <input type="number" min="0" step="0.01" placeholder="0" style="text-align:center; padding:8px;" class="gpa-cq-input" oninput="updateGpaRowDisplay(${id})">
+          <input type="number" min="0" step="0.01" placeholder="0" style="text-align:center; padding:8px;" class="gpa-cq-input-p1" oninput="updateGpaRowDisplay(${id})">
         </div>
         <div class="form-group" style="margin-bottom:0;">
           <label style="font-size:10px;">Practical</label>
-          <input type="number" min="0" step="0.01" placeholder="0" style="text-align:center; padding:8px;" class="gpa-practical-input" oninput="updateGpaRowDisplay(${id})">
+          <input type="number" min="0" step="0.01" placeholder="0" style="text-align:center; padding:8px;" class="gpa-practical-input-p1" oninput="updateGpaRowDisplay(${id})">
+        </div>
+      </div>
+      <div class="gpa-paper2-wrap" style="display:none; margin-top:10px; padding-top:10px; border-top:1px dashed var(--border);">
+        <div style="font-size:11px; font-weight:700; color:var(--accent); margin-bottom:4px;">2nd Paper</div>
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:10px;">MCQ</label>
+            <input type="number" min="0" step="0.01" placeholder="0" style="text-align:center; padding:8px;" class="gpa-mcq-input-p2" oninput="updateGpaRowDisplay(${id})">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:10px;">CQ</label>
+            <input type="number" min="0" step="0.01" placeholder="0" style="text-align:center; padding:8px;" class="gpa-cq-input-p2" oninput="updateGpaRowDisplay(${id})">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label style="font-size:10px;">Practical</label>
+            <input type="number" min="0" step="0.01" placeholder="0" style="text-align:center; padding:8px;" class="gpa-practical-input-p2" oninput="updateGpaRowDisplay(${id})">
+          </div>
         </div>
       </div>
       <div id="gpa-row-result-${id}" style="font-size:12px; color:var(--text-muted); margin-top:8px; min-height:16px;"></div>
@@ -4618,19 +4640,61 @@ window.addEventListener('DOMContentLoaded', function() {
     container.appendChild(row);
   };
 
-  // Reads MCQ + CQ + Practical from a row and returns their sum (or null if all blank)
-  function readRowTotalMarks(row) {
-    const mcqVal = row.querySelector('.gpa-mcq-input').value.trim();
-    const cqVal = row.querySelector('.gpa-cq-input').value.trim();
-    const pracVal = row.querySelector('.gpa-practical-input').value.trim();
-    if(!mcqVal && !cqVal && !pracVal) return { total: null, mcq: 0, cq: 0, practical: 0, hasPractical: false, hasMcq: false };
+  window.toggleGpaPapers = (id) => {
+    const row = document.getElementById(`gpa-row-${id}`);
+    if(!row) return;
+    const checked = row.querySelector('.gpa-haspapers-input').checked;
+    row.querySelector('.gpa-paper2-wrap').style.display = checked ? 'block' : 'none';
+    row.querySelector('.gpa-paper-label').style.display = checked ? 'block' : 'none';
+    updateGpaRowDisplay(id);
+  };
+
+  // Reads one paper's MCQ/CQ/Practical inputs from a row
+  function readPaperSet(row, suffix) {
+    const mcqVal = row.querySelector(`.gpa-mcq-input${suffix}`).value.trim();
+    const cqVal = row.querySelector(`.gpa-cq-input${suffix}`).value.trim();
+    const pracVal = row.querySelector(`.gpa-practical-input${suffix}`).value.trim();
     const mcq = parseFloat(mcqVal) || 0;
     const cq = parseFloat(cqVal) || 0;
     const practical = parseFloat(pracVal) || 0;
-    const hasPractical = pracVal !== ''; // subject has a practical component if this field was filled in at all (even "0")
-    const hasMcq = mcqVal !== ''; // subject has an MCQ component if this field was filled in at all (even "0")
-    return { total: mcq + cq + practical, mcq, cq, practical, hasPractical, hasMcq };
+    return {
+      mcq, cq, practical,
+      hasMcq: mcqVal !== '', hasPractical: pracVal !== '',
+      anyEntered: mcqVal !== '' || cqVal !== '' || pracVal !== '',
+      sum: mcq + cq + practical
+    };
   }
+
+  // Reads a full subject row (single-paper or combined 1st+2nd paper) and returns
+  // total marks, the scale it's out of (100 or 200), and whether it fails on components.
+  function readRowTotalMarks(row) {
+    const hasPapers = row.querySelector('.gpa-haspapers-input')?.checked || false;
+    const p1 = readPaperSet(row, '-p1');
+
+    if(!hasPapers) {
+      if(!p1.anyEntered) return { total: null };
+      return {
+        total: p1.sum, maxTotal: 100,
+        mcq: p1.mcq, cq: p1.cq, practical: p1.practical,
+        paper1: p1,
+        componentFailed: checkComponentFail(p1.mcq, p1.cq, p1.hasPractical, p1.hasMcq),
+        hasPapers: false
+      };
+    }
+
+    const p2 = readPaperSet(row, '-p2');
+    if(!p1.anyEntered && !p2.anyEntered) return { total: null };
+    const fail1 = checkComponentFail(p1.mcq, p1.cq, p1.hasPractical, p1.hasMcq);
+    const fail2 = checkComponentFail(p2.mcq, p2.cq, p2.hasPractical, p2.hasMcq);
+    return {
+      total: p1.sum + p2.sum, maxTotal: 200,
+      mcq: p1.mcq + p2.mcq, cq: p1.cq + p2.cq, practical: p1.practical + p2.practical,
+      paper1: p1, paper2: p2,
+      componentFailed: fail1 || fail2,
+      hasPapers: true
+    };
+  }
+
 
   // Pass thresholds shift depending on whether the subject has a practical component.
   // Without practical: MCQ pass ≥ 9, CQ pass ≥ 23. With practical: MCQ pass ≥ 8, CQ pass ≥ 16.
@@ -4643,26 +4707,47 @@ window.addEventListener('DOMContentLoaded', function() {
     return mcqFailed || cq < cqPass;
   }
 
+  // Builds the small "MCQ x • CQ y • Prac z" line under a subject's marks in any
+  // result table, showing both papers separately when 1st & 2nd Paper were combined.
+  function marksBreakdownLine(s) {
+    if(s.hasPapers && s.paper1 && s.paper2) {
+      return `<span style="font-size:10px; color:var(--text-muted); font-weight:400;">1st: MCQ ${s.paper1.mcq} • CQ ${s.paper1.cq} • Prac ${s.paper1.practical}<br>2nd: MCQ ${s.paper2.mcq} • CQ ${s.paper2.cq} • Prac ${s.paper2.practical}</span>`;
+    }
+    if(s.mcq !== undefined) {
+      return `<span style="font-size:10px; color:var(--text-muted); font-weight:400;">MCQ ${s.mcq} • CQ ${s.cq} • Prac ${s.practical}</span>`;
+    }
+    return '';
+  }
+
   window.updateGpaRowDisplay = (id) => {
     const row = document.getElementById(`gpa-row-${id}`);
     const resultEl = document.getElementById(`gpa-row-result-${id}`);
     if(!row || !resultEl) return;
-    const { total, mcq, cq, hasPractical, hasMcq } = readRowTotalMarks(row);
-    if(total === null) { resultEl.innerHTML = ''; return; }
-    if(total < 0 || total > 100) {
-      resultEl.innerHTML = `<span style="color:var(--red);">Total (${total.toFixed(2)}) must be between 0–100</span>`;
+    const r = readRowTotalMarks(row);
+    if(r.total === null) { resultEl.innerHTML = ''; return; }
+    if(r.total < 0 || r.total > r.maxTotal) {
+      resultEl.innerHTML = `<span style="color:var(--red);">Total (${r.total.toFixed(2)}) must be between 0–${r.maxTotal}</span>`;
       return;
     }
-    let { gpa, grade } = marksToGpaGrade(total);
-    const componentFailed = checkComponentFail(mcq, cq, hasPractical, hasMcq);
+    const percentage = (r.total / r.maxTotal) * 100;
+    let { gpa, grade } = marksToGpaGrade(percentage);
     const isOptional = row.dataset.optional === 'true';
-    const totalLine = `Total: <strong style="color:var(--text-dim);">${total.toFixed(2)}</strong> &nbsp;•&nbsp; `;
+    const totalLine = `Total: <strong style="color:var(--text-dim);">${r.total.toFixed(2)}${r.hasPapers ? ' / 200' : ''}</strong> &nbsp;•&nbsp; `;
 
-    if(componentFailed) {
+    if(r.componentFailed) {
       gpa = 0; grade = 'F';
-      const mcqPass = hasPractical ? 8 : 9;
-      const cqPass = hasPractical ? 16 : 23;
-      const reason = (hasMcq && mcq < mcqPass) ? `MCQ below ${mcqPass}` : `CQ below ${cqPass}`;
+      let reason;
+      if(r.hasPapers) {
+        const mcqPass1 = r.paper1.hasPractical ? 8 : 9, cqPass1 = r.paper1.hasPractical ? 16 : 23;
+        const mcqPass2 = r.paper2.hasPractical ? 8 : 9, cqPass2 = r.paper2.hasPractical ? 16 : 23;
+        if(r.paper1.hasMcq && r.paper1.mcq < mcqPass1) reason = `1st Paper MCQ below ${mcqPass1}`;
+        else if(r.paper1.cq < cqPass1) reason = `1st Paper CQ below ${cqPass1}`;
+        else if(r.paper2.hasMcq && r.paper2.mcq < mcqPass2) reason = `2nd Paper MCQ below ${mcqPass2}`;
+        else reason = `2nd Paper CQ below ${cqPass2}`;
+      } else {
+        const mp = r.paper1.hasPractical ? 8 : 9, cp = r.paper1.hasPractical ? 16 : 23;
+        reason = (r.paper1.hasMcq && r.paper1.mcq < mp) ? `MCQ below ${mp}` : `CQ below ${cp}`;
+      }
       resultEl.innerHTML = totalLine + `Grade: <strong style="color:var(--red);">F</strong> &nbsp;•&nbsp; Point: <strong style="color:var(--red);">0.00</strong> &nbsp;•&nbsp; <span style="color:var(--red);">⚠️ Failed — ${reason}</span>`;
       return;
     }
@@ -4705,30 +4790,37 @@ window.addEventListener('DOMContentLoaded', function() {
       const nameInput = row.querySelector('.gpa-subject-input');
       const name = nameInput.value.trim() || 'Subject';
       const isOptional = row.dataset.optional === 'true';
-      const { total: marks, mcq, cq, practical, hasPractical, hasMcq } = readRowTotalMarks(row);
+      const r = readRowTotalMarks(row);
 
-      if(isOptional && marks === null) return; // Skip empty optional subjects
+      if(isOptional && r.total === null) return; // Skip empty optional subjects
 
-      if(marks === null) {
+      if(r.total === null) {
         if(!isOptional) { alert(`Please enter MCQ / CQ / Practical marks for "${name}"`); hasError = true; }
         return;
       }
-      if(marks < 0 || marks > 100) { alert(`Total marks (${marks.toFixed(2)}) must be between 0 and 100 for "${name}"`); hasError = true; return; }
+      if(r.total < 0 || r.total > r.maxTotal) { alert(`Total marks (${r.total.toFixed(2)}) must be between 0 and ${r.maxTotal} for "${name}"`); hasError = true; return; }
 
-      // Grade/point are normally derived from the total, but failing the MCQ or CQ
-      // pass threshold overrides the subject to F/0.00 regardless of the total.
-      let { gpa, grade } = marksToGpaGrade(marks);
-      const componentFailed = checkComponentFail(mcq, cq, hasPractical, hasMcq);
-      if(componentFailed) { gpa = 0; grade = 'F'; }
+      // Grade/point are normally derived from the percentage of the total (out of 100,
+      // or out of 200 when 1st+2nd Paper are combined), but failing the MCQ or CQ pass
+      // threshold on either paper overrides the subject to F/0.00 regardless of total.
+      const percentage = (r.total / r.maxTotal) * 100;
+      let { gpa, grade } = marksToGpaGrade(percentage);
+      if(r.componentFailed) { gpa = 0; grade = 'F'; }
+
+      const subjectData = {
+        name, marks: r.total, maxTotal: r.maxTotal, mcq: r.mcq, cq: r.cq, practical: r.practical,
+        hasPapers: r.hasPapers, paper1: r.paper1, paper2: r.paper2 || null,
+        grade, point: gpa, componentFailed: r.componentFailed
+      };
 
       if(isOptional) {
         const bonus = Math.max(0, gpa - 2);
         total += bonus;
-        subjects.push({ name, marks, mcq, cq, practical, grade, point: gpa, isOptional: true, bonus, componentFailed });
+        subjects.push({ ...subjectData, isOptional: true, bonus });
       } else {
         total += gpa;
         mandatoryCount++;
-        subjects.push({ name, marks, mcq, cq, practical, grade, point: gpa, isOptional: false, componentFailed });
+        subjects.push({ ...subjectData, isOptional: false });
         if(grade === 'F') hasFailedMandatory = true;
       }
     });
@@ -4756,8 +4848,8 @@ window.addEventListener('DOMContentLoaded', function() {
     const sheetBody = document.getElementById('gpa-resultsheet-table');
     sheetBody.innerHTML = subjects.map(s => `
       <tr${s.grade === 'F' ? ' style="background:rgba(248,113,113,0.06);"' : ''}>
-        <td style="font-weight:700;">${escapeHtml(s.name)}${s.isOptional ? ' <span style="color:var(--purple); font-size:10px;">(OPTIONAL, +' + s.bonus.toFixed(2) + ')</span>' : ''}</td>
-        <td style="font-family:var(--mono);">${s.marks.toFixed(2)}<br><span style="font-size:10px; color:var(--text-muted); font-weight:400;">MCQ ${s.mcq} • CQ ${s.cq} • Prac ${s.practical}</span></td>
+        <td style="font-weight:700;">${escapeHtml(s.name)}${s.isOptional ? ' <span style="color:var(--purple); font-size:10px;">(OPTIONAL, +' + s.bonus.toFixed(2) + ')</span>' : ''}${s.hasPapers ? ' <span style="color:var(--accent); font-size:10px;">(1st+2nd Paper)</span>' : ''}</td>
+        <td style="font-family:var(--mono);">${s.marks.toFixed(2)}${s.hasPapers ? ' / 200' : ''}<br>${marksBreakdownLine(s)}</td>
         <td style="font-weight:700; color:${s.grade === 'F' ? 'var(--red)' : 'var(--accent)'};">${escapeHtml(s.grade)}${s.componentFailed ? '<br><span style="font-size:9px; color:var(--red); font-weight:600;">MCQ/CQ below pass mark</span>' : ''}</td>
         <td style="font-family:var(--mono); color:var(--green); font-weight:700;">${s.point.toFixed(2)}</td>
       </tr>
@@ -4790,14 +4882,13 @@ window.addEventListener('DOMContentLoaded', function() {
     if(!tbody || !currentSession) return;
     const snap = await get(child(ref(db), `gpaCalculations/${currentSession.id}`));
     if(!snap.exists()) {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:16px;">No saved GPA sheets yet.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:16px;">No saved GPA sheets yet.</td></tr>`;
       return;
     }
     const sheets = Object.entries(snap.val()).map(([key, s]) => ({ key, ...s }))
       .sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
     window._myGpaSheetsCache = Object.fromEntries(sheets.map(s => [s.key, s]));
     tbody.innerHTML = sheets.map(s => {
-      const dateStr = s.savedAt ? new Date(s.savedAt).toLocaleDateString('en-BD', { day:'numeric', month:'short', year:'numeric' }) : '—';
       const subjectNames = (s.subjects || []).map(sub => escapeHtml(sub.name)).join(', ');
       const grade = s.overallGrade || gpaValueToGrade(parseFloat(s.overallGpa) || 0);
       const gradeColor = grade === 'F' ? 'var(--red)' : 'var(--accent)';
@@ -4807,7 +4898,6 @@ window.addEventListener('DOMContentLoaded', function() {
       return `
         <tr>
           <td style="font-weight:700;">${escapeHtml(s.examType || 'General')}</td>
-          <td style="font-size:12px; color:var(--text-muted);">${dateStr}</td>
           <td style="font-size:12px; color:var(--text-dim);">${subjectNames}</td>
           <td style="font-family:var(--mono); color:var(--green); font-weight:700;">${parseFloat(s.overallGpa).toFixed(2)}</td>
           <td style="font-weight:700; color:${gradeColor};">${escapeHtml(grade)}</td>
@@ -4841,8 +4931,8 @@ window.addEventListener('DOMContentLoaded', function() {
     const sheetBody = document.getElementById('gpa-resultsheet-table');
     sheetBody.innerHTML = (s.subjects || []).map(sub => `
       <tr${sub.grade === 'F' ? ' style="background:rgba(248,113,113,0.06);"' : ''}>
-        <td style="font-weight:700;">${escapeHtml(sub.name)}${sub.isOptional ? ' <span style="color:var(--purple); font-size:10px;">(OPTIONAL, +' + (sub.bonus || 0).toFixed(2) + ')</span>' : ''}</td>
-        <td style="font-family:var(--mono);">${parseFloat(sub.marks).toFixed(2)}${sub.mcq !== undefined ? `<br><span style="font-size:10px; color:var(--text-muted); font-weight:400;">MCQ ${sub.mcq} • CQ ${sub.cq} • Prac ${sub.practical}</span>` : ''}</td>
+        <td style="font-weight:700;">${escapeHtml(sub.name)}${sub.isOptional ? ' <span style="color:var(--purple); font-size:10px;">(OPTIONAL, +' + (sub.bonus || 0).toFixed(2) + ')</span>' : ''}${sub.hasPapers ? ' <span style="color:var(--accent); font-size:10px;">(1st+2nd Paper)</span>' : ''}</td>
+        <td style="font-family:var(--mono);">${parseFloat(sub.marks).toFixed(2)}${sub.hasPapers ? ' / 200' : ''}<br>${marksBreakdownLine(sub)}</td>
         <td style="font-weight:700; color:${sub.grade === 'F' ? 'var(--red)' : 'var(--accent)'};">${escapeHtml(sub.grade)}</td>
         <td style="font-family:var(--mono); color:var(--green); font-weight:700;">${parseFloat(sub.point).toFixed(2)}</td>
       </tr>
