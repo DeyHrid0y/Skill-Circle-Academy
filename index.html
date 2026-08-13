@@ -1760,7 +1760,17 @@
         </div>
       </div>
       <div class="card" id="admin-gpaappr-detail-wrap" style="display:none;">
-        <div class="card-title" id="admin-gpaappr-detail-title">📋 Result Sheet Detail</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+          <div class="card-title" id="admin-gpaappr-detail-title" style="margin-bottom:0;">📋 Result Sheet Detail</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;" id="admin-gpaappr-detail-actions">
+            <button class="btn-sm" style="background:rgba(79,142,247,0.1); border-color:rgba(79,142,247,0.3); color:var(--accent);" onclick="editAdminGpaSheet()">✏️ Edit</button>
+            <button class="btn-sm" style="background:rgba(52,211,153,0.1); border-color:rgba(52,211,153,0.3); color:var(--green);" onclick="downloadAdminGpaSheet()">📥 Download</button>
+          </div>
+        </div>
+        <div id="admin-gpaappr-download-header" style="text-align:center; margin-bottom:14px; display:none; background:#fff; padding:14px; border-radius:var(--radius-sm);">
+          <div style="font-size:16px; font-weight:800; color:var(--accent);">Skill Circle Academy</div>
+          <div id="admin-gpaappr-download-studentline" style="font-size:12px; color:var(--text-muted);"></div>
+        </div>
         <div id="admin-gpaappr-detail-summary" style="text-align:center; padding:14px; background:#f4f5fa; border-radius:var(--radius-sm); margin-bottom:14px;"></div>
         <div class="table-wrap">
           <table>
@@ -3359,14 +3369,24 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 
   // ── Admin: view a saved sheet's full subject-wise breakdown ──
+  let _adminViewingKey = null;
+  let _adminEditSubjects = null; // working array while in edit mode; null when not editing
+
   window.viewAdminGpaSheet = (key) => {
+    _adminViewingKey = key;
     const s = (window._adminGpaSheetsCache || {})[key];
     if(!s) return;
     const wrap = document.getElementById('admin-gpaappr-detail-wrap');
     const grade = s.overallGrade || gpaValueToGrade(parseFloat(s.overallGpa) || 0);
     const gradeColor = grade === 'F' ? 'var(--red)' : 'var(--gold)';
 
+    // Reset action buttons + title back to read-only mode (in case we're returning from Edit)
+    document.getElementById('admin-gpaappr-detail-actions').innerHTML = `
+      <button class="btn-sm" style="background:rgba(79,142,247,0.1); border-color:rgba(79,142,247,0.3); color:var(--accent);" onclick="editAdminGpaSheet()">✏️ Edit</button>
+      <button class="btn-sm" style="background:rgba(52,211,153,0.1); border-color:rgba(52,211,153,0.3); color:var(--green);" onclick="downloadAdminGpaSheet()">📥 Download</button>
+    `;
     document.getElementById('admin-gpaappr-detail-title').innerText = `📋 ${s.examType || 'General'} — Result Sheet Detail`;
+
     document.getElementById('admin-gpaappr-detail-summary').innerHTML = `
       <div style="display:flex; justify-content:center; align-items:baseline; gap:22px; flex-wrap:wrap;">
         <div>
@@ -3390,6 +3410,208 @@ window.addEventListener('DOMContentLoaded', function() {
 
     wrap.style.display = 'block';
     wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  // ── Admin: switch the detail view into an editable form ──
+  window.editAdminGpaSheet = () => {
+    const s = (window._adminGpaSheetsCache || {})[_adminViewingKey];
+    if(!s) return;
+
+    document.getElementById('admin-gpaappr-detail-actions').innerHTML = `
+      <button class="btn-sm" style="background:rgba(52,211,153,0.1); border-color:rgba(52,211,153,0.3); color:var(--green);" onclick="saveAdminGpaEdit()">💾 Save Changes</button>
+      <button class="btn-sm" style="background:rgba(248,113,113,0.1); border-color:rgba(248,113,113,0.3); color:var(--red);" onclick="cancelAdminGpaEdit()">✖️ Cancel</button>
+    `;
+    document.getElementById('admin-gpaappr-detail-title').innerHTML = `✏️ Editing — <input type="text" id="admin-edit-examtype" value="${escapeHtml(s.examType || '')}" placeholder="Exam Type" style="font-size:13px; padding:5px 8px; border:1px solid var(--border); border-radius:6px; width:150px;">`;
+    document.getElementById('admin-gpaappr-detail-summary').innerHTML = `<div style="font-size:12px; color:var(--text-muted);">Grade and GPA will be recalculated automatically when you save.</div>`;
+
+    _adminEditSubjects = JSON.parse(JSON.stringify(s.subjects || []));
+    renderAdminEditTable();
+  };
+
+  function renderAdminEditTable() {
+    const tbody = document.getElementById('admin-gpaappr-detail-table');
+    const rowsHtml = _adminEditSubjects.map((sub, i) => `
+      <div style="border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; margin-bottom:10px; background:#fbfbfd;">
+        <div style="display:flex; justify-content:space-between; gap:10px; margin-bottom:8px;">
+          <input type="text" class="ae-name" data-i="${i}" value="${escapeHtml(sub.name || '')}" placeholder="Subject name" style="flex:1; padding:8px; border:1px solid var(--border); border-radius:6px; font-size:13px;">
+          <button onclick="removeAdminEditSubject(${i})" style="padding:8px 10px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); color:var(--red); border-radius:6px; cursor:pointer;">✕</button>
+        </div>
+        <div style="display:flex; gap:14px; margin-bottom:8px; font-size:12px; color:var(--text-dim);">
+          <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox" class="ae-optional" data-i="${i}" ${sub.isOptional ? 'checked' : ''}> Optional</label>
+          <label style="display:flex; align-items:center; gap:5px; cursor:pointer;"><input type="checkbox" class="ae-haspapers" data-i="${i}" onchange="toggleAdminEditPapers(${i})" ${sub.hasPapers ? 'checked' : ''}> Has 1st &amp; 2nd Paper</label>
+        </div>
+        ${sub.hasPapers ? '<div style="font-size:10px; font-weight:700; color:var(--accent); margin-bottom:4px;">1st Paper</div>' : ''}
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px;">
+          <input type="number" class="ae-mcq-p1" data-i="${i}" value="${sub.hasPapers ? (sub.paper1?.mcq ?? '') : (sub.mcq ?? '')}" placeholder="MCQ" style="padding:6px; text-align:center; border:1px solid var(--border); border-radius:6px;">
+          <input type="number" class="ae-cq-p1" data-i="${i}" value="${sub.hasPapers ? (sub.paper1?.cq ?? '') : (sub.cq ?? '')}" placeholder="CQ" style="padding:6px; text-align:center; border:1px solid var(--border); border-radius:6px;">
+          <input type="number" class="ae-prac-p1" data-i="${i}" value="${sub.hasPapers ? (sub.paper1?.practical ?? '') : (sub.practical ?? '')}" placeholder="Prac" style="padding:6px; text-align:center; border:1px solid var(--border); border-radius:6px;">
+        </div>
+        <div class="ae-paper2-wrap-${i}" style="${sub.hasPapers ? '' : 'display:none;'} margin-top:8px; padding-top:8px; border-top:1px dashed var(--border);">
+          <div style="font-size:10px; font-weight:700; color:var(--accent); margin-bottom:4px;">2nd Paper</div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px;">
+            <input type="number" class="ae-mcq-p2" data-i="${i}" value="${sub.paper2?.mcq ?? ''}" placeholder="MCQ" style="padding:6px; text-align:center; border:1px solid var(--border); border-radius:6px;">
+            <input type="number" class="ae-cq-p2" data-i="${i}" value="${sub.paper2?.cq ?? ''}" placeholder="CQ" style="padding:6px; text-align:center; border:1px solid var(--border); border-radius:6px;">
+            <input type="number" class="ae-prac-p2" data-i="${i}" value="${sub.paper2?.practical ?? ''}" placeholder="Prac" style="padding:6px; text-align:center; border:1px solid var(--border); border-radius:6px;">
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    tbody.innerHTML = `<tr><td colspan="4" style="padding:0; border:none;">
+      ${rowsHtml}
+      <div style="display:flex; gap:8px; margin-top:6px;">
+        <button class="btn-sm" style="background:rgba(52,211,153,0.1); border-color:rgba(52,211,153,0.3); color:var(--green);" onclick="addAdminEditSubject(false)">➕ Add Subject</button>
+        <button class="btn-sm" style="background:rgba(167,139,250,0.1); border-color:rgba(167,139,250,0.3); color:var(--purple);" onclick="addAdminEditSubject(true)">➕ Add Optional</button>
+      </div>
+    </td></tr>`;
+  }
+
+  window.toggleAdminEditPapers = (i) => {
+    const wrap = document.querySelector(`.ae-paper2-wrap-${i}`);
+    const checkbox = document.querySelector(`.ae-haspapers[data-i="${i}"]`);
+    if(wrap && checkbox) wrap.style.display = checkbox.checked ? 'block' : 'none';
+  };
+
+  // Reads all current input values from the edit form back into _adminEditSubjects,
+  // so in-progress edits aren't lost when a row is added or removed (which re-renders).
+  function syncAdminEditSubjectsFromDom() {
+    const tbody = document.getElementById('admin-gpaappr-detail-table');
+    _adminEditSubjects.forEach((sub, i) => {
+      const nameEl = tbody.querySelector(`.ae-name[data-i="${i}"]`);
+      if(!nameEl) return;
+      sub.name = nameEl.value.trim();
+      sub.isOptional = tbody.querySelector(`.ae-optional[data-i="${i}"]`).checked;
+      const hasPapers = tbody.querySelector(`.ae-haspapers[data-i="${i}"]`).checked;
+      sub.hasPapers = hasPapers;
+      const mcqP1v = tbody.querySelector(`.ae-mcq-p1[data-i="${i}"]`).value.trim();
+      const cqP1v = tbody.querySelector(`.ae-cq-p1[data-i="${i}"]`).value.trim();
+      const pracP1v = tbody.querySelector(`.ae-prac-p1[data-i="${i}"]`).value.trim();
+      if(hasPapers) {
+        sub.paper1 = { mcq: parseFloat(mcqP1v)||0, cq: parseFloat(cqP1v)||0, practical: parseFloat(pracP1v)||0, hasMcq: mcqP1v!=='', hasPractical: pracP1v!=='' };
+        const mcqP2v = tbody.querySelector(`.ae-mcq-p2[data-i="${i}"]`).value.trim();
+        const cqP2v = tbody.querySelector(`.ae-cq-p2[data-i="${i}"]`).value.trim();
+        const pracP2v = tbody.querySelector(`.ae-prac-p2[data-i="${i}"]`).value.trim();
+        sub.paper2 = { mcq: parseFloat(mcqP2v)||0, cq: parseFloat(cqP2v)||0, practical: parseFloat(pracP2v)||0, hasMcq: mcqP2v!=='', hasPractical: pracP2v!=='' };
+      } else {
+        sub.mcq = parseFloat(mcqP1v) || 0;
+        sub.cq = parseFloat(cqP1v) || 0;
+        sub.practical = parseFloat(pracP1v) || 0;
+        sub._hasMcq = mcqP1v !== '';
+        sub._hasPractical = pracP1v !== '';
+      }
+    });
+  }
+
+  window.addAdminEditSubject = (isOptional) => {
+    syncAdminEditSubjectsFromDom();
+    _adminEditSubjects.push({ name: '', isOptional, hasPapers: false, mcq: 0, cq: 0, practical: 0 });
+    renderAdminEditTable();
+  };
+
+  window.removeAdminEditSubject = (i) => {
+    syncAdminEditSubjectsFromDom();
+    _adminEditSubjects.splice(i, 1);
+    renderAdminEditTable();
+  };
+
+  window.cancelAdminGpaEdit = () => {
+    _adminEditSubjects = null;
+    viewAdminGpaSheet(_adminViewingKey);
+  };
+
+  window.saveAdminGpaEdit = async () => {
+    syncAdminEditSubjectsFromDom();
+    const examType = document.getElementById('admin-edit-examtype').value.trim();
+    const sId = document.getElementById('gpaappr-student-id').value.trim();
+
+    if(_adminEditSubjects.length === 0) return alert('Add at least one subject!');
+
+    let total = 0, mandatoryCount = 0, hasFailedMandatory = false;
+    const finalSubjects = [];
+
+    for(const sub of _adminEditSubjects) {
+      const name = sub.name.trim() || 'Subject';
+      let marks, maxTotal, componentFailed, mcq, cq, practical, paper1 = null, paper2 = null;
+
+      if(sub.hasPapers) {
+        const p1 = sub.paper1 || { mcq:0, cq:0, practical:0, hasMcq:false, hasPractical:false };
+        const p2 = sub.paper2 || { mcq:0, cq:0, practical:0, hasMcq:false, hasPractical:false };
+        marks = (p1.mcq+p1.cq+p1.practical) + (p2.mcq+p2.cq+p2.practical);
+        maxTotal = 200;
+        componentFailed = checkComponentFail(p1.mcq, p1.cq, p1.hasPractical, p1.hasMcq) || checkComponentFail(p2.mcq, p2.cq, p2.hasPractical, p2.hasMcq);
+        mcq = p1.mcq + p2.mcq; cq = p1.cq + p2.cq; practical = p1.practical + p2.practical;
+        paper1 = p1; paper2 = p2;
+      } else {
+        mcq = sub.mcq || 0; cq = sub.cq || 0; practical = sub.practical || 0;
+        marks = mcq + cq + practical; maxTotal = 100;
+        componentFailed = checkComponentFail(mcq, cq, !!sub._hasPractical, !!sub._hasMcq);
+      }
+
+      if(marks < 0 || marks > maxTotal) { alert(`Total marks (${marks}) invalid for "${name}" — must be 0–${maxTotal}`); return; }
+
+      const percentage = (marks / maxTotal) * 100;
+      let { gpa, grade } = marksToGpaGrade(percentage);
+      if(componentFailed) { gpa = 0; grade = 'F'; }
+
+      const subjectData = { name, marks, maxTotal, mcq, cq, practical, hasPapers: !!sub.hasPapers, paper1, paper2, grade, point: gpa, componentFailed, isOptional: !!sub.isOptional };
+
+      if(sub.isOptional) {
+        const bonus = Math.max(0, gpa - 2);
+        total += bonus;
+        finalSubjects.push({ ...subjectData, bonus });
+      } else {
+        total += gpa;
+        mandatoryCount++;
+        finalSubjects.push(subjectData);
+        if(grade === 'F') hasFailedMandatory = true;
+      }
+    }
+
+    let overallGpa = mandatoryCount > 0 ? Math.min(5, total / mandatoryCount) : 0;
+    let overallGrade = gpaValueToGrade(overallGpa);
+    if(hasFailedMandatory) { overallGpa = 0; overallGrade = 'F'; }
+
+    await update(ref(db, `gpaCalculations/${sId}/${_adminViewingKey}`), {
+      examType: examType || 'General',
+      subjects: finalSubjects,
+      overallGpa, overallGrade, failed: hasFailedMandatory
+    });
+
+    _adminEditSubjects = null;
+    alert('✅ Changes saved!');
+    await loadAdminGpaApprovals();
+    viewAdminGpaSheet(_adminViewingKey);
+  };
+
+  // ── Admin: download the currently-viewed sheet as an image ──
+  window.downloadAdminGpaSheet = async () => {
+    const s = (window._adminGpaSheetsCache || {})[_adminViewingKey];
+    if(!s) return;
+    if(typeof html2canvas === 'undefined') return alert('Download tool failed to load. Please check your internet connection and try again.');
+
+    const sId = document.getElementById('gpaappr-student-id').value.trim();
+    const nameDisplay = (document.getElementById('gpaappr-name-display').innerText || '').trim();
+    const header = document.getElementById('admin-gpaappr-download-header');
+    const line = document.getElementById('admin-gpaappr-download-studentline');
+    line.innerText = `${nameDisplay ? nameDisplay + ' • ' : ''}ID: ${sId} — GPA Calculation${s.examType ? ' (' + s.examType + ')' : ''}`;
+    header.style.display = 'block';
+
+    const actionsEl = document.getElementById('admin-gpaappr-detail-actions');
+    actionsEl.style.display = 'none';
+
+    const wrap = document.getElementById('admin-gpaappr-detail-wrap');
+    try {
+      const canvas = await html2canvas(wrap, { backgroundColor: '#ffffff', scale: 2 });
+      const link = document.createElement('a');
+      link.download = `GPA_Result_${sId}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch(e) {
+      alert('Download failed. Please try again.');
+    } finally {
+      header.style.display = 'none';
+      actionsEl.style.display = 'flex';
+    }
   };
 
   window.approveGpaSheet = async (sId, key) => {
