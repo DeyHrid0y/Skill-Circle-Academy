@@ -1293,7 +1293,7 @@
         <div id="notes-no-result" style="display:none; text-align:center; padding:32px; color:var(--text-muted); font-size:14px;">No notes match your search.</div>
         <div class="table-wrap" id="notes-table-wrap">
           <table>
-            <thead><tr><th>Topic / Note Name</th><th>Subject</th><th>Group</th><th>Level</th><th>Type</th><th>Action</th></tr></thead>
+            <thead><tr><th>Topic / Note Name</th><th>Subject</th><th>Group</th><th>Level</th><th>Action</th></tr></thead>
             <tbody id="notes-table-body"></tbody>
           </table>
         </div>
@@ -1978,15 +1978,6 @@
             </select>
           </div>
           <div class="form-group">
-            <label>Material Type</label>
-            <select id="note-type">
-              <option value="PDF Document">PDF Document</option>
-              <option value="Google Drive Link">Google Drive Link</option>
-              <option value="YouTube Link">YouTube Link</option>
-              <option value="Other Link">Other Link</option>
-            </select>
-          </div>
-          <div class="form-group">
             <label>File Name / URL Path</label>
             <input type="text" id="note-path" placeholder="https://drive.google.com/...">
           </div>
@@ -2006,7 +1997,7 @@
         <div class="card-title">📄 Published Notes</div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Title</th><th>Subject</th><th>Group</th><th>Level</th><th>Type</th><th>Path / URL</th><th>Action</th></tr></thead>
+            <thead><tr><th>Title</th><th>Subject</th><th>Group</th><th>Level</th><th>Path / URL</th><th>Action</th></tr></thead>
             <tbody id="admin-notes-preview">
               <tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">Loading...</td></tr>
             </tbody>
@@ -4190,11 +4181,10 @@ window.addEventListener('DOMContentLoaded', function() {
     const title   = document.getElementById('note-title').value.trim();
     const subject = document.getElementById('note-subject').value;
     const group   = document.getElementById('note-group').value;
-    const type    = document.getElementById('note-type').value;
     const path    = document.getElementById('note-path').value.trim();
     const level   = document.getElementById('note-level').value;
     if(!title || !path) return alert('Note title and path/URL are required!');
-    set(ref(db, 'notes/' + Date.now()), { title, subject, group, type, path, level }).then(() => {
+    set(ref(db, 'notes/' + Date.now()), { title, subject, group, path, level }).then(() => {
       alert('✅ Note published successfully!');
       document.getElementById('note-title').value = '';
       document.getElementById('note-path').value  = '';
@@ -4221,7 +4211,6 @@ window.addEventListener('DOMContentLoaded', function() {
             <td style="font-size:13px; font-weight:600;">${subjectIcon[subj]||'📦'} ${subj}</td>
             <td style="font-size:12px; color:var(--accent); font-weight:600;">${grp}</td>
             <td><span style="font-size:11px; font-weight:700; padding:3px 9px; border-radius:12px; background:rgba(0,0,0,0.06); color:${levelColor};">${lvl}</span></td>
-            <td><span class="badge badge-user">${n.type}</span></td>
             <td style="font-size:12px; max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${n.path}">${n.path}</td>
             <td style="display:flex; gap:5px; flex-wrap:wrap;">
               <button class="btn-sm" style="background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.3);color:var(--accent);" onclick="editNoteTitle('${key}','${safeTitle}')">✏️ Title</button>
@@ -4358,7 +4347,6 @@ window.addEventListener('DOMContentLoaded', function() {
             <td style="font-size:13px; font-weight:600;">${subjectIcon[subj]||'📦'} ${subj}</td>
             <td style="font-size:12px; color:var(--accent); font-weight:600;">${grp}</td>
             <td><span style="font-size:11px; font-weight:700; padding:3px 9px; border-radius:12px; background:rgba(0,0,0,0.06); color:${levelColor};">${lvl}</span></td>
-            <td><span class="badge badge-user">${n.type}</span></td>
             <td>${isUrl ? `<a href="${n.path}" target="_blank" class="btn-sm">🔗 Open</a>` : `<span style="color:var(--green); font-family:var(--mono); font-size:12px;">📄 ${n.path}</span>`}</td>
           </tr>
         `;
@@ -4775,24 +4763,6 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('hw-deadline').value = '';
     if(fileInput) fileInput.value = '';
     loadHomeworkPreview();
-  };
-
-
-
-  window.uploadNote = () => {
-    const title = document.getElementById('note-title').value.trim();
-    const type = document.getElementById('note-type').value;
-    const path = document.getElementById('note-path').value.trim();
-    const level = document.getElementById('note-level').value;
-
-    if(!title || !path) return alert("Note title and path are required!");
-
-    set(ref(db, 'notes/' + Date.now()), { title, type, path, level }).then(() => {
-      alert("Note published successfully!");
-      document.getElementById('note-title').value = '';
-      document.getElementById('note-path').value = '';
-      loadAdminNotesPreview();
-    });
   };
 
   // ── Dynamic GPA Calculator ──
