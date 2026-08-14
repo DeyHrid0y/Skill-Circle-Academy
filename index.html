@@ -817,6 +817,7 @@
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -1343,7 +1344,7 @@
           </div>
         </div>
         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;">
-          <button class="btn-sm" style="background:rgba(79,142,247,0.1); border-color:rgba(79,142,247,0.3); color:var(--accent);" onclick="downloadMyGpaResult()">📥 Download Result</button>
+          <button class="btn-sm" style="background:rgba(79,142,247,0.1); border-color:rgba(79,142,247,0.3); color:var(--accent);" onclick="downloadMyGpaResult()">📥 Download PDF</button>
           <button class="btn-sm" style="background:rgba(52,211,153,0.1); border-color:rgba(52,211,153,0.3); color:var(--green);" onclick="saveMyGpaResult()">💾 Save to My Account</button>
         </div>
       </div>
@@ -3538,8 +3539,10 @@ window.addEventListener('DOMContentLoaded', function() {
         const p2 = sub.paper2 || { mcq:0, cq:0, practical:0, hasMcq:false, hasPractical:false };
         marks = (p1.mcq+p1.cq+p1.practical) + (p2.mcq+p2.cq+p2.practical);
         maxTotal = 200;
-        componentFailed = checkComponentFail(p1.mcq, p1.cq, p1.hasPractical, p1.hasMcq) || checkComponentFail(p2.mcq, p2.cq, p2.hasPractical, p2.hasMcq);
         mcq = p1.mcq + p2.mcq; cq = p1.cq + p2.cq; practical = p1.practical + p2.practical;
+        const combinedHasPractical = p1.hasPractical || p2.hasPractical;
+        const combinedHasMcq = p1.hasMcq || p2.hasMcq;
+        componentFailed = checkComponentFail(mcq, cq, combinedHasPractical, combinedHasMcq);
         paper1 = p1; paper2 = p2;
       } else {
         mcq = sub.mcq || 0; cq = sub.cq || 0; practical = sub.practical || 0;
@@ -4906,13 +4909,17 @@ window.addEventListener('DOMContentLoaded', function() {
 
     const p2 = readPaperSet(row, '-p2');
     if(!p1.anyEntered && !p2.anyEntered) return { total: null };
-    const fail1 = checkComponentFail(p1.mcq, p1.cq, p1.hasPractical, p1.hasMcq);
-    const fail2 = checkComponentFail(p2.mcq, p2.cq, p2.hasPractical, p2.hasMcq);
+    // Combine both papers' MCQ together and both papers' CQ together, then check
+    // pass/fail once against the combined totals (not per-paper separately).
+    const combinedMcq = p1.mcq + p2.mcq;
+    const combinedCq = p1.cq + p2.cq;
+    const combinedHasPractical = p1.hasPractical || p2.hasPractical;
+    const combinedHasMcq = p1.hasMcq || p2.hasMcq;
     return {
       total: p1.sum + p2.sum, maxTotal: 200,
-      mcq: p1.mcq + p2.mcq, cq: p1.cq + p2.cq, practical: p1.practical + p2.practical,
+      mcq: combinedMcq, cq: combinedCq, practical: p1.practical + p2.practical,
       paper1: p1, paper2: p2,
-      componentFailed: fail1 || fail2,
+      componentFailed: checkComponentFail(combinedMcq, combinedCq, combinedHasPractical, combinedHasMcq),
       hasPapers: true
     };
   }
@@ -4960,12 +4967,10 @@ window.addEventListener('DOMContentLoaded', function() {
       gpa = 0; grade = 'F';
       let reason;
       if(r.hasPapers) {
-        const mcqPass1 = r.paper1.hasPractical ? 8 : 9, cqPass1 = r.paper1.hasPractical ? 16 : 23;
-        const mcqPass2 = r.paper2.hasPractical ? 8 : 9, cqPass2 = r.paper2.hasPractical ? 16 : 23;
-        if(r.paper1.hasMcq && r.paper1.mcq < mcqPass1) reason = `1st Paper MCQ below ${mcqPass1}`;
-        else if(r.paper1.cq < cqPass1) reason = `1st Paper CQ below ${cqPass1}`;
-        else if(r.paper2.hasMcq && r.paper2.mcq < mcqPass2) reason = `2nd Paper MCQ below ${mcqPass2}`;
-        else reason = `2nd Paper CQ below ${cqPass2}`;
+        const hasPractical = r.paper1.hasPractical || r.paper2.hasPractical;
+        const hasMcq = r.paper1.hasMcq || r.paper2.hasMcq;
+        const mcqPass = hasPractical ? 8 : 9, cqPass = hasPractical ? 16 : 23;
+        reason = (hasMcq && r.mcq < mcqPass) ? `Combined MCQ (1st+2nd) below ${mcqPass}` : `Combined CQ (1st+2nd) below ${cqPass}`;
       } else {
         const mp = r.paper1.hasPractical ? 8 : 9, cp = r.paper1.hasPractical ? 16 : 23;
         reason = (r.paper1.hasMcq && r.paper1.mcq < mp) ? `MCQ below ${mp}` : `CQ below ${cp}`;
@@ -5023,8 +5028,9 @@ window.addEventListener('DOMContentLoaded', function() {
       if(r.total < 0 || r.total > r.maxTotal) { alert(`Total marks (${r.total.toFixed(2)}) must be between 0 and ${r.maxTotal} for "${name}"`); hasError = true; return; }
 
       // Grade/point are normally derived from the percentage of the total (out of 100,
-      // or out of 200 when 1st+2nd Paper are combined), but failing the MCQ or CQ pass
-      // threshold on either paper overrides the subject to F/0.00 regardless of total.
+      // or out of 200 when 1st+2nd Paper are combined). For combined-paper subjects,
+      // both papers' MCQ are summed together and checked once, and both papers' CQ
+      // are summed together and checked once — not per-paper separately.
       const percentage = (r.total / r.maxTotal) * 100;
       let { gpa, grade } = marksToGpaGrade(percentage);
       if(r.componentFailed) { gpa = 0; grade = 'F'; }
@@ -5177,25 +5183,69 @@ window.addEventListener('DOMContentLoaded', function() {
     if(!lastGpaCalculation) {
       return alert('Please click "Calculate GPA" first, then download.');
     }
-    if(typeof html2canvas === 'undefined') return alert('Download tool failed to load. Please check your internet connection and try again.');
+    if(typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+      return alert('Download tool failed to load. Please check your internet connection and try again.');
+    }
 
-    const header = document.getElementById('gpa-download-header');
-    const line = document.getElementById('gpa-download-studentline');
-    const examLabel = lastGpaCalculation.examType ? ` — ${lastGpaCalculation.examType}` : '';
-    line.innerText = `${currentSession.name} • ID: ${currentSession.id} — GPA Calculation${examLabel}`;
-    header.style.display = 'block';
+    const { jsPDF } = window.jspdf;
+    const { examType, subjects, overallGpa, overallGrade } = lastGpaCalculation;
+    const examLabel = examType ? ` (${escapeHtml(examType)})` : '';
 
-    const wrap = document.getElementById('gpa-download-wrap');
+    // Build a clean, offscreen printable version for the PDF.
+    // The Marks column intentionally shows ONLY the total — no MCQ/CQ/Practical breakdown.
+    const temp = document.createElement('div');
+    temp.style.cssText = 'position:fixed; left:-9999px; top:0; width:600px; background:#ffffff; padding:28px; font-family:Segoe UI, Arial, sans-serif;';
+    temp.innerHTML = `
+      <div style="text-align:center; margin-bottom:20px;">
+        <div style="font-size:21px; font-weight:800; color:#4f8ef7;">Skill Circle Academy</div>
+        <div style="font-size:13px; color:#666; margin-top:5px;">${escapeHtml(currentSession.name)} • ID: ${escapeHtml(currentSession.id)} — GPA Calculation${examLabel}</div>
+      </div>
+      <div style="text-align:center; padding:18px; background:#f4f5fa; border-radius:10px; margin-bottom:20px;">
+        <div style="display:flex; justify-content:center; gap:34px;">
+          <div>
+            <div style="font-size:32px; font-weight:800; color:#f0b429; font-family:'Courier New',monospace;">${overallGpa.toFixed(2)}</div>
+            <div style="font-size:11px; color:#888; font-weight:600;">GPA</div>
+          </div>
+          <div>
+            <div style="font-size:32px; font-weight:800; color:${overallGrade === 'F' ? '#f87171' : '#f0b429'}; font-family:'Courier New',monospace;">${escapeHtml(overallGrade)}</div>
+            <div style="font-size:11px; color:#888; font-weight:600;">GRADE</div>
+          </div>
+        </div>
+      </div>
+      <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <thead>
+          <tr style="background:#f4f5fa;">
+            <th style="text-align:left; padding:10px; border-bottom:2px solid #e2e2e2;">Subject</th>
+            <th style="text-align:left; padding:10px; border-bottom:2px solid #e2e2e2;">Marks</th>
+            <th style="text-align:left; padding:10px; border-bottom:2px solid #e2e2e2;">Grade</th>
+            <th style="text-align:left; padding:10px; border-bottom:2px solid #e2e2e2;">GPA Point</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${subjects.map(s => `
+            <tr style="${s.grade === 'F' ? 'background:#fef2f2;' : ''}">
+              <td style="padding:10px; border-bottom:1px solid #eee; font-weight:700;">${escapeHtml(s.name)}${s.isOptional ? ' <span style="color:#a78bfa; font-size:10px;">(Optional)</span>' : ''}${s.hasPapers ? ' <span style="color:#4f8ef7; font-size:10px;">(1st+2nd Paper)</span>' : ''}</td>
+              <td style="padding:10px; border-bottom:1px solid #eee; font-family:'Courier New',monospace;">${s.marks.toFixed(2)}${s.hasPapers ? ' / 200' : ''}</td>
+              <td style="padding:10px; border-bottom:1px solid #eee; font-weight:700; color:${s.grade === 'F' ? '#f87171' : '#4f8ef7'};">${escapeHtml(s.grade)}</td>
+              <td style="padding:10px; border-bottom:1px solid #eee; font-family:'Courier New',monospace; color:#22c55e; font-weight:700;">${s.point.toFixed(2)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div style="text-align:center; margin-top:22px; font-size:10.5px; color:#999;">© 2026 Skill Circle Academy — Generated result, subject to admin approval</div>
+    `;
+    document.body.appendChild(temp);
+
     try {
-      const canvas = await html2canvas(wrap, { backgroundColor: '#ffffff', scale: 2 });
-      const link = document.createElement('a');
-      link.download = `GPA_Calculation_${currentSession.id}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+      const canvas = await html2canvas(temp, { backgroundColor: '#ffffff', scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: [canvas.width, canvas.height] });
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      pdf.save(`GPA_Result_${currentSession.id}.pdf`);
     } catch(e) {
       alert('Download failed. Please try again.');
     } finally {
-      header.style.display = 'none';
+      document.body.removeChild(temp);
     }
   };
 
