@@ -3313,6 +3313,42 @@ window.addEventListener('DOMContentLoaded', function() {
     loadTestResultsPreview();
   };
 
+  window.openTestResultEditModal = (sId, key, subject, totalMarks, obtainedMarks) => {
+    document.getElementById('etr-sid').value = sId;
+    document.getElementById('etr-key').value = key;
+    document.getElementById('etr-subject').value = subject;
+    document.getElementById('etr-total-marks').value = totalMarks;
+    document.getElementById('etr-obtained-marks').value = obtainedMarks;
+    document.getElementById('edit-testresult-modal').style.display = 'flex';
+  };
+
+  window.closeTestResultEditModal = () => {
+    document.getElementById('edit-testresult-modal').style.display = 'none';
+  };
+
+  window.saveTestResultEdit = async () => {
+    const sId = document.getElementById('etr-sid').value;
+    const key = document.getElementById('etr-key').value;
+    const subject = document.getElementById('etr-subject').value.trim();
+    const totalMarks = parseFloat(document.getElementById('etr-total-marks').value);
+    const obtainedMarks = parseFloat(document.getElementById('etr-obtained-marks').value);
+
+    if(!subject) return alert('Please enter a subject name!');
+    if(!totalMarks || totalMarks <= 0) return alert('Please enter a valid total marks!');
+    if(isNaN(obtainedMarks) || obtainedMarks < 0) return alert('Please enter valid marks obtained!');
+    if(obtainedMarks > totalMarks) return alert('Marks obtained cannot be more than total marks!');
+
+    const pct = (obtainedMarks / totalMarks) * 100;
+    const { gpa, grade } = marksToGpaGrade(pct);
+
+    await update(ref(db, `testResults/${sId}/${key}`), {
+      subject, totalMarks, obtainedMarks, percentage: pct, gpa, grade
+    });
+
+    closeTestResultEditModal();
+    loadTestResultsPreview();
+  };
+
   // ═══════════════════════════════════════════════════
   //  ADMIN: APPROVE GPA SHEETS (student-saved GPA Calculator sheets)
   // ═══════════════════════════════════════════════════
@@ -3644,9 +3680,18 @@ window.addEventListener('DOMContentLoaded', function() {
         <td style="font-family:var(--mono); color:var(--text-dim);">${parseFloat(r.percentage).toFixed(1)}%</td>
         <td style="font-weight:700; color:var(--accent);">${escapeHtml(r.grade)}</td>
         <td style="font-family:var(--mono); color:var(--green); font-weight:700;">${parseFloat(r.gpa).toFixed(2)}</td>
-        <td><button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteTestResult('${sId}','${r.key}')">🗑️</button></td>
+        <td style="display:flex; gap:5px; flex-wrap:wrap;">
+          <button class="btn-sm tr-edit-btn" style="background:rgba(79,142,247,0.1);border-color:rgba(79,142,247,0.3);color:var(--accent);" data-sid="${escapeHtml(sId)}" data-key="${escapeHtml(r.key)}" data-subject="${escapeHtml(r.subject)}" data-total="${r.totalMarks}" data-obtained="${r.obtainedMarks}">✏️</button>
+          <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteTestResult('${sId}','${r.key}')">🗑️</button>
+        </td>
       </tr>
     `).join('');
+
+    tbody.querySelectorAll('.tr-edit-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openTestResultEditModal(btn.dataset.sid, btn.dataset.key, btn.dataset.subject, btn.dataset.total, btn.dataset.obtained);
+      });
+    });
   };
 
   // ── Student view (read-only) ──
@@ -6791,6 +6836,35 @@ window.addEventListener('DOMContentLoaded', function() {
     <div style="display:flex;gap:10px;margin-top:4px;">
       <button class="btn-action" style="flex:1;" onclick="saveSavingEdit()">💾 Save Changes</button>
       <button class="btn-cancel" style="flex:1;" onclick="closeSavingEditModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT TEST RESULT MODAL -->
+<div id="edit-testresult-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:3000; align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this)closeTestResultEditModal()">
+  <div style="background:var(--surface); border-radius:20px; border:1px solid var(--border-bright); padding:32px 28px; width:420px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
+    <button onclick="closeTestResultEditModal()" style="position:absolute;top:14px;right:14px;background:#eef0ff;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+    <div style="font-size:17px;font-weight:800;margin-bottom:20px;letter-spacing:-0.3px;">✏️ Edit Test Result</div>
+    <input type="hidden" id="etr-sid">
+    <input type="hidden" id="etr-key">
+    <div class="form-group">
+      <label>Subject Name</label>
+      <input type="text" id="etr-subject" placeholder="e.g. Physics">
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Total Marks</label>
+        <input type="number" id="etr-total-marks" min="1" placeholder="e.g. 100">
+      </div>
+      <div class="form-group">
+        <label>Marks Obtained</label>
+        <input type="number" id="etr-obtained-marks" min="0" placeholder="e.g. 78">
+      </div>
+    </div>
+    <div style="font-size:11px; color:var(--text-muted); margin:-6px 0 12px;">Test No. stays the same. Grade and GPA recalculate automatically from the new marks.</div>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn-action" style="flex:1;" onclick="saveTestResultEdit()">💾 Save Changes</button>
+      <button class="btn-cancel" style="flex:1;" onclick="closeTestResultEditModal()">Cancel</button>
     </div>
   </div>
 </div>
