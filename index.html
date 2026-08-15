@@ -1296,7 +1296,7 @@
         <div id="notes-no-result" style="display:none; text-align:center; padding:32px; color:var(--text-muted); font-size:14px;">No notes match your search.</div>
         <div class="table-wrap" id="notes-table-wrap">
           <table>
-            <thead><tr><th>Topic / Note Name</th><th>Subject</th><th>Group</th><th>Level</th><th>Action</th></tr></thead>
+            <thead><tr><th>Topic / Note Name</th><th>Subject</th><th id="notes-th-group">Group</th><th id="notes-th-level">Level</th><th>Action</th></tr></thead>
             <tbody id="notes-table-body"></tbody>
           </table>
         </div>
@@ -2715,6 +2715,36 @@ window.addEventListener('DOMContentLoaded', function() {
     }
     return escapeHtml(d);
   }
+
+  // Extracts the file ID from common Google Drive URL formats and returns an
+  // embeddable "/preview" URL. Returns null if the URL isn't a Drive file link
+  // (e.g. Drive folder links, or non-Drive URLs), so those fall back to a new tab.
+  function getGoogleDriveEmbedUrl(url) {
+    if(!url) return null;
+    let match = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if(!match) match = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if(!match) return null;
+    return `https://drive.google.com/file/d/${match[1]}/preview`;
+  }
+
+  // Opens a note/PDF link inside the site via an embedded viewer when it's a
+  // Google Drive file link; otherwise falls back to opening in a new tab.
+  window.previewNote = (url, title) => {
+    const embedUrl = getGoogleDriveEmbedUrl(url);
+    if(!embedUrl) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    document.getElementById('note-preview-title').innerText = `📄 ${title || 'Preview'}`;
+    document.getElementById('note-preview-iframe').src = embedUrl;
+    document.getElementById('note-preview-external-link').href = url;
+    document.getElementById('note-preview-modal').style.display = 'flex';
+  };
+
+  window.closeNotePreviewModal = () => {
+    document.getElementById('note-preview-modal').style.display = 'none';
+    document.getElementById('note-preview-iframe').src = ''; // stop playback/loading
+  };
 
   // Basic client-side login throttling — slows down brute-force attempts.
   // Not a substitute for server-side rate limiting, but raises the bar.
@@ -4421,7 +4451,9 @@ window.addEventListener('DOMContentLoaded', function() {
             <td style="font-size:13px; font-weight:600;">${subjectIcon[subj]||'📦'} ${subj}</td>
             <td style="font-size:12px; color:var(--accent); font-weight:600;">${grp}</td>
             <td><span style="font-size:11px; font-weight:700; padding:3px 9px; border-radius:12px; background:rgba(0,0,0,0.06); color:${levelColor};">${lvl}</span></td>
-            <td style="font-size:12px; max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${n.path}">${n.path}</td>
+            <td style="font-size:12px; max-width:160px;" title="${escapeHtml(n.path)}">
+              <button class="btn-sm note-open-btn" style="cursor:pointer; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block;" data-path="${escapeHtml(n.path)}" data-title="${escapeHtml(n.title)}">🔗 ${escapeHtml(n.path)}</button>
+            </td>
             <td style="display:flex; gap:5px; flex-wrap:wrap;">
               <button class="btn-sm" style="background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.3);color:var(--accent);" onclick="editNoteTitle('${key}','${safeTitle}')">✏️ Title</button>
               <button class="btn-sm" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);color:var(--gold);" onclick="editNoteSubject('${key}','${subj}')">📚 Subject</button>
@@ -4432,6 +4464,9 @@ window.addEventListener('DOMContentLoaded', function() {
           </tr>
         `;
       }).join('');
+      tbody.querySelectorAll('.note-open-btn').forEach(btn => {
+        btn.addEventListener('click', () => previewNote(btn.dataset.path, btn.dataset.title));
+      });
     } else {
       tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">No notes published yet.</td></tr>`;
     }
@@ -4513,6 +4548,12 @@ window.addEventListener('DOMContentLoaded', function() {
       }
     }
 
+    // Students don't need to see the internal Group/Level columns — just the notes
+    const thGroup = document.getElementById('notes-th-group');
+    const thLevel = document.getElementById('notes-th-level');
+    if(thGroup) thGroup.style.display = isAdmin ? '' : 'none';
+    if(thLevel) thLevel.style.display = isAdmin ? '' : 'none';
+
     const snapshot = await get(child(ref(db), 'notes'));
     if(snapshot.exists()) {
       allNotesCache = Object.entries(snapshot.val()).map(([k, v]) => ({ ...v, _key: k }));
@@ -4526,7 +4567,7 @@ window.addEventListener('DOMContentLoaded', function() {
       renderNotesRows(viewable);
     } else {
       allNotesCache = [];
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:24px;">No notes published yet.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="${isAdmin ? 5 : 3}" style="text-align:center; color:var(--text-muted); padding:24px;">No notes published yet.</td></tr>`;
       if(countBadge) countBadge.innerText = '0 notes';
     }
   }
@@ -4536,6 +4577,7 @@ window.addEventListener('DOMContentLoaded', function() {
     const countBadge = document.getElementById('notes-count-badge');
     const noResult = document.getElementById('notes-no-result');
     const tableWrap = document.getElementById('notes-table-wrap');
+    const isAdmin = currentSession && currentSession.role === 'admin';
     if(countBadge) countBadge.innerText = notes.length + ' note' + (notes.length !== 1 ? 's' : '');
     const subjectIcon = { Chemistry:'⚗️', Physics:'⚡', 'Higher Math':'📐', ICT:'💻', Other:'📦' };
     if(notes.length === 0) {
@@ -4551,16 +4593,21 @@ window.addEventListener('DOMContentLoaded', function() {
         const subj = n.subject || 'Other';
         const grp  = n.group || 'All';
         const levelColor = lvl === 'SSC' ? 'var(--green)' : lvl === 'HSC' ? 'var(--gold)' : lvl === 'University' ? 'var(--purple)' : 'var(--text-muted)';
+        const groupCell = isAdmin ? `<td style="font-size:12px; color:var(--accent); font-weight:600;">${escapeHtml(grp)}</td>` : '';
+        const levelCell = isAdmin ? `<td><span style="font-size:11px; font-weight:700; padding:3px 9px; border-radius:12px; background:rgba(0,0,0,0.06); color:${levelColor};">${escapeHtml(lvl)}</span></td>` : '';
         return `
           <tr>
-            <td style="font-weight:600;">${n.title}</td>
-            <td style="font-size:13px; font-weight:600;">${subjectIcon[subj]||'📦'} ${subj}</td>
-            <td style="font-size:12px; color:var(--accent); font-weight:600;">${grp}</td>
-            <td><span style="font-size:11px; font-weight:700; padding:3px 9px; border-radius:12px; background:rgba(0,0,0,0.06); color:${levelColor};">${lvl}</span></td>
-            <td>${isUrl ? `<a href="${n.path}" target="_blank" class="btn-sm">🔗 Open</a>` : `<span style="color:var(--green); font-family:var(--mono); font-size:12px;">📄 ${n.path}</span>`}</td>
+            <td style="font-weight:600;">${escapeHtml(n.title)}</td>
+            <td style="font-size:13px; font-weight:600;">${subjectIcon[subj]||'📦'} ${escapeHtml(subj)}</td>
+            ${groupCell}
+            ${levelCell}
+            <td>${isUrl ? `<button class="btn-sm note-open-btn" style="cursor:pointer;" data-path="${escapeHtml(n.path)}" data-title="${escapeHtml(n.title)}">🔗 Open</button>` : `<span style="color:var(--green); font-family:var(--mono); font-size:12px;">📄 ${escapeHtml(n.path)}</span>`}</td>
           </tr>
         `;
       }).join('');
+      tbody.querySelectorAll('.note-open-btn').forEach(btn => {
+        btn.addEventListener('click', () => previewNote(btn.dataset.path, btn.dataset.title));
+      });
     }
   }
 
@@ -7060,6 +7107,20 @@ window.addEventListener('DOMContentLoaded', function() {
       <button class="btn-action" style="flex:1;" onclick="saveHwFeedback()">💾 Save Feedback</button>
       <button class="btn-cancel" style="flex:1;" onclick="closeHwFeedbackModal()">Cancel</button>
     </div>
+  </div>
+</div>
+
+<!-- NOTE / PDF PREVIEW MODAL -->
+<div id="note-preview-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:4000; align-items:center; justify-content:center; padding:16px;" onclick="if(event.target===this)closeNotePreviewModal()">
+  <div style="background:var(--surface); border-radius:16px; border:1px solid var(--border-bright); width:100%; max-width:900px; height:90vh; box-shadow:0 20px 60px rgba(0,0,0,0.3); display:flex; flex-direction:column; overflow:hidden;">
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid var(--border); flex-shrink:0;">
+      <div id="note-preview-title" style="font-size:15px; font-weight:800; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding-right:10px;">📄 Preview</div>
+      <div style="display:flex; gap:8px; flex-shrink:0;">
+        <a id="note-preview-external-link" href="#" target="_blank" rel="noopener noreferrer" class="btn-sm" style="background:rgba(79,142,247,0.1); border-color:rgba(79,142,247,0.3); color:var(--accent); text-decoration:none;">↗️ Open in Drive</a>
+        <button onclick="closeNotePreviewModal()" style="background:#eef0ff;border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+      </div>
+    </div>
+    <iframe id="note-preview-iframe" src="" style="flex:1; width:100%; border:none; background:#f4f5fa;" allow="autoplay"></iframe>
   </div>
 </div>
 
