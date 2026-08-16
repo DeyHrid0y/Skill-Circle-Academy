@@ -1707,6 +1707,21 @@
         <div class="page-subtitle">Enter marks per test — test number, percentage and GPA are calculated automatically</div>
       </div>
       <div class="admin-form-card">
+        <div class="card-title" style="margin-bottom:10px;">✍️ Signature on Result PDF</div>
+        <div class="grid-2">
+          <div class="form-group" style="grid-column:span 2;">
+            <label>Signature Image (upload a file)</label>
+            <input type="file" id="tr-signature-file" accept="image/*">
+          </div>
+        </div>
+        <div style="font-size:11px; color:var(--text-muted); margin:-4px 0 10px;">Google Drive links don't work here — Drive blocks the cross-origin access needed to draw it into a PDF, so uploading the image file directly is the only reliable way. This signature will be added to the bottom of every student's downloaded Test Result PDF. Max 500 KB.</div>
+        <div id="tr-signature-preview" style="display:none; margin-bottom:12px;">
+          <img id="tr-signature-preview-img" style="height:50px; object-fit:contain; border:1px solid var(--border); border-radius:8px; padding:6px; background:#fff;">
+          <button class="btn-sm" style="background:rgba(248,113,113,0.1); border-color:rgba(248,113,113,0.3); color:var(--red); margin-left:8px;" onclick="removeSignature()">🗑️ Remove</button>
+        </div>
+        <button class="btn-sm" style="background:rgba(52,211,153,0.1); border-color:rgba(52,211,153,0.3); color:var(--green);" onclick="saveSignatureUrl()">💾 Save Signature</button>
+      </div>
+      <div class="admin-form-card">
         <div class="grid-2">
           <div class="form-group">
             <label>Student ID</label>
@@ -3004,6 +3019,7 @@ window.addEventListener('DOMContentLoaded', function() {
     if(tabId === 'admin-expenses') { if(window._initExpensesTab) window._initExpensesTab(); else loadExpenses(); }
     if(tabId === 'admin-saving') { loadSavingPreview(); }
     if(tabId === 'admin-summary') { loadFinancialSummary(); }
+    if(tabId === 'admin-testresults') { loadSignatureUrlSetting(); }
     if(tabId === 'profile') loadProfileData();
     if(tabId === 'dash') initUserDash();
     if(tabId === 'payment') loadStudentPayments();
@@ -3696,6 +3712,44 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 
   // ── Admin preview: overall GPA + full table for the selected student ──
+  window.saveSignatureUrl = async () => {
+    const fileInput = document.getElementById('tr-signature-file');
+    const file = fileInput && fileInput.files[0];
+    if(!file) return alert('Please choose a signature image file first!');
+    if(file.size > 500 * 1024) return alert('File is too large! Max size is 500 KB.');
+
+    const dataUrl = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = () => rej(new Error('File read failed'));
+      r.readAsDataURL(file);
+    });
+
+    await set(ref(db, 'config/signatureImageUrl'), dataUrl);
+    fileInput.value = '';
+    alert('✅ Signature saved! It will now appear on every downloaded Test Result PDF.');
+    loadSignatureUrlSetting();
+  };
+
+  window.removeSignature = async () => {
+    if(!confirm('Remove the signature from Test Result PDFs?')) return;
+    await remove(ref(db, 'config/signatureImageUrl'));
+    loadSignatureUrlSetting();
+  };
+
+  window.loadSignatureUrlSetting = async () => {
+    const preview = document.getElementById('tr-signature-preview');
+    const previewImg = document.getElementById('tr-signature-preview-img');
+    if(!preview) return;
+    const snap = await get(child(ref(db), 'config/signatureImageUrl'));
+    if(snap.exists()) {
+      previewImg.src = snap.val();
+      preview.style.display = 'block';
+    } else {
+      preview.style.display = 'none';
+    }
+  };
+
   window.loadTestResultsPreview = async () => {
     const sId = document.getElementById('tr-student-id').value.trim();
     const overview = document.getElementById('admin-testresults-overview');
@@ -3785,14 +3839,41 @@ window.addEventListener('DOMContentLoaded', function() {
     const { jsPDF } = window.jspdf;
     const avgGpa = entries.reduce((sum, e) => sum + (parseFloat(e.gpa) || 0), 0) / entries.length;
 
+    // Fetch the admin-uploaded signature (if any) — stored as base64, so it
+    // embeds directly into the canvas with no cross-origin issues at all.
+    const sigSnap = await get(child(ref(db), 'config/signatureImageUrl'));
+    const sigDataUrl = sigSnap.exists() ? sigSnap.val() : null;
+    const signatureBlock = sigDataUrl
+      ? `<div style="text-align:center; margin-top:26px;">
+           <img src="${sigDataUrl}" style="height:60px; object-fit:contain;">
+           <div style="border-top:1px solid #ccc; width:180px; margin:4px auto 0; padding-top:4px; font-size:11px; color:#888;">Authorized Signature</div>
+         </div>`
+      : '';
+
     // Build a clean, offscreen printable version for the PDF
     const temp = document.createElement('div');
-    temp.style.cssText = 'position:fixed; left:-9999px; top:0; width:600px; background:#ffffff; padding:28px; font-family:Segoe UI, Arial, sans-serif;';
+    temp.style.cssText = 'position:fixed; left:-9999px; top:0; width:700px; background:#ffffff; padding:32px; font-family:Segoe UI, Arial, sans-serif;';
     temp.innerHTML = `
       <div style="text-align:center; margin-bottom:20px;">
-        <div style="font-size:21px; font-weight:800; color:#4f8ef7;">Skill Circle Academy</div>
-        <div style="font-size:13px; color:#666; margin-top:5px;">${escapeHtml(currentSession.name)} • ID: ${escapeHtml(currentSession.id)} — Test Results</div>
+        <div style="font-size:22px; font-weight:800; color:#4f8ef7;">Skill Circle Academy</div>
+        <div style="font-size:12px; color:#888; margin-top:3px;">Test Results</div>
       </div>
+      <table style="width:100%; border-collapse:collapse; font-size:13px; margin-bottom:20px; border:1px solid #e2e2e2;">
+        <tbody>
+          <tr>
+            <td style="padding:9px 12px; background:#f4f5fa; font-weight:700; color:#555; width:30%; border:1px solid #e2e2e2;">Student Name</td>
+            <td style="padding:9px 12px; border:1px solid #e2e2e2;">${escapeHtml(currentSession.name)}</td>
+          </tr>
+          <tr>
+            <td style="padding:9px 12px; background:#f4f5fa; font-weight:700; color:#555; border:1px solid #e2e2e2;">Student ID</td>
+            <td style="padding:9px 12px; font-family:'Courier New',monospace; border:1px solid #e2e2e2;">${escapeHtml(currentSession.id)}</td>
+          </tr>
+          <tr>
+            <td style="padding:9px 12px; background:#f4f5fa; font-weight:700; color:#555; border:1px solid #e2e2e2;">Institution</td>
+            <td style="padding:9px 12px; border:1px solid #e2e2e2;">${escapeHtml(currentSession.institution || 'Not Set')}</td>
+          </tr>
+        </tbody>
+      </table>
       <div style="text-align:center; padding:18px; background:#f4f5fa; border-radius:10px; margin-bottom:20px;">
         <div style="font-size:32px; font-weight:800; color:#f0b429; font-family:'Courier New',monospace;">${avgGpa.toFixed(2)}</div>
         <div style="font-size:11px; color:#888; font-weight:600;">OVERALL GPA — Averaged across ${entries.length} test${entries.length === 1 ? '' : 's'} (all subjects combined)</div>
@@ -3819,15 +3900,22 @@ window.addEventListener('DOMContentLoaded', function() {
           `).join('')}
         </tbody>
       </table>
-      <div style="text-align:center; margin-top:22px; font-size:10.5px; color:#999;">© 2026 Skill Circle Academy</div>
+      ${signatureBlock}
+      <div style="text-align:center; margin-top:16px; font-size:10.5px; color:#999;">© 2026 Skill Circle Academy</div>
     `;
     document.body.appendChild(temp);
 
     try {
-      const canvas = await html2canvas(temp, { backgroundColor: '#ffffff', scale: 2 });
+      const canvas = await html2canvas(temp, { backgroundColor: '#ffffff', scale: 2, useCORS: true });
       const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: [canvas.width, canvas.height] });
-      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+
+      // A4 page (210mm × 297mm), image scaled to fit the page width with margins
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const margin = 10;
+      const imgWidth = pageWidth - margin * 2;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, imgHeight);
       pdf.save(`Test_Results_${currentSession.id}.pdf`);
     } catch(e) {
       alert('Download failed. Please try again.');
@@ -5416,17 +5504,36 @@ window.addEventListener('DOMContentLoaded', function() {
 
     const { jsPDF } = window.jspdf;
     const { examType, subjects, overallGpa, overallGrade } = lastGpaCalculation;
-    const examLabel = examType ? ` (${escapeHtml(examType)})` : '';
 
     // Build a clean, offscreen printable version for the PDF.
     // The Marks column intentionally shows ONLY the total — no MCQ/CQ/Practical breakdown.
     const temp = document.createElement('div');
-    temp.style.cssText = 'position:fixed; left:-9999px; top:0; width:600px; background:#ffffff; padding:28px; font-family:Segoe UI, Arial, sans-serif;';
+    temp.style.cssText = 'position:fixed; left:-9999px; top:0; width:700px; background:#ffffff; padding:32px; font-family:Segoe UI, Arial, sans-serif;';
     temp.innerHTML = `
       <div style="text-align:center; margin-bottom:20px;">
-        <div style="font-size:21px; font-weight:800; color:#4f8ef7;">Skill Circle Academy</div>
-        <div style="font-size:13px; color:#666; margin-top:5px;">${escapeHtml(currentSession.name)} • ID: ${escapeHtml(currentSession.id)} — GPA Calculation${examLabel}</div>
+        <div style="font-size:22px; font-weight:800; color:#4f8ef7;">Skill Circle Academy</div>
+        <div style="font-size:12px; color:#888; margin-top:3px;">GPA Calculation</div>
       </div>
+      <table style="width:100%; border-collapse:collapse; font-size:13px; margin-bottom:20px; border:1px solid #e2e2e2;">
+        <tbody>
+          <tr>
+            <td style="padding:9px 12px; background:#f4f5fa; font-weight:700; color:#555; width:30%; border:1px solid #e2e2e2;">Student Name</td>
+            <td style="padding:9px 12px; border:1px solid #e2e2e2;">${escapeHtml(currentSession.name)}</td>
+          </tr>
+          <tr>
+            <td style="padding:9px 12px; background:#f4f5fa; font-weight:700; color:#555; border:1px solid #e2e2e2;">Student ID</td>
+            <td style="padding:9px 12px; font-family:'Courier New',monospace; border:1px solid #e2e2e2;">${escapeHtml(currentSession.id)}</td>
+          </tr>
+          <tr>
+            <td style="padding:9px 12px; background:#f4f5fa; font-weight:700; color:#555; border:1px solid #e2e2e2;">Exam Type</td>
+            <td style="padding:9px 12px; border:1px solid #e2e2e2;">${escapeHtml(examType || 'General')}</td>
+          </tr>
+          <tr>
+            <td style="padding:9px 12px; background:#f4f5fa; font-weight:700; color:#555; border:1px solid #e2e2e2;">Institution</td>
+            <td style="padding:9px 12px; border:1px solid #e2e2e2;">${escapeHtml(currentSession.institution || 'Not Set')}</td>
+          </tr>
+        </tbody>
+      </table>
       <div style="text-align:center; padding:18px; background:#f4f5fa; border-radius:10px; margin-bottom:20px;">
         <div style="display:flex; justify-content:center; gap:34px;">
           <div>
@@ -5466,8 +5573,14 @@ window.addEventListener('DOMContentLoaded', function() {
     try {
       const canvas = await html2canvas(temp, { backgroundColor: '#ffffff', scale: 2 });
       const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: [canvas.width, canvas.height] });
-      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+
+      // A4 page (210mm × 297mm), image scaled to fit the page width with margins
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const margin = 10;
+      const imgWidth = pageWidth - margin * 2;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, imgHeight);
       pdf.save(`GPA_Result_${currentSession.id}.pdf`);
     } catch(e) {
       alert('Download failed. Please try again.');
