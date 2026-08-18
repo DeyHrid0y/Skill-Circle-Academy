@@ -11,6 +11,7 @@
 <!-- Firebase compat (works with file:// protocol) -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <style>
   /* ═══════════════════════════════════════
      SKILL CIRCLE ACADEMY — PREMIUM DESIGN
@@ -2673,6 +2674,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
   const app = firebase.initializeApp(firebaseConfig);
   const _db = firebase.database();
+  const auth = firebase.auth();
 
   // Helper wrappers to match modular API used throughout the code
   function ref(db, path)    { return path ? _db.ref(path) : _db.ref(); }
@@ -2929,12 +2931,24 @@ window.addEventListener('DOMContentLoaded', function() {
     const hashedPass = await sha256Hex(pass);
     await set(ref(db, 'users/' + id), { name, email, phone, pass: hashedPass, role: 'user', level, group });
     invalidateUsersCache();
+
+    try {
+      await auth.createUserWithEmailAndPassword(email, pass);
+      await auth.signOut(); // creating the account auto-signs-in; we don't want that yet
+    } catch(authErr) {
+      // Most likely this email is already used by a sibling's account, or the
+      // format was rejected — the student can still log in via the legacy
+      // DB-hash path, which auto-migrates them the next time it succeeds.
+      console.warn('Firebase Auth account creation at signup skipped:', authErr.message);
+    }
+
     alert("✅ Account created successfully!");
     window.toggleAuth('login');
     document.getElementById('login-id').value = id;
   };
 
   window.handleLogin = async () => {
+   try {
     const id = document.getElementById('login-id').value.trim();
     const pass = document.getElementById('login-pass').value.trim();
 
@@ -2952,50 +2966,87 @@ window.addEventListener('DOMContentLoaded', function() {
         const confirmSetup = confirm("No admin account was found. Create one now with the password you just typed?");
         if(!confirmSetup) return;
         const hashed = await sha256Hex(pass);
-        await set(ref(db, 'users/admin'), { name: 'System Admin', email: 'admin@lu.com', pass: hashed, role: 'admin' });
+        const adminEmail = 'admin@skillcircleacademy.app';
+        await set(ref(db, 'users/admin'), { name: 'System Admin', email: adminEmail, pass: hashed, role: 'admin' });
+        try { await auth.createUserWithEmailAndPassword(adminEmail, pass); } catch(e) { console.warn('Admin Auth account creation skipped:', e.message); }
         alert("✅ Admin account created. Logging you in...");
       }
     }
 
     const snapshot = await get(child(ref(db), `users/${id}`));
-    if (snapshot.exists()) {
-      const userData = snapshot.val();
-      const valid = await verifyPassword(userData.pass, pass);
-      if(valid) {
-        loginRateLimitReset(rl.key);
+    if(!snapshot.exists()) {
+      if(rl.data && rl.key) loginRateLimitFail(rl.key, rl.data);
+      return alert("Wrong ID or Password!");
+    }
+    const userData = snapshot.val();
+    const email = userData.email;
 
-        // Auto-migrate legacy plaintext passwords to hashed on successful login
-        if(!HASH_RE.test(userData.pass)) {
-          const hashed = await sha256Hex(pass);
-          update(ref(db), { [`/users/${id}/pass`]: hashed });
-          userData.pass = hashed;
-        }
+    const proceedWithLogin = async () => {
+      loginRateLimitReset(rl.key);
+      currentSession = { ...userData, id: id };
+      delete currentSession.pass;
+      // Never persist the password (hashed or not) in memory or localStorage
+      localStorage.setItem('skillCircleSession', JSON.stringify(currentSession));
 
-        currentSession = { ...userData, id: id };
-        delete currentSession.pass;
-        // Never persist the password (hashed or not) in memory or localStorage
-        localStorage.setItem('skillCircleSession', JSON.stringify(currentSession));
+      document.getElementById('login-page').style.display = 'none';
+      document.getElementById('portal-page').style.display = 'block';
 
-        document.getElementById('login-page').style.display = 'none';
-        document.getElementById('portal-page').style.display = 'block';
+      if(currentSession.role === 'admin' || id === 'admin') {
+        document.getElementById('menu-admin').classList.remove('hidden');
+        document.getElementById('menu-user').classList.add('hidden');
+        document.getElementById('sidebar-logout-footer').style.display = '';
+        window.populateAllStudentDropdowns();
+        window.switchTab('admin-users');
+      } else {
+        document.getElementById('menu-admin').classList.add('hidden');
+        document.getElementById('menu-user').classList.remove('hidden');
+        document.getElementById('sidebar-logout-footer').style.display = 'none';
+        window.switchTab('dash');
+      }
+    };
 
-        if(currentSession.role === 'admin' || id === 'admin') {
-          document.getElementById('menu-admin').classList.remove('hidden');
-          document.getElementById('menu-user').classList.add('hidden');
-          document.getElementById('sidebar-logout-footer').style.display = '';
-          window.populateAllStudentDropdowns();
-          window.switchTab('admin-users');
-        } else {
-          document.getElementById('menu-admin').classList.add('hidden');
-          document.getElementById('menu-user').classList.remove('hidden');
-          document.getElementById('sidebar-logout-footer').style.display = 'none';
-          window.switchTab('dash');
-        }
+    // ── Primary path: real Firebase Auth sign-in (this is now the source of truth) ──
+    if(email) {
+      try {
+        await auth.signInWithEmailAndPassword(email, pass);
+        await proceedWithLogin();
         return;
+      } catch(authErr) {
+        // Any failure here — wrong password, or no Firebase Auth account yet for
+        // this student — falls through to the legacy DB-hash check below, which
+        // is authoritative for accounts that haven't been migrated yet.
       }
     }
-    if(rl.data && rl.key) loginRateLimitFail(rl.key, rl.data);
-    alert("Wrong ID or Password!");
+
+    // ── Legacy path: verify against the DB-stored hash, and silently migrate
+    //     this account to real Firebase Auth on success ──
+    const valid = await verifyPassword(userData.pass, pass);
+    if(!valid) {
+      if(rl.data && rl.key) loginRateLimitFail(rl.key, rl.data);
+      return alert("Wrong ID or Password!");
+    }
+
+    // Auto-migrate legacy plaintext passwords to hashed
+    if(!HASH_RE.test(userData.pass)) {
+      const hashed = await sha256Hex(pass);
+      await update(ref(db), { [`/users/${id}/pass`]: hashed });
+    }
+
+    // Auto-migrate this student to a real Firebase Auth account, so future
+    // logins go through the primary (secure, server-verified) path above.
+    if(email) {
+      try {
+        await auth.createUserWithEmailAndPassword(email, pass);
+      } catch(createErr) {
+        console.warn('Firebase Auth migration for', id, 'skipped:', createErr.message);
+      }
+    }
+
+    await proceedWithLogin();
+   } catch(fatalErr) {
+     console.error('handleLogin fatal error:', fatalErr);
+     alert('⚠️ Login error (please screenshot this and send to support):\n\n' + (fatalErr && fatalErr.message ? fatalErr.message : fatalErr) + '\n\nCode: ' + (fatalErr && fatalErr.code ? fatalErr.code : 'none'));
+   }
   };
 
   window.switchTab = (tabId) => {
@@ -4754,10 +4805,25 @@ window.addEventListener('DOMContentLoaded', function() {
     if(!currentValid) return showMsg('❌ Current password is incorrect.', false);
     if(current === newPass) return showMsg('❌ New password must be different from the current one.', false);
 
-    // Update password directly in Firebase (hashed)
+    // Update password directly in Firebase (hashed) — kept as a fallback/legacy record
     const hashedNew = await sha256Hex(newPass);
     await update(ref(db), { [`/users/${currentSession.id}/pass`]: hashedNew });
     localStorage.setItem('skillCircleSession', JSON.stringify(currentSession));
+
+    // Also update the real Firebase Auth password, so future logins go through
+    // the primary (secure) sign-in path. Signing in fresh with the just-verified
+    // current password doubles as reauthentication, which Firebase requires
+    // before allowing a sensitive change like updatePassword.
+    if(userData.email) {
+      try {
+        await auth.signInWithEmailAndPassword(userData.email, current);
+        await auth.currentUser.updatePassword(newPass);
+      } catch(authErr) {
+        console.warn('Firebase Auth password update skipped:', authErr.message);
+        // Not fatal — the DB hash above still updated, and login will silently
+        // (re)migrate this account to Auth on the next sign-in attempt.
+      }
+    }
 
     document.getElementById('cp-current').value = '';
     document.getElementById('cp-new').value = '';
@@ -5694,7 +5760,7 @@ window.addEventListener('DOMContentLoaded', function() {
     }
   };
 
-  window.saveProfile = () => {
+  window.saveProfile = async () => {
     const newName = document.getElementById('edit-name').value.trim();
     const newEmail = document.getElementById('edit-email').value.trim();
     const newInstitution = document.getElementById('edit-institution').value.trim();
@@ -5702,22 +5768,30 @@ window.addEventListener('DOMContentLoaded', function() {
     const hscVisible = document.getElementById('edit-hsc-result-wrap').style.display !== 'none';
     const newHscResult = hscVisible ? document.getElementById('edit-hsc-result').value.trim() : '';
     if(!newName || !newEmail) return alert("Fields cannot be empty!");
+    if(!editingId) return alert("Something went wrong — no profile is selected to update. Please close this and try again.");
+
     const updates = {};
     updates[`/users/${editingId}/name`] = newName;
     updates[`/users/${editingId}/email`] = newEmail;
     updates[`/users/${editingId}/institution`] = newInstitution;
     updates[`/users/${editingId}/sscResult`] = newSscResult;
     if(hscVisible) updates[`/users/${editingId}/hscResult`] = newHscResult;
-    update(ref(db), updates).then(() => {
+
+    try {
+      await update(ref(db), updates);
       if(editingId === currentSession.id) {
         currentSession.name = newName;
         currentSession.email = newEmail;
         localStorage.setItem('skillCircleSession', JSON.stringify(currentSession));
       }
-      alert("Profile updated successfully!");
+      invalidateUsersCache();
+      alert("✅ Profile updated successfully!");
       window.closeModal();
       if(currentSession.role === 'admin') renderUserTable(); else loadProfileData();
-    });
+    } catch(err) {
+      console.error('saveProfile failed:', err);
+      alert(`❌ Update failed: ${err.message || err}\n\nThis is usually a Firebase permissions issue — check your Realtime Database Rules.`);
+    }
   };
 
   // ── All Users Data Cache ──
@@ -6008,12 +6082,26 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 
   window.adminResetStudentPassword = async (userId) => {
-    const newPass = prompt(`Set a new password for Student ID ${userId} (min 4 characters):`);
+    const sendEmailInstead = confirm(`Reset password for Student ID ${userId}:\n\nOK = Send a password reset email (student sets their own new password)\nCancel = Set a temporary password yourself instead`);
+
+    if(sendEmailInstead) {
+      const emailSnap = await get(child(ref(db), `users/${userId}/email`));
+      if(!emailSnap.exists()) return alert('No email found for this student.');
+      try {
+        await auth.sendPasswordResetEmail(emailSnap.val());
+        alert(`✅ Password reset email sent to ${emailSnap.val()}.`);
+      } catch(e) {
+        alert(`❌ Couldn't send reset email: ${e.message}\n\nYou can still set a temporary password directly instead.`);
+      }
+      return;
+    }
+
+    const newPass = prompt(`Set a temporary password for Student ID ${userId} (min 4 characters):`);
     if(newPass === null) return; // cancelled
     if(newPass.length < 4) return alert("Password must be at least 4 characters!");
     const hashed = await sha256Hex(newPass);
     await update(ref(db), { [`/users/${userId}/pass`]: hashed });
-    alert(`✅ Password updated for ${userId}. Please share the new password with the student directly (it cannot be viewed again).`);
+    alert(`✅ Temporary password set for ${userId}. Please share it with the student directly. They'll be signed in through it automatically on next login.`);
   };
 
   window.adminDeleteUser = async (userId) => {
@@ -6082,6 +6170,17 @@ window.addEventListener('DOMContentLoaded', function() {
     const hashedPass = await sha256Hex(pass);
     await set(ref(db, 'users/' + id), { name, email, phone, pass: hashedPass, role, status, level, group, institution, sscResult, hscResult, monthlyFee });
     invalidateUsersCache();
+
+    try {
+      await auth.createUserWithEmailAndPassword(email, pass);
+      await auth.signOut(); // don't stay signed in as the new student — admin keeps their own session
+    } catch(authErr) {
+      // Most likely this email is already used by a sibling's account — the
+      // student can still log in via the legacy DB-hash path, which
+      // auto-migrates them to Auth the next time it succeeds.
+      console.warn('Firebase Auth account creation skipped:', authErr.message);
+    }
+
     alert(`✅ Account created for ${name} (ID: ${id})!`);
     document.getElementById('new-student-name').value = '';
     document.getElementById('new-student-id').value = '';
