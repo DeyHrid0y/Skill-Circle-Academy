@@ -1043,6 +1043,7 @@
       <div class="nav-item" id="nav-exams" onclick="switchTab('exams')"><span class="nav-dot"></span>Exam Schedule</div>
       <div class="nav-item" id="nav-syllabus" onclick="switchTab('syllabus')"><span class="nav-dot"></span>Syllabus Progress</div>
       <div class="nav-item" id="nav-testresults" onclick="switchTab('testresults')"><span class="nav-dot"></span>Test Results</div>
+      <div class="nav-item" id="nav-leaderboard" onclick="switchTab('leaderboard')"><span class="nav-dot"></span>🏆 Leaderboard</div>
       <div class="nav-item" id="nav-payment" onclick="switchTab('payment')"><span class="nav-dot"></span>Payment Tracker</div>
       <div class="nav-item" id="nav-class-dates" onclick="switchTab('class-dates')"><span class="nav-dot"></span>Classes Held Dates</div>
       <div class="nav-item" id="nav-homework" onclick="switchTab('homework')"><span class="nav-dot"></span>Homework</div>
@@ -1177,6 +1178,22 @@
           <table>
             <thead><tr><th>Subject</th><th>Test No</th><th>Marks</th><th>%</th><th>Grade</th><th>GPA</th></tr></thead>
             <tbody id="student-testresults-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- LEADERBOARD (Student, read-only, ranks everyone) -->
+    <section id="tab-leaderboard" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">🏆 Leaderboard</div>
+        <div class="page-subtitle">Ranked by average GPA across all Test Results. Tap a student to see their full result sheet.</div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Rank</th><th>Student</th><th>ID</th><th>Tests Taken</th><th>Avg GPA</th></tr></thead>
+            <tbody id="leaderboard-table-body"></tbody>
           </table>
         </div>
       </div>
@@ -3063,6 +3080,7 @@ window.addEventListener('DOMContentLoaded', function() {
     if(tabId === 'admin-exams') loadAllExamsPreview();
     if(tabId === 'syllabus') loadStudentSyllabus();
     if(tabId === 'testresults') loadStudentTestResults();
+    if(tabId === 'leaderboard') loadLeaderboard();
     if(tabId === 'admin-users') renderUserTable();
     if(tabId === 'admin-passrequests') loadPassRequests();
     if(tabId === 'admin-secretkey') loadSecretKey();
@@ -3876,7 +3894,94 @@ window.addEventListener('DOMContentLoaded', function() {
     `).join('');
   };
 
-  // ── Download the student's own Test Results as a clean PDF ──
+  // ══════════════════════════════════════════
+  //  LEADERBOARD — ranks every student by avg GPA across all their Test Results
+  // ══════════════════════════════════════════
+  window.loadLeaderboard = async () => {
+    const tbody = document.getElementById('leaderboard-table-body');
+    if(!tbody) return;
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:24px;">⏳ Loading...</td></tr>`;
+
+    const [resultsSnap, users] = await Promise.all([
+      get(child(ref(db), 'testResults')),
+      fetchUsersData()
+    ]);
+
+    if(!resultsSnap.exists()) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:24px;">No test results published yet.</td></tr>`;
+      return;
+    }
+
+    const allResults = resultsSnap.val();
+    const ranked = Object.entries(allResults).map(([studentId, entriesObj]) => {
+      const entries = Object.values(entriesObj);
+      const avgGpa = entries.length ? entries.reduce((sum, e) => sum + (parseFloat(e.gpa) || 0), 0) / entries.length : 0;
+      const u = users[studentId] || {};
+      return { studentId, name: u.name || studentId, testsCount: entries.length, avgGpa };
+    }).filter(r => r.testsCount > 0)
+      .sort((a, b) => b.avgGpa - a.avgGpa);
+
+    window._leaderboardCache = ranked;
+
+    const medals = ['🥇', '🥈', '🥉'];
+    tbody.innerHTML = ranked.map((r, i) => {
+      const rankDisplay = medals[i] || `#${i + 1}`;
+      const gpaColor = r.avgGpa >= 4 ? 'var(--green)' : r.avgGpa >= 2.5 ? 'var(--gold)' : 'var(--red)';
+      return `
+        <tr class="leaderboard-row" style="cursor:pointer;" data-sid="${escapeHtml(r.studentId)}">
+          <td style="font-size:16px; font-weight:800;">${rankDisplay}</td>
+          <td style="font-weight:700;">${escapeHtml(r.name)}</td>
+          <td style="font-family:var(--mono); color:var(--accent);">${escapeHtml(r.studentId)}</td>
+          <td style="font-family:var(--mono); color:var(--text-dim);">${r.testsCount}</td>
+          <td style="font-family:var(--mono); font-weight:800; color:${gpaColor};">${r.avgGpa.toFixed(2)}</td>
+        </tr>`;
+    }).join('');
+
+    tbody.querySelectorAll('.leaderboard-row').forEach(row => {
+      row.addEventListener('click', () => viewLeaderboardStudentResults(row.dataset.sid));
+    });
+  };
+
+  // ── View any student's full Test Results from the Leaderboard ──
+  window.viewLeaderboardStudentResults = async (studentId) => {
+    const entry = (window._leaderboardCache || []).find(r => r.studentId === studentId);
+    const modal = document.getElementById('leaderboard-detail-modal');
+    const title = document.getElementById('leaderboard-detail-title');
+    const summary = document.getElementById('leaderboard-detail-summary');
+    const tbody = document.getElementById('leaderboard-detail-table');
+
+    title.innerText = `📝 ${entry ? entry.name : studentId}'s Test Results`;
+    summary.innerHTML = `<div style="color:var(--text-muted); font-size:13px;">Loading...</div>`;
+    tbody.innerHTML = '';
+    modal.style.display = 'flex';
+
+    const snap = await get(child(ref(db), `testResults/${studentId}`));
+    if(!snap.exists()) {
+      summary.innerHTML = '';
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">No test results found.</td></tr>`;
+      return;
+    }
+    const entries = Object.values(snap.val())
+      .sort((a, b) => a.subject.localeCompare(b.subject) || a.testNo - b.testNo);
+
+    summary.innerHTML = overallGpaCard(entries, '📈 Overall GPA (All Subjects & Tests)');
+    tbody.innerHTML = entries.map(r => `
+      <tr>
+        <td style="font-weight:700;">${escapeHtml(r.subject)}</td>
+        <td style="font-family:var(--mono);">Test ${r.testNo}</td>
+        <td style="font-family:var(--mono);">${r.obtainedMarks} / ${r.totalMarks}</td>
+        <td style="font-family:var(--mono); color:var(--text-dim);">${parseFloat(r.percentage).toFixed(1)}%</td>
+        <td style="font-weight:700; color:var(--accent);">${escapeHtml(r.grade)}</td>
+        <td style="font-family:var(--mono); color:var(--green); font-weight:700;">${parseFloat(r.gpa).toFixed(2)}</td>
+      </tr>
+    `).join('');
+  };
+
+  window.closeLeaderboardDetailModal = () => {
+    document.getElementById('leaderboard-detail-modal').style.display = 'none';
+  };
+
+
   window.downloadMyTestResultsPdf = async () => {
     if(!currentSession || currentSession.role === 'admin') return; // safety: students only
     const entries = window._myTestResultsCache;
@@ -7333,6 +7438,25 @@ window.addEventListener('DOMContentLoaded', function() {
       </div>
     </div>
     <iframe id="note-preview-iframe" src="" style="flex:1; width:100%; border:none; background:#f4f5fa;" allow="autoplay"></iframe>
+  </div>
+</div>
+
+<!-- LEADERBOARD: VIEW ANOTHER STUDENT'S TEST RESULTS -->
+<div id="leaderboard-detail-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:4000; align-items:center; justify-content:center; padding:16px;" onclick="if(event.target===this)closeLeaderboardDetailModal()">
+  <div style="background:var(--surface); border-radius:16px; border:1px solid var(--border-bright); width:100%; max-width:600px; max-height:88vh; box-shadow:0 20px 60px rgba(0,0,0,0.3); display:flex; flex-direction:column; overflow:hidden;">
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid var(--border); flex-shrink:0;">
+      <div id="leaderboard-detail-title" style="font-size:16px; font-weight:800;">📝 Test Results</div>
+      <button onclick="closeLeaderboardDetailModal()" style="background:#eef0ff;border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:15px;color:var(--text-muted);">✕</button>
+    </div>
+    <div style="overflow-y:auto; padding:20px;">
+      <div id="leaderboard-detail-summary" style="text-align:center; padding:16px; background:#f4f5fa; border-radius:var(--radius-sm); margin-bottom:16px;"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Subject</th><th>Test No</th><th>Marks</th><th>%</th><th>Grade</th><th>GPA</th></tr></thead>
+          <tbody id="leaderboard-detail-table"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 
