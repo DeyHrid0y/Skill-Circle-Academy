@@ -816,6 +816,153 @@
     .auth-card { padding: 28px 16px; }
     .page-title { font-size: 18px; }
   }
+
+  /* ═══════════════════════════════════════
+     PUBLIC HOMEPAGE
+  ═══════════════════════════════════════ */
+  #home-page { background: var(--bg); color: var(--text); overflow-x: hidden; }
+  .home-nav {
+    position: sticky; top: 0; z-index: 500;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 6vw; background: rgba(255,248,242,0.88); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .home-nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 17px; }
+  .home-nav-brand .mark {
+    width: 36px; height: 36px; border-radius: 11px; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(160deg, #6366f1, #4f46e5, #0ea5e9); font-size: 17px; flex-shrink: 0;
+  }
+  .home-nav-brand span.hi { color: var(--accent); }
+  .home-nav-links { display: flex; align-items: center; gap: 28px; }
+  .home-nav-links a { color: var(--text-dim); text-decoration: none; font-weight: 600; font-size: 14px; }
+  .home-nav-links a:hover { color: var(--accent); }
+  .home-nav-cta {
+    background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; border: none;
+    padding: 10px 22px; border-radius: 100px; font-weight: 700; font-size: 13.5px; cursor: pointer;
+    box-shadow: 0 6px 18px rgba(99,102,241,0.3);
+  }
+
+  .home-hero {
+    display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 40px; align-items: center;
+    padding: 7vw 6vw 5vw; max-width: 1280px; margin: 0 auto;
+  }
+  .home-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 100px;
+    background: var(--accent-glow); color: var(--accent); font-size: 12.5px; font-weight: 700;
+    letter-spacing: 0.3px; margin-bottom: 20px;
+  }
+  .home-hero h1 {
+    font-size: clamp(34px, 4.6vw, 58px); line-height: 1.06; font-weight: 800; letter-spacing: -1.5px;
+    margin: 0 0 20px;
+  }
+  .home-hero h1 .accent-line { display: block; background: linear-gradient(100deg, var(--accent), var(--accent2) 60%, var(--cyan)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .home-hero-sub { font-size: 17px; color: var(--text-dim); line-height: 1.6; max-width: 480px; margin-bottom: 32px; }
+  .home-hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 40px; }
+  .home-btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; border: none;
+    padding: 15px 28px; border-radius: 14px; font-weight: 700; font-size: 15px; cursor: pointer;
+    box-shadow: 0 10px 26px rgba(99,102,241,0.32); display: inline-flex; align-items: center; gap: 8px;
+  }
+  .home-btn-secondary {
+    background: var(--surface); color: var(--text); border: 1.5px solid var(--border-bright);
+    padding: 15px 28px; border-radius: 14px; font-weight: 700; font-size: 15px; cursor: pointer;
+  }
+  .home-stats-row { display: flex; gap: 34px; flex-wrap: wrap; }
+  .home-stat-num { font-family: var(--mono); font-size: 26px; font-weight: 700; color: var(--accent); }
+  .home-stat-label { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
+
+  /* ── Hero signature: orbiting subject ring ── */
+  .home-orbit-wrap { position: relative; width: 100%; max-width: 400px; aspect-ratio: 1; margin: 0 auto; }
+  .home-orbit-ring {
+    position: absolute; inset: 0; border-radius: 50%; border: 1.5px dashed var(--border-bright);
+    animation: home-spin 38s linear infinite;
+  }
+  .home-orbit-ring.inner { inset: 15%; animation-duration: 26s; animation-direction: reverse; }
+  .home-orbit-core {
+    position: absolute; inset: 32%; border-radius: 50%;
+    background: linear-gradient(160deg, #6366f1, #4f46e5, #0ea5e9);
+    display: flex; align-items: center; justify-content: center; font-size: 44px;
+    box-shadow: 0 20px 50px rgba(99,102,241,0.35);
+  }
+  .home-orbit-node {
+    position: absolute; width: 62px; height: 62px; border-radius: 16px; background: var(--surface);
+    box-shadow: var(--shadow-lg); display: flex; align-items: center; justify-content: center; font-size: 24px;
+    border: 1px solid var(--border-bright);
+  }
+  .home-orbit-node.n1 { top: -6%; left: 50%; margin-left: -31px; }
+  .home-orbit-node.n2 { top: 50%; right: -6%; margin-top: -31px; }
+  .home-orbit-node.n3 { bottom: -6%; left: 50%; margin-left: -31px; }
+  .home-orbit-node.n4 { top: 50%; left: -6%; margin-top: -31px; }
+  @keyframes home-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .home-orbit-ring { animation: none; } }
+
+  .home-section { padding: 5vw 6vw; max-width: 1280px; margin: 0 auto; }
+  .home-section-head { text-align: center; max-width: 620px; margin: 0 auto 44px; }
+  .home-section-head h2 { font-size: clamp(26px, 3vw, 36px); font-weight: 800; letter-spacing: -0.8px; margin: 10px 0 12px; }
+  .home-section-head p { color: var(--text-muted); font-size: 15.5px; line-height: 1.6; }
+
+  .home-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .home-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .home-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 28px 24px; box-shadow: var(--shadow-sm); transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .home-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+  .home-card .icon-badge {
+    width: 50px; height: 50px; border-radius: 13px; display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 16px;
+  }
+  .home-card h3 { font-size: 16.5px; font-weight: 700; margin: 0 0 8px; }
+  .home-card p { font-size: 13.5px; color: var(--text-muted); line-height: 1.55; margin: 0; }
+
+  .home-course-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow-sm); }
+  .home-course-tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 11px; border-radius: 100px; margin-bottom: 12px; }
+  .home-course-card h3 { font-size: 17px; font-weight: 700; margin: 0 0 8px; }
+  .home-course-card p { font-size: 13.5px; color: var(--text-muted); line-height: 1.5; margin: 0 0 18px; }
+  .home-course-link { font-size: 13px; font-weight: 700; color: var(--accent); text-decoration: none; }
+
+  .home-notice-card { display: flex; gap: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 18px 20px; margin-bottom: 12px; align-items: flex-start; }
+  .home-notice-pin { width: 38px; height: 38px; border-radius: 10px; background: var(--accent-glow); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+  .home-notice-title { font-weight: 700; font-size: 14.5px; margin-bottom: 3px; }
+  .home-notice-date { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+  .home-notice-body { font-size: 13.5px; color: var(--text-dim); margin-top: 6px; line-height: 1.5; }
+
+  .home-about-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center; }
+  .home-about-wrap p { color: var(--text-dim); font-size: 15.5px; line-height: 1.7; }
+  .home-about-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+  .home-about-stat { background: var(--surface); border-radius: var(--radius-sm); padding: 18px 12px; text-align: center; border: 1px solid var(--border); }
+  .home-about-stat .num { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--accent); }
+  .home-about-stat .lbl { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 3px; }
+  .home-dash-preview { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border-bright); padding: 22px; box-shadow: var(--shadow); }
+  .home-dash-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+  .home-dash-row:last-child { border-bottom: none; }
+  .home-dash-row .ic { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+
+  .home-cta-band {
+    background: linear-gradient(135deg, #4338ca, #6366f1 55%, #0ea5e9); border-radius: 28px;
+    padding: 64px 6vw; text-align: center; color: #fff; margin: 5vw 6vw; position: relative; overflow: hidden;
+  }
+  .home-cta-band h2 { font-size: clamp(26px, 3.4vw, 38px); font-weight: 800; letter-spacing: -0.8px; margin: 0 0 14px; }
+  .home-cta-band p { opacity: 0.88; font-size: 15.5px; margin: 0 0 30px; }
+  .home-cta-band .home-btn-primary { background: #fff; color: var(--accent); box-shadow: 0 10px 26px rgba(0,0,0,0.18); }
+
+  .home-footer { padding: 34px 6vw; text-align: center; color: var(--text-muted); font-size: 13px; border-top: 1px solid var(--border); }
+  .home-footer .wa-link { color: #16a34a; font-weight: 700; text-decoration: none; }
+
+  @media (max-width: 900px) {
+    .home-nav-links { display: none; }
+    .home-hero { grid-template-columns: 1fr; padding-top: 12vw; }
+    .home-orbit-wrap { max-width: 280px; order: -1; margin-bottom: 20px; }
+    .home-grid-4, .home-grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .home-about-wrap { grid-template-columns: 1fr; }
+    .home-cta-band { margin: 8vw 4vw; padding: 48px 6vw; }
+  }
+  @media (max-width: 560px) {
+    .home-grid-4, .home-grid-3 { grid-template-columns: 1fr; }
+    .home-hero-ctas { flex-direction: column; }
+    .home-hero-ctas button { width: 100%; justify-content: center; }
+    .home-stats-row { gap: 22px; }
+  }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -834,9 +981,178 @@
 </div>
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 
+<!-- PUBLIC HOMEPAGE -->
+<div id="home-page">
+  <nav class="home-nav">
+    <div class="home-nav-brand">
+      <div class="mark">🎓</div>
+      Skill Circle <span class="hi">Academy</span>
+    </div>
+    <div class="home-nav-links">
+      <a href="#home-courses">Courses</a>
+      <a href="#home-about">About</a>
+      <a href="#home-notices">Notices</a>
+      <a href="https://wa.me/8801729640488" target="_blank" rel="noopener noreferrer">Contact</a>
+    </div>
+    <button class="home-nav-cta" onclick="showLoginFromHome()">Student Login</button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="home-hero">
+    <div>
+      <div class="home-eyebrow">🏫 SSC &amp; HSC Coaching, Organized Right</div>
+      <h1>Learn. Practice.<span class="accent-line">Achieve.</span></h1>
+      <p class="home-hero-sub">Quality education, organized learning, and continuous progress — everything a student needs to track and improve, all in one place.</p>
+      <div class="home-hero-ctas">
+        <button class="home-btn-primary" onclick="document.getElementById('home-courses').scrollIntoView({behavior:'smooth'})">Explore Courses →</button>
+        <button class="home-btn-secondary" onclick="showLoginFromHome()">Student Login</button>
+      </div>
+      <div class="home-stats-row" id="home-stats-row">
+        <div><div class="home-stat-num">—</div><div class="home-stat-label">Students</div></div>
+        <div><div class="home-stat-num">6</div><div class="home-stat-label">Course Tracks</div></div>
+        <div><div class="home-stat-num">—</div><div class="home-stat-label">Tests Conducted</div></div>
+      </div>
+    </div>
+    <div class="home-orbit-wrap">
+      <div class="home-orbit-ring"></div>
+      <div class="home-orbit-ring inner"></div>
+      <div class="home-orbit-core">🎓</div>
+      <div class="home-orbit-node n1" title="Physics">⚡</div>
+      <div class="home-orbit-node n2" title="Chemistry">⚗️</div>
+      <div class="home-orbit-node n3" title="Higher Math">📐</div>
+      <div class="home-orbit-node n4" title="ICT">💻</div>
+    </div>
+  </section>
+
+  <!-- WHY CHOOSE US -->
+  <section class="home-section">
+    <div class="home-section-head">
+      <div class="home-eyebrow">Why Us</div>
+      <h2>Why Choose Skill Circle Academy?</h2>
+      <p>Built around structure and visibility — for both students and parents.</p>
+    </div>
+    <div class="home-grid-4">
+      <div class="home-card">
+        <div class="icon-badge" style="background:var(--accent-glow); color:var(--accent);">📚</div>
+        <h3>Structured Learning</h3>
+        <p>Organized routines and syllabus tracking so every class builds on the last.</p>
+      </div>
+      <div class="home-card">
+        <div class="icon-badge" style="background:rgba(139,92,246,0.12); color:var(--purple);">👨‍🏫</div>
+        <h3>Expert Guidance</h3>
+        <p>Focused, subject-wise instruction for SSC and HSC students.</p>
+      </div>
+      <div class="home-card">
+        <div class="icon-badge" style="background:rgba(245,158,11,0.12); color:var(--gold);">📝</div>
+        <h3>Regular Tests</h3>
+        <p>Frequent test papers with instant, transparent grading (MCQ + CQ).</p>
+      </div>
+      <div class="home-card">
+        <div class="icon-badge" style="background:rgba(6,182,212,0.12); color:var(--cyan);">📊</div>
+        <h3>Progress Tracking</h3>
+        <p>Live GPA, syllabus %, and a leaderboard — students always know where they stand.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- COURSES -->
+  <section class="home-section" id="home-courses">
+    <div class="home-section-head">
+      <div class="home-eyebrow">Courses</div>
+      <h2>Subjects We Teach</h2>
+      <p>Focused coaching across SSC and HSC science subjects.</p>
+    </div>
+    <div class="home-grid-3">
+      <div class="home-course-card">
+        <span class="home-course-tag" style="background:rgba(16,185,129,0.12); color:var(--green);">SSC</span>
+        <h3>⚡ Physics</h3>
+        <p>Core concepts built from the ground up, with regular problem practice.</p>
+        <a class="home-course-link" href="#" onclick="showLoginFromHome(); return false;">Join this course →</a>
+      </div>
+      <div class="home-course-card">
+        <span class="home-course-tag" style="background:rgba(16,185,129,0.12); color:var(--green);">SSC</span>
+        <h3>📐 Higher Mathematics</h3>
+        <p>Step-by-step problem solving to build real exam confidence.</p>
+        <a class="home-course-link" href="#" onclick="showLoginFromHome(); return false;">Join this course →</a>
+      </div>
+      <div class="home-course-card">
+        <span class="home-course-tag" style="background:rgba(245,158,11,0.12); color:var(--gold);">HSC</span>
+        <h3>⚡ Physics</h3>
+        <p>Deeper theory and application, aligned with board exam patterns.</p>
+        <a class="home-course-link" href="#" onclick="showLoginFromHome(); return false;">Join this course →</a>
+      </div>
+      <div class="home-course-card">
+        <span class="home-course-tag" style="background:rgba(245,158,11,0.12); color:var(--gold);">HSC</span>
+        <h3>⚗️ Chemistry</h3>
+        <p>Organic, inorganic and physical chemistry — clearly explained.</p>
+        <a class="home-course-link" href="#" onclick="showLoginFromHome(); return false;">Join this course →</a>
+      </div>
+      <div class="home-course-card">
+        <span class="home-course-tag" style="background:rgba(245,158,11,0.12); color:var(--gold);">HSC</span>
+        <h3>📐 Higher Mathematics</h3>
+        <p>Calculus, algebra and geometry with heavy practice-paper focus.</p>
+        <a class="home-course-link" href="#" onclick="showLoginFromHome(); return false;">Join this course →</a>
+      </div>
+      <div class="home-course-card">
+        <span class="home-course-tag" style="background:rgba(99,102,241,0.12); color:var(--accent);">SSC &amp; HSC</span>
+        <h3>💻 ICT</h3>
+        <p>Practical, exam-focused Information & Communication Technology.</p>
+        <a class="home-course-link" href="#" onclick="showLoginFromHome(); return false;">Join this course →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE NOTICES -->
+  <section class="home-section" id="home-notices">
+    <div class="home-section-head">
+      <div class="home-eyebrow">🔔 Notices</div>
+      <h2>Latest Updates</h2>
+      <p>Published directly by the academy — always current.</p>
+    </div>
+    <div id="home-notices-list" style="max-width:680px; margin:0 auto;">
+      <div style="text-align:center; color:var(--text-muted); font-size:13.5px; padding:20px;">Loading...</div>
+    </div>
+  </section>
+
+  <!-- ABOUT + DASHBOARD PREVIEW -->
+  <section class="home-section" id="home-about">
+    <div class="home-about-wrap">
+      <div>
+        <div class="home-eyebrow">About Us</div>
+        <h2 style="font-size:clamp(24px,2.8vw,32px); font-weight:800; letter-spacing:-0.6px; margin:10px 0 14px;">Committed to structured, effective learning</h2>
+        <p>Skill Circle Academy is committed to providing structured, accessible and effective learning for SSC and HSC students — with real progress tracking instead of guesswork.</p>
+        <div class="home-about-stats" id="home-about-stats">
+          <div class="home-about-stat"><div class="num">—</div><div class="lbl">Students</div></div>
+          <div class="home-about-stat"><div class="num">6</div><div class="lbl">Courses</div></div>
+          <div class="home-about-stat"><div class="num">—</div><div class="lbl">Tests Held</div></div>
+        </div>
+      </div>
+      <div class="home-dash-preview">
+        <div style="font-weight:800; font-size:13px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:10px;">📱 Student Dashboard Preview</div>
+        <div class="home-dash-row"><div class="ic" style="background:var(--accent-glow); color:var(--accent);">📅</div> Upcoming Class</div>
+        <div class="home-dash-row"><div class="ic" style="background:rgba(245,158,11,0.12); color:var(--gold);">📝</div> Next Exam</div>
+        <div class="home-dash-row"><div class="ic" style="background:rgba(16,185,129,0.12); color:var(--green);">📊</div> Test Results &amp; GPA</div>
+        <div class="home-dash-row"><div class="ic" style="background:rgba(139,92,246,0.12); color:var(--purple);">📚</div> Syllabus Progress</div>
+        <div class="home-dash-row"><div class="ic" style="background:rgba(6,182,212,0.12); color:var(--cyan);">💰</div> Payment Status</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BAND -->
+  <div class="home-cta-band">
+    <h2>Ready to Start Your Learning Journey?</h2>
+    <p>Join Skill Circle Academy today — organized classes, real progress tracking.</p>
+    <button class="home-btn-primary" onclick="showSignupFromHome()">Get Started →</button>
+  </div>
+
+  <footer class="home-footer">
+    © 2026 <strong style="color:var(--text-dim);">Skill Circle Academy</strong> — All Rights Reserved
+    &nbsp;|&nbsp; <a class="wa-link" href="https://wa.me/8801729640488" target="_blank" rel="noopener noreferrer">Chat on WhatsApp</a>
+  </footer>
+</div>
+
 <!-- LOGIN PAGE -->
-<!-- LOGIN PAGE -->
-<div id="login-page" class="auth-wrapper">
+<div id="login-page" class="auth-wrapper" style="display:none;">
   <!-- Left decorative panel -->
   <div class="auth-panel-left">
     <div class="auth-panel-content">
@@ -1060,6 +1376,7 @@
       <div class="nav-item" id="nav-admin-syllabus" onclick="switchTab('admin-syllabus')"><span class="nav-dot"></span>Manage Syllabus</div>
       <div class="nav-item" id="nav-admin-testresults" onclick="switchTab('admin-testresults')"><span class="nav-dot"></span>Manage Test Results</div>
       <div class="nav-item" id="nav-admin-gpa-approvals" onclick="switchTab('admin-gpa-approvals')"><span class="nav-dot"></span>Approve GPA Sheets</div>
+      <div class="nav-item" id="nav-admin-notices" onclick="switchTab('admin-notices')"><span class="nav-dot"></span>🔔 Manage Notices</div>
       <div class="nav-item" id="nav-admin-payments" onclick="switchTab('admin-payments')"><span class="nav-dot"></span>Manage Payments</div>
       <div class="nav-item" id="nav-admin-class-dates" onclick="switchTab('admin-class-dates')"><span class="nav-dot"></span>Manage Class Dates</div>
       <div class="nav-item" id="nav-admin-homework" onclick="switchTab('admin-homework')"><span class="nav-dot"></span>Manage Homework</div>
@@ -1813,6 +2130,34 @@
           <table>
             <thead><tr><th>Subject</th><th>Marks</th><th>Grade</th><th>GPA Point</th></tr></thead>
             <tbody id="admin-gpaappr-detail-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN: MANAGE NOTICES -->
+    <section id="tab-admin-notices" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">🔔 Manage Notices</div>
+        <div class="page-subtitle">Published notices appear live on the public homepage</div>
+      </div>
+      <div class="admin-form-card">
+        <div class="form-group">
+          <label>Notice Title</label>
+          <input type="text" id="notice-title" placeholder="e.g. Monthly Exam Schedule">
+        </div>
+        <div class="form-group">
+          <label>Details (Optional)</label>
+          <input type="text" id="notice-body" placeholder="e.g. The monthly exam will be held on 28th August.">
+        </div>
+        <button class="btn-action" onclick="publishNotice()">📢 Publish Notice</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 Published Notices</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Title</th><th>Details</th><th>Date</th><th>Action</th></tr></thead>
+            <tbody id="admin-notices-table"></tbody>
           </table>
         </div>
       </div>
@@ -2835,6 +3180,7 @@ window.addEventListener('DOMContentLoaded', function() {
   const savedSession = localStorage.getItem('skillCircleSession');
   if(savedSession) {
     currentSession = JSON.parse(savedSession);
+    document.getElementById('home-page').style.display = 'none';
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('portal-page').style.display = 'block';
     if(currentSession.role === 'admin') {
@@ -2867,6 +3213,120 @@ window.addEventListener('DOMContentLoaded', function() {
       document.getElementById('forgot-newpass').value = '';
     }
     else document.getElementById('login-page').style.display = 'flex';
+  };
+
+  // ── Homepage ↔ Auth navigation ──
+  window.showLoginFromHome = () => {
+    document.getElementById('home-page').style.display = 'none';
+    document.getElementById('login-page').style.display = 'flex';
+  };
+  window.showSignupFromHome = () => {
+    document.getElementById('home-page').style.display = 'none';
+    document.getElementById('signup-page').style.display = 'flex';
+    document.getElementById('login-page').style.display = 'none';
+    generateSignupId();
+  };
+  window.showHomePage = () => {
+    document.getElementById('login-page').style.display = 'none';
+    document.getElementById('signup-page').style.display = 'none';
+    document.getElementById('forgot-page').style.display = 'none';
+    document.getElementById('home-page').style.display = 'block';
+    window.loadHomeStats();
+    window.loadHomeNotices();
+  };
+
+  // ── Public homepage: real stats (no fabricated numbers) ──
+  window.loadHomeStats = async () => {
+    try {
+      const [usersSnap, resultsSnap] = await Promise.all([
+        get(child(ref(db), 'users')),
+        get(child(ref(db), 'testResults'))
+      ]);
+      let studentCount = 0;
+      if(usersSnap.exists()) {
+        const users = usersSnap.val();
+        studentCount = Object.values(users).filter(u => u.role !== 'admin' && (u.status || 'Present') === 'Present').length;
+      }
+      let testCount = 0;
+      if(resultsSnap.exists()) {
+        const allResults = resultsSnap.val();
+        Object.values(allResults).forEach(entriesObj => { testCount += Object.keys(entriesObj).length; });
+      }
+      // Fill in order: [students, courses(fixed), tests] — appears in both the hero row and the about-section row
+      const heroNums = document.querySelectorAll('#home-stats-row .home-stat-num');
+      if(heroNums[0]) heroNums[0].innerText = studentCount;
+      if(heroNums[2]) heroNums[2].innerText = testCount;
+      const aboutNums = document.querySelectorAll('#home-about-stats .num');
+      if(aboutNums[0]) aboutNums[0].innerText = studentCount;
+      if(aboutNums[2]) aboutNums[2].innerText = testCount;
+    } catch(e) { console.warn('loadHomeStats failed:', e); }
+  };
+
+  // ── Public homepage: latest notices, published by admin ──
+  window.loadHomeNotices = async () => {
+    const list = document.getElementById('home-notices-list');
+    if(!list) return;
+    try {
+      const snap = await get(child(ref(db), 'notices'));
+      if(!snap.exists()) {
+        list.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13.5px; padding:20px;">No notices published yet — check back soon!</div>`;
+        return;
+      }
+      const notices = Object.values(snap.val())
+        .sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt))
+        .slice(0, 5);
+      list.innerHTML = notices.map(n => {
+        const dateStr = n.postedAt ? new Date(n.postedAt).toLocaleDateString('en-BD', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+        return `
+          <div class="home-notice-card">
+            <div class="home-notice-pin">📌</div>
+            <div>
+              <div class="home-notice-title">${escapeHtml(n.title)}</div>
+              <div class="home-notice-date">${dateStr}</div>
+              ${n.body ? `<div class="home-notice-body">${escapeHtml(n.body)}</div>` : ''}
+            </div>
+          </div>`;
+      }).join('');
+    } catch(e) {
+      list.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13.5px; padding:20px;">Couldn't load notices right now.</div>`;
+    }
+  };
+
+  // ── Admin: publish a new notice (shows live on the public homepage) ──
+  window.publishNotice = async () => {
+    const title = document.getElementById('notice-title').value.trim();
+    const body = document.getElementById('notice-body').value.trim();
+    if(!title) return alert('Please enter a notice title!');
+
+    const newRef = ref(db, 'notices').push();
+    await set(newRef, { title, body, postedAt: new Date().toISOString() });
+    document.getElementById('notice-title').value = '';
+    document.getElementById('notice-body').value = '';
+    alert('✅ Notice published! It will now appear on the homepage.');
+    loadAdminNotices();
+  };
+
+  window.loadAdminNotices = async () => {
+    const tbody = document.getElementById('admin-notices-table');
+    if(!tbody) return;
+    const snap = await get(child(ref(db), 'notices'));
+    if(!snap.exists()) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">No notices published yet.</td></tr>`;
+      return;
+    }
+    const notices = Object.entries(snap.val())
+      .map(([key, n]) => ({ key, ...n }))
+      .sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt));
+    tbody.innerHTML = notices.map(n => {
+      const dateStr = n.postedAt ? new Date(n.postedAt).toLocaleDateString('en-BD', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+      return `
+        <tr>
+          <td style="font-weight:700;">${escapeHtml(n.title)}</td>
+          <td style="font-size:13px; color:var(--text-dim);">${escapeHtml(n.body || '—')}</td>
+          <td style="font-size:12px; color:var(--text-muted);">${dateStr}</td>
+          <td><button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('notices/${n.key}', loadAdminNotices)">🗑️ Delete</button></td>
+        </tr>`;
+    }).join('');
   };
 
   window.handleForgotPassword = async () => {
@@ -3089,6 +3549,7 @@ window.addEventListener('DOMContentLoaded', function() {
     if(tabId === 'admin-saving') { loadSavingPreview(); }
     if(tabId === 'admin-summary') { loadFinancialSummary(); }
     if(tabId === 'admin-testresults') { loadSignatureUrlSetting(); }
+    if(tabId === 'admin-notices') { loadAdminNotices(); }
     if(tabId === 'profile') loadProfileData();
     if(tabId === 'dash') initUserDash();
     if(tabId === 'payment') loadStudentPayments();
@@ -6674,9 +7135,12 @@ window.addEventListener('DOMContentLoaded', function() {
     localStorage.removeItem('skillCircleLastTab');
     currentSession = null;
     document.getElementById('portal-page').style.display = 'none';
-    document.getElementById('login-page').style.display = 'flex';
+    document.getElementById('login-page').style.display = 'none';
+    document.getElementById('home-page').style.display = 'block';
     document.getElementById('login-id').value = '';
     document.getElementById('login-pass').value = '';
+    window.loadHomeStats();
+    window.loadHomeNotices();
   };
 
   // ── Restore last tab — moved to end of script after all functions are defined ──
@@ -7313,6 +7777,11 @@ window.addEventListener('DOMContentLoaded', function() {
   if(window.__pendingPopulateDropdowns) {
     window.populateAllStudentDropdowns();
     window.__pendingPopulateDropdowns = false;
+  }
+  // No saved session means the public homepage is showing — load its live data
+  if(!savedSession) {
+    window.loadHomeStats();
+    window.loadHomeNotices();
   }
 
 }); // end DOMContentLoaded
