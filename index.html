@@ -971,7 +971,7 @@
 
 <!-- MOBILE TOPBAR -->
 <div class="mobile-topbar" id="mobile-topbar" style="display:none;">
-  <div class="mobile-brand">
+  <div class="mobile-brand" onclick="showHomePage()" style="cursor:pointer;">
     <div class="mobile-brand-icon">🎓</div>
     Skill Circle <span>Academy</span>
   </div>
@@ -1156,8 +1156,8 @@
   <!-- Left decorative panel -->
   <div class="auth-panel-left">
     <div class="auth-panel-content">
-      <div class="auth-panel-logo">🎓</div>
-      <div class="auth-panel-title">Skill Circle<br><span>Academy</span></div>
+      <div class="auth-panel-logo" onclick="showHomePage()" style="cursor:pointer;">🎓</div>
+      <div class="auth-panel-title" onclick="showHomePage()" style="cursor:pointer;">Skill Circle<br><span>Academy</span></div>
       <div class="auth-panel-tagline">Your gateway to academic excellence</div>
       <div class="auth-panel-dots">
         <span></span><span class="active"></span><span></span>
@@ -1215,7 +1215,7 @@
 <div id="forgot-page" class="auth-wrapper" style="display:none;">
   <div class="auth-panel-left" style="background:linear-gradient(160deg,#7c3aed,#4f46e5,#0ea5e9);">
     <div class="auth-panel-content">
-      <div class="auth-panel-logo">🔑</div>
+      <div class="auth-panel-logo" onclick="showHomePage()" style="cursor:pointer;">🔑</div>
       <div class="auth-panel-title">Reset<br><span>Password</span></div>
       <div class="auth-panel-tagline">We'll get you back in safely</div>
       <div class="auth-panel-dots"><span></span><span></span><span class="active"></span></div>
@@ -1259,7 +1259,7 @@
 <div id="signup-page" class="auth-wrapper" style="display:none;">
   <div class="auth-panel-left" style="background:linear-gradient(160deg,#059669,#0d9488,#0284c7);">
     <div class="auth-panel-content">
-      <div class="auth-panel-logo">✨</div>
+      <div class="auth-panel-logo" onclick="showHomePage()" style="cursor:pointer;">✨</div>
       <div class="auth-panel-title">Join<br><span>Academy</span></div>
       <div class="auth-panel-tagline">Start your learning journey today</div>
       <div class="auth-panel-dots"><span class="active"></span><span></span><span></span></div>
@@ -1347,7 +1347,7 @@
 <!-- PORTAL PAGE -->
 <div id="portal-page">
   <aside class="sidebar">
-    <div class="sidebar-brand">
+    <div class="sidebar-brand" onclick="showHomePage()" style="cursor:pointer;">
       <div class="sidebar-brand-icon">🎓</div>
       <div class="sidebar-brand-name">Skill Circle <span>Academy</span></div>
     </div>
@@ -2138,8 +2138,21 @@
     <!-- ADMIN: MANAGE NOTICES -->
     <section id="tab-admin-notices" class="tab-content hidden">
       <div class="page-header">
-        <div class="page-title">🔔 Manage Notices</div>
-        <div class="page-subtitle">Published notices appear live on the public homepage</div>
+        <div class="page-title">🔔 Notices &amp; Branding</div>
+        <div class="page-subtitle">Manage the public homepage's notices and the academy logo</div>
+      </div>
+      <div class="admin-form-card">
+        <div class="card-title" style="margin-bottom:10px;">🖼️ Academy Logo</div>
+        <div class="form-group">
+          <label>Logo Image (upload a file)</label>
+          <input type="file" id="logo-file" accept="image/*">
+        </div>
+        <div style="font-size:11px; color:var(--text-muted); margin:-4px 0 10px;">Replaces the 🎓 icon everywhere across the site (sidebar, login page, homepage). Square images work best. Max 500 KB.</div>
+        <div id="logo-preview" style="display:none; margin-bottom:12px;">
+          <img id="logo-preview-img" style="height:50px; object-fit:contain; border:1px solid var(--border); border-radius:8px; padding:6px; background:#fff;">
+          <button class="btn-sm" style="background:rgba(248,113,113,0.1); border-color:rgba(248,113,113,0.3); color:var(--red); margin-left:8px;" onclick="removeAcademyLogo()">🗑️ Remove</button>
+        </div>
+        <button class="btn-sm" style="background:rgba(52,211,153,0.1); border-color:rgba(52,211,153,0.3); color:var(--green);" onclick="saveAcademyLogo()">💾 Save Logo</button>
       </div>
       <div class="admin-form-card">
         <div class="form-group">
@@ -3230,6 +3243,8 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('signup-page').style.display = 'none';
     document.getElementById('forgot-page').style.display = 'none';
+    const portal = document.getElementById('portal-page');
+    if(portal) portal.style.display = 'none';
     document.getElementById('home-page').style.display = 'block';
     window.loadHomeStats();
     window.loadHomeNotices();
@@ -3245,7 +3260,7 @@ window.addEventListener('DOMContentLoaded', function() {
       let studentCount = 0;
       if(usersSnap.exists()) {
         const users = usersSnap.val();
-        studentCount = Object.values(users).filter(u => u.role !== 'admin' && (u.status || 'Present') === 'Present').length;
+        studentCount = Object.values(users).filter(u => u.role !== 'admin').length;
       }
       let testCount = 0;
       if(resultsSnap.exists()) {
