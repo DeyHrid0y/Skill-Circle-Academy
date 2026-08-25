@@ -820,6 +820,7 @@
   /* ═══════════════════════════════════════
      PUBLIC HOMEPAGE
   ═══════════════════════════════════════ */
+  .academy-logo-icon img { width: 100%; height: 100%; object-fit: contain; border-radius: inherit; }
   #home-page { background: var(--bg); color: var(--text); overflow-x: hidden; }
   .home-nav {
     position: sticky; top: 0; z-index: 500;
@@ -972,7 +973,7 @@
 <!-- MOBILE TOPBAR -->
 <div class="mobile-topbar" id="mobile-topbar" style="display:none;">
   <div class="mobile-brand" onclick="showHomePage()" style="cursor:pointer;">
-    <div class="mobile-brand-icon">🎓</div>
+    <div class="mobile-brand-icon academy-logo-icon">🎓</div>
     Skill Circle <span>Academy</span>
   </div>
   <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()">
@@ -985,7 +986,7 @@
 <div id="home-page">
   <nav class="home-nav">
     <div class="home-nav-brand">
-      <div class="mark">🎓</div>
+      <div class="mark academy-logo-icon">🎓</div>
       Skill Circle <span class="hi">Academy</span>
     </div>
     <div class="home-nav-links">
@@ -1016,7 +1017,7 @@
     <div class="home-orbit-wrap">
       <div class="home-orbit-ring"></div>
       <div class="home-orbit-ring inner"></div>
-      <div class="home-orbit-core">🎓</div>
+      <div class="home-orbit-core academy-logo-icon">🎓</div>
       <div class="home-orbit-node n1" title="Physics">⚡</div>
       <div class="home-orbit-node n2" title="Chemistry">⚗️</div>
       <div class="home-orbit-node n3" title="Higher Math">📐</div>
@@ -1156,7 +1157,7 @@
   <!-- Left decorative panel -->
   <div class="auth-panel-left">
     <div class="auth-panel-content">
-      <div class="auth-panel-logo" onclick="showHomePage()" style="cursor:pointer;">🎓</div>
+      <div class="auth-panel-logo academy-logo-icon" onclick="showHomePage()" style="cursor:pointer;">🎓</div>
       <div class="auth-panel-title" onclick="showHomePage()" style="cursor:pointer;">Skill Circle<br><span>Academy</span></div>
       <div class="auth-panel-tagline">Your gateway to academic excellence</div>
       <div class="auth-panel-dots">
@@ -1348,7 +1349,7 @@
 <div id="portal-page">
   <aside class="sidebar">
     <div class="sidebar-brand" onclick="showHomePage()" style="cursor:pointer;">
-      <div class="sidebar-brand-icon">🎓</div>
+      <div class="sidebar-brand-icon academy-logo-icon">🎓</div>
       <div class="sidebar-brand-name">Skill Circle <span>Academy</span></div>
     </div>
 
@@ -1360,6 +1361,7 @@
       <div class="nav-item" id="nav-syllabus" onclick="switchTab('syllabus')"><span class="nav-dot"></span>Syllabus Progress</div>
       <div class="nav-item" id="nav-testresults" onclick="switchTab('testresults')"><span class="nav-dot"></span>Test Results</div>
       <div class="nav-item" id="nav-leaderboard" onclick="switchTab('leaderboard')"><span class="nav-dot"></span>🏆 Leaderboard</div>
+      <div class="nav-item" id="nav-certificate" onclick="switchTab('certificate')"><span class="nav-dot"></span>🎓 Academic Certificate</div>
       <div class="nav-item" id="nav-payment" onclick="switchTab('payment')"><span class="nav-dot"></span>Payment Tracker</div>
       <div class="nav-item" id="nav-class-dates" onclick="switchTab('class-dates')"><span class="nav-dot"></span>Classes Held Dates</div>
       <div class="nav-item" id="nav-homework" onclick="switchTab('homework')"><span class="nav-dot"></span>Homework</div>
@@ -1376,7 +1378,8 @@
       <div class="nav-item" id="nav-admin-syllabus" onclick="switchTab('admin-syllabus')"><span class="nav-dot"></span>Manage Syllabus</div>
       <div class="nav-item" id="nav-admin-testresults" onclick="switchTab('admin-testresults')"><span class="nav-dot"></span>Manage Test Results</div>
       <div class="nav-item" id="nav-admin-gpa-approvals" onclick="switchTab('admin-gpa-approvals')"><span class="nav-dot"></span>Approve GPA Sheets</div>
-      <div class="nav-item" id="nav-admin-notices" onclick="switchTab('admin-notices')"><span class="nav-dot"></span>🔔 Manage Notices</div>
+      <div class="nav-item" id="nav-admin-certificates" onclick="switchTab('admin-certificates')"><span class="nav-dot"></span>🎓 Certificate Requests</div>
+      <div class="nav-item" id="nav-admin-notices" onclick="switchTab('admin-notices')"><span class="nav-dot"></span>🔔 Notices &amp; Branding</div>
       <div class="nav-item" id="nav-admin-payments" onclick="switchTab('admin-payments')"><span class="nav-dot"></span>Manage Payments</div>
       <div class="nav-item" id="nav-admin-class-dates" onclick="switchTab('admin-class-dates')"><span class="nav-dot"></span>Manage Class Dates</div>
       <div class="nav-item" id="nav-admin-homework" onclick="switchTab('admin-homework')"><span class="nav-dot"></span>Manage Homework</div>
@@ -1513,6 +1516,17 @@
             <tbody id="leaderboard-table-body"></tbody>
           </table>
         </div>
+      </div>
+    </section>
+
+    <!-- ACADEMIC CERTIFICATE (Student) -->
+    <section id="tab-certificate" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">🎓 Academic Certificate</div>
+        <div class="page-subtitle">Request your certificate — GPA is calculated from your Test Results (Homework counted as a bonus, if available)</div>
+      </div>
+      <div class="card" id="certificate-status-card">
+        <div style="text-align:center; padding:20px; color:var(--text-muted);">Loading...</div>
       </div>
     </section>
 
@@ -2171,6 +2185,22 @@
           <table>
             <thead><tr><th>Title</th><th>Details</th><th>Date</th><th>Action</th></tr></thead>
             <tbody id="admin-notices-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN: CERTIFICATE REQUESTS -->
+    <section id="tab-admin-certificates" class="tab-content hidden">
+      <div class="page-header">
+        <div class="page-title">🎓 Certificate Requests</div>
+        <div class="page-subtitle">Approve requests so students can download their Academic Certificate as a PDF</div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Student</th><th>ID</th><th>Requested</th><th>GPA</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="admin-certificates-table"></tbody>
           </table>
         </div>
       </div>
@@ -3556,6 +3586,8 @@ window.addEventListener('DOMContentLoaded', function() {
     if(tabId === 'syllabus') loadStudentSyllabus();
     if(tabId === 'testresults') loadStudentTestResults();
     if(tabId === 'leaderboard') loadLeaderboard();
+    if(tabId === 'certificate') loadCertificateStatus();
+    if(tabId === 'admin-certificates') loadAdminCertificateRequests();
     if(tabId === 'admin-users') renderUserTable();
     if(tabId === 'admin-passrequests') loadPassRequests();
     if(tabId === 'admin-secretkey') loadSecretKey();
@@ -3564,7 +3596,7 @@ window.addEventListener('DOMContentLoaded', function() {
     if(tabId === 'admin-saving') { loadSavingPreview(); }
     if(tabId === 'admin-summary') { loadFinancialSummary(); }
     if(tabId === 'admin-testresults') { loadSignatureUrlSetting(); }
-    if(tabId === 'admin-notices') { loadAdminNotices(); }
+    if(tabId === 'admin-notices') { loadAdminNotices(); loadAcademyLogoSetting(); }
     if(tabId === 'profile') loadProfileData();
     if(tabId === 'dash') initUserDash();
     if(tabId === 'payment') loadStudentPayments();
@@ -4295,6 +4327,58 @@ window.addEventListener('DOMContentLoaded', function() {
     }
   };
 
+  // ── Academy logo: uploaded once by admin, replaces the 🎓 emoji everywhere ──
+  window.saveAcademyLogo = async () => {
+    const fileInput = document.getElementById('logo-file');
+    const file = fileInput && fileInput.files[0];
+    if(!file) return alert('Please choose a logo image file first!');
+    if(file.size > 500 * 1024) return alert('File is too large! Max size is 500 KB.');
+
+    const dataUrl = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = () => rej(new Error('File read failed'));
+      r.readAsDataURL(file);
+    });
+
+    await set(ref(db, 'config/academyLogoUrl'), dataUrl);
+    fileInput.value = '';
+    alert('✅ Logo saved! It now appears across the site.');
+    loadAcademyLogoSetting();
+    applyAcademyLogo();
+  };
+
+  window.removeAcademyLogo = async () => {
+    if(!confirm('Remove the custom logo and go back to the 🎓 icon?')) return;
+    await remove(ref(db, 'config/academyLogoUrl'));
+    loadAcademyLogoSetting();
+    applyAcademyLogo();
+  };
+
+  window.loadAcademyLogoSetting = async () => {
+    const preview = document.getElementById('logo-preview');
+    const previewImg = document.getElementById('logo-preview-img');
+    if(!preview) return;
+    const snap = await get(child(ref(db), 'config/academyLogoUrl'));
+    if(snap.exists()) {
+      previewImg.src = snap.val();
+      preview.style.display = 'block';
+    } else {
+      preview.style.display = 'none';
+    }
+  };
+
+  // Swaps every 🎓 icon on the page for the uploaded logo (or restores the emoji if none is set)
+  window.applyAcademyLogo = async () => {
+    try {
+      const snap = await get(child(ref(db), 'config/academyLogoUrl'));
+      const logoUrl = snap.exists() ? snap.val() : null;
+      document.querySelectorAll('.academy-logo-icon').forEach(el => {
+        el.innerHTML = logoUrl ? `<img src="${logoUrl}" alt="Skill Circle Academy logo">` : '🎓';
+      });
+    } catch(e) { console.warn('applyAcademyLogo failed:', e); }
+  };
+
   window.loadTestResultsPreview = async () => {
     const sId = document.getElementById('tr-student-id').value.trim();
     const overview = document.getElementById('admin-testresults-overview');
@@ -4455,6 +4539,231 @@ window.addEventListener('DOMContentLoaded', function() {
 
   window.closeLeaderboardDetailModal = () => {
     document.getElementById('leaderboard-detail-modal').style.display = 'none';
+  };
+
+  // ═══════════════════════════════════════════════════
+  //  ACADEMIC CERTIFICATE — request → admin approval → PDF download
+  // ═══════════════════════════════════════════════════
+
+  // Computes a certificate GPA: primarily from Test Results, with Homework
+  // folded in as an OPTIONAL bonus (only if the student has rated homework
+  // feedback on file). If there's no homework data at all, the certificate
+  // GPA is simply the Test Results average — homework never blocks it.
+  async function computeCertificateGpa(studentId) {
+    const scoreMap = { 'Excellent': 5, 'Good': 4, 'Average': 3, 'Needs Improvement': 2, 'Not Submitted': 1 };
+    const [resultsSnap, hwSnap] = await Promise.all([
+      get(child(ref(db), `testResults/${studentId}`)),
+      get(child(ref(db), `homeworks/${studentId}`))
+    ]);
+
+    let testGpa = 0, testCount = 0;
+    if(resultsSnap.exists()) {
+      const entries = Object.values(resultsSnap.val());
+      testCount = entries.length;
+      if(testCount > 0) testGpa = entries.reduce((sum, e) => sum + (parseFloat(e.gpa) || 0), 0) / testCount;
+    }
+
+    let hasHomeworkData = false, homeworkGpa = 0;
+    if(hwSnap.exists()) {
+      const rated = Object.values(hwSnap.val()).filter(h => h.satisfaction && scoreMap[h.satisfaction]);
+      if(rated.length > 0) {
+        hasHomeworkData = true;
+        homeworkGpa = rated.reduce((sum, h) => sum + scoreMap[h.satisfaction], 0) / rated.length;
+      }
+    }
+
+    // Homework is optional: 80% Test Results + 20% Homework when homework data
+    // exists, otherwise Test Results alone.
+    const finalGpa = hasHomeworkData
+      ? Math.min(5, (testGpa * 0.8) + (homeworkGpa * 0.2))
+      : testGpa;
+
+    return { finalGpa, testGpa, testCount, hasHomeworkData, homeworkGpa };
+  }
+
+  // ── Student: view request status / request / download ──
+  window.loadCertificateStatus = async () => {
+    const card = document.getElementById('certificate-status-card');
+    if(!card || !currentSession) return;
+    card.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted);">Loading...</div>`;
+
+    const snap = await get(child(ref(db), `certificateRequests/${currentSession.id}`));
+    const req = snap.exists() ? snap.val() : null;
+
+    if(!req) {
+      card.innerHTML = `
+        <div style="text-align:center; padding:16px;">
+          <div style="font-size:40px; margin-bottom:10px;">🎓</div>
+          <div style="font-weight:700; font-size:15px; margin-bottom:8px;">No certificate requested yet</div>
+          <div style="color:var(--text-muted); font-size:13px; margin-bottom:20px; max-width:420px; margin-left:auto; margin-right:auto;">Your GPA will be calculated from your Test Results (Homework feedback counts as a small bonus, if you have any).</div>
+          <button class="btn-action" style="max-width:280px;" onclick="requestCertificate()">📩 Request Certificate</button>
+        </div>`;
+      return;
+    }
+
+    if(req.status === 'pending') {
+      card.innerHTML = `
+        <div style="text-align:center; padding:16px;">
+          <div style="font-size:40px; margin-bottom:10px;">⏳</div>
+          <div style="font-weight:700; font-size:15px; color:var(--gold); margin-bottom:6px;">Request Pending</div>
+          <div style="color:var(--text-muted); font-size:13px;">Your certificate request is waiting for admin approval.</div>
+        </div>`;
+      return;
+    }
+
+    if(req.status === 'rejected') {
+      card.innerHTML = `
+        <div style="text-align:center; padding:16px;">
+          <div style="font-size:40px; margin-bottom:10px;">❌</div>
+          <div style="font-weight:700; font-size:15px; color:var(--red); margin-bottom:6px;">Request Declined</div>
+          ${req.reason ? `<div style="color:var(--text-muted); font-size:13px; margin-bottom:16px;">Reason: ${escapeHtml(req.reason)}</div>` : '<div style="margin-bottom:16px;"></div>'}
+          <button class="btn-action" style="max-width:280px;" onclick="requestCertificate()">📩 Request Again</button>
+        </div>`;
+      return;
+    }
+
+    if(req.status === 'approved') {
+      const g = await computeCertificateGpa(currentSession.id);
+      card.innerHTML = `
+        <div style="text-align:center; padding:16px;">
+          <div style="font-size:40px; margin-bottom:10px;">✅</div>
+          <div style="font-weight:700; font-size:15px; color:var(--green); margin-bottom:10px;">Approved!</div>
+          <div style="display:inline-block; background:#f4f5fa; border-radius:var(--radius-sm); padding:14px 22px; margin-bottom:20px;">
+            <div style="font-size:28px; font-weight:800; color:var(--gold); font-family:var(--mono);">${g.finalGpa.toFixed(2)}</div>
+            <div style="font-size:11px; color:var(--text-muted); font-weight:600;">CERTIFICATE GPA</div>
+          </div>
+          <div><button class="btn-action" style="max-width:280px;" onclick="downloadCertificatePdf()">📥 Download Certificate PDF</button></div>
+        </div>`;
+    }
+  };
+
+  window.requestCertificate = async () => {
+    if(!confirm('Request your Academic Certificate? An admin will review and approve it.')) return;
+    await set(ref(db, `certificateRequests/${currentSession.id}`), {
+      status: 'pending', requestedAt: new Date().toISOString()
+    });
+    alert('✅ Request sent! You\'ll be able to download it once approved.');
+    loadCertificateStatus();
+  };
+
+  // ── Student: download the approved certificate as an A4 PDF ──
+  window.downloadCertificatePdf = async () => {
+    if(!currentSession || currentSession.role === 'admin') return;
+    if(typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+      return alert('Download tool failed to load. Please check your internet connection and try again.');
+    }
+    const { jsPDF } = window.jspdf;
+    const g = await computeCertificateGpa(currentSession.id);
+    const logoSnap = await get(child(ref(db), 'config/academyLogoUrl'));
+    const logoUrl = logoSnap.exists() ? logoSnap.val() : null;
+    const sigSnap = await get(child(ref(db), 'config/signatureImageUrl'));
+    const sigUrl = sigSnap.exists() ? sigSnap.val() : null;
+    const today = new Date().toLocaleDateString('en-BD', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    // NOTE: this is a starter layout — happy to match it exactly to your demo design once you share it.
+    const temp = document.createElement('div');
+    temp.style.cssText = 'position:fixed; left:-9999px; top:0; width:800px; background:#fffdfa; padding:56px; font-family:Segoe UI, Arial, sans-serif; border:10px solid #4f46e5; box-sizing:border-box;';
+    temp.innerHTML = `
+      <div style="text-align:center; border-bottom:2px solid #e2e2e2; padding-bottom:24px; margin-bottom:32px;">
+        ${logoUrl ? `<img src="${logoUrl}" style="height:64px; object-fit:contain; margin-bottom:10px;">` : `<div style="font-size:48px;">🎓</div>`}
+        <div style="font-size:24px; font-weight:800; color:#4338ca; letter-spacing:0.5px;">SKILL CIRCLE ACADEMY</div>
+        <div style="font-size:12px; color:#888; margin-top:4px; letter-spacing:2px; text-transform:uppercase;">Certificate of Academic Achievement</div>
+      </div>
+      <div style="text-align:center; margin-bottom:30px;">
+        <div style="font-size:13px; color:#888; margin-bottom:14px;">This is to certify that</div>
+        <div style="font-size:30px; font-weight:800; color:#111; margin-bottom:6px;">${escapeHtml(currentSession.name)}</div>
+        <div style="font-size:13px; color:#888; font-family:'Courier New',monospace;">Student ID: ${escapeHtml(currentSession.id)}</div>
+        <div style="font-size:14px; color:#444; margin-top:20px; max-width:560px; margin-left:auto; margin-right:auto; line-height:1.7;">
+          has successfully completed coursework at Skill Circle Academy${currentSession.institution ? `, ${escapeHtml(currentSession.institution)}` : ''}, maintaining consistent academic performance across regular assessments.
+        </div>
+      </div>
+      <div style="text-align:center; padding:20px; background:#f4f5fa; border-radius:12px; margin-bottom:34px;">
+        <div style="font-size:34px; font-weight:800; color:#d97706; font-family:'Courier New',monospace;">${g.finalGpa.toFixed(2)}</div>
+        <div style="font-size:11px; color:#888; font-weight:700; letter-spacing:0.5px;">FINAL GPA${g.hasHomeworkData ? ' (Test Results + Homework)' : ' (Based on Test Results)'}</div>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:50px;">
+        <div style="font-size:12px; color:#888;">Date Issued: ${today}</div>
+        <div style="text-align:center;">
+          ${sigUrl ? `<img src="${sigUrl}" style="height:56px; object-fit:contain;">` : ''}
+          <div style="border-top:1px solid #999; width:180px; margin-top:4px; padding-top:5px; font-size:11px; color:#888;">Authorized Signature</div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(temp);
+
+    try {
+      const canvas = await html2canvas(temp, { backgroundColor: '#ffffff', scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 8;
+      const imgWidth = pageWidth - margin * 2;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const yOffset = Math.max(margin, (pageHeight - imgHeight) / 2);
+      pdf.addImage(imgData, 'PNG', margin, yOffset, imgWidth, imgHeight);
+      pdf.save(`Certificate_${currentSession.id}.pdf`);
+    } catch(e) {
+      alert('Download failed. Please try again.');
+    } finally {
+      document.body.removeChild(temp);
+    }
+  };
+
+  // ── Admin: view and approve/reject certificate requests ──
+  window.loadAdminCertificateRequests = async () => {
+    const tbody = document.getElementById('admin-certificates-table');
+    if(!tbody) return;
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">⏳ Loading...</td></tr>`;
+
+    const [reqSnap, users] = await Promise.all([
+      get(child(ref(db), 'certificateRequests')),
+      fetchUsersData()
+    ]);
+
+    if(!reqSnap.exists()) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">No certificate requests yet.</td></tr>`;
+      return;
+    }
+
+    const requests = Object.entries(reqSnap.val());
+    const rows = await Promise.all(requests.map(async ([studentId, req]) => {
+      const u = users[studentId] || {};
+      const g = await computeCertificateGpa(studentId);
+      const dateStr = req.requestedAt ? new Date(req.requestedAt).toLocaleDateString('en-BD', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+      const statusBadge = req.status === 'approved'
+        ? '<span style="color:var(--green); font-weight:700; font-size:12px;">✅ Approved</span>'
+        : req.status === 'rejected'
+        ? '<span style="color:var(--red); font-weight:700; font-size:12px;">❌ Rejected</span>'
+        : '<span style="color:var(--gold); font-weight:700; font-size:12px;">⏳ Pending</span>';
+      const actionCell = req.status === 'pending'
+        ? `<button class="btn-sm" style="background:rgba(52,211,153,0.1);border-color:rgba(52,211,153,0.3);color:var(--green);" onclick="approveCertificateRequest('${studentId}')">✅ Approve</button>
+           <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="rejectCertificateRequest('${studentId}')">❌ Reject</button>`
+        : `<button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('certificateRequests/${studentId}', loadAdminCertificateRequests)">🗑️ Remove</button>`;
+      return `
+        <tr>
+          <td style="font-weight:700;">${escapeHtml(u.name || studentId)}</td>
+          <td style="font-family:var(--mono); color:var(--accent);">${escapeHtml(studentId)}</td>
+          <td style="font-size:12px; color:var(--text-muted);">${dateStr}</td>
+          <td style="font-family:var(--mono); color:var(--green); font-weight:700;">${g.finalGpa.toFixed(2)}</td>
+          <td>${statusBadge}</td>
+          <td style="display:flex; gap:5px; flex-wrap:wrap;">${actionCell}</td>
+        </tr>`;
+    }));
+
+    tbody.innerHTML = rows.join('');
+  };
+
+  window.approveCertificateRequest = async (studentId) => {
+    if(!confirm(`Approve the certificate request for ${studentId}?`)) return;
+    await update(ref(db, `certificateRequests/${studentId}`), { status: 'approved', approvedAt: new Date().toISOString() });
+    loadAdminCertificateRequests();
+  };
+
+  window.rejectCertificateRequest = async (studentId) => {
+    const reason = prompt('Reason for declining (optional):') || '';
+    await update(ref(db, `certificateRequests/${studentId}`), { status: 'rejected', reason, rejectedAt: new Date().toISOString() });
+    loadAdminCertificateRequests();
   };
 
 
@@ -7798,6 +8107,7 @@ window.addEventListener('DOMContentLoaded', function() {
     window.loadHomeStats();
     window.loadHomeNotices();
   }
+  window.applyAcademyLogo(); // runs regardless of login state — logo appears everywhere
 
 }); // end DOMContentLoaded
 </script>
