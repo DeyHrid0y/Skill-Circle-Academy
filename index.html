@@ -3094,6 +3094,41 @@ window.addEventListener('DOMContentLoaded', function() {
   function get(r)           { return r.once('value'); }
   const db = _db;
 
+  // ── Auth-ready gate ──
+  // On page load/reload, Firebase Auth restores its signed-in session
+  // ASYNCHRONOUSLY (can take a moment on a slow connection). Meanwhile this
+  // app restores the user's tab session from localStorage and used to fire
+  // off database reads/writes immediately — before Firebase Auth had
+  // finished restoring. If the database rules require auth, those early
+  // calls get silently rejected (no error shown), which is why data would
+  // randomly appear blank or fail to save right after opening/reloading the
+  // page, especially on slower machines/connections.
+  // Everything that reads/writes on initial load now waits for this first.
+  const authReadyPromise = new Promise((resolve) => {
+    const unsub = auth.onAuthStateChanged(() => { unsub(); resolve(); });
+    setTimeout(resolve, 4000); // safety net so the app never hangs if auth is slow/unavailable
+  });
+
+  // Wrap an async function so a failure shows a visible message and retries
+  // once automatically, instead of silently leaving the screen blank.
+  function withRetry(fn, label) {
+    return async function(...args) {
+      try {
+        return await fn.apply(this, args);
+      } catch(err) {
+        console.warn(`${label} failed, retrying once:`, err);
+        await new Promise(r => setTimeout(r, 900));
+        try {
+          return await fn.apply(this, args);
+        } catch(err2) {
+          console.error(`${label} failed again:`, err2);
+          alert(`⚠️ Couldn't load/save "${label}" — please check your internet connection and try again.\n\n(${err2 && err2.message ? err2.message : err2})`);
+          throw err2;
+        }
+      }
+    };
+  }
+
   // ══════════════════ SECURITY HELPERS ══════════════════
 
   // SHA-256 hash (via built-in Web Crypto API, no library needed)
@@ -3936,7 +3971,12 @@ window.addEventListener('DOMContentLoaded', function() {
     const { gpa, grade } = marksToGpaGrade(pct);
 
     const newRef = ref(db, `testResults/${sId}`).push();
-    await set(newRef, { subject, testNo, totalMarks, obtainedMarks, percentage: pct, gpa, grade });
+    try {
+      await set(newRef, { subject, testNo, totalMarks, obtainedMarks, percentage: pct, gpa, grade });
+    } catch(err) {
+      console.error('addTestResult failed:', err);
+      return alert(`⚠️ Couldn't save the test result — please check your internet connection and try again.\n\n(${err && err.message ? err.message : err})`);
+    }
 
     document.getElementById('tr-subject').value = '';
     document.getElementById('tr-total-marks').value = '';
@@ -4423,7 +4463,7 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 
   // ── Student view (read-only) ──
-  window.loadStudentTestResults = async () => {
+  window.loadStudentTestResults = withRetry(async () => {
     const overview = document.getElementById('student-testresults-overview');
     const tbody = document.getElementById('student-testresults-table');
     if(!tbody || !currentSession) return;
@@ -4452,7 +4492,7 @@ window.addEventListener('DOMContentLoaded', function() {
         <td style="font-family:var(--mono); color:var(--green); font-weight:700;">${parseFloat(r.gpa).toFixed(2)}</td>
       </tr>
     `).join('');
-  };
+  }, 'Test Results');
 
   // ══════════════════════════════════════════
   //  LEADERBOARD — ranks every student by avg GPA across all their Test Results
@@ -5378,7 +5418,7 @@ window.addEventListener('DOMContentLoaded', function() {
     }).join('');
   }
 
-  async function loadStudentClassDates() {
+  const loadStudentClassDates = withRetry(async function loadStudentClassDates() {
     const tbody = document.getElementById('class-dates-table-body');
     const filterYear = document.getElementById('classdate-filter-year')?.value || '';
     const snapshot = await get(child(ref(db), `classDates/${currentSession.id}`));
@@ -5413,7 +5453,7 @@ window.addEventListener('DOMContentLoaded', function() {
         <td style="color:var(--gold); font-size:13px;">${e.dates || 'No classes registered'}</td>
       </tr>
     `).join('');
-  }
+  }, 'Classes Held Dates');
 
   async function loadStudentHomeworks() {
     const tbody = document.getElementById('homework-table-body');
@@ -5844,7 +5884,12 @@ window.addEventListener('DOMContentLoaded', function() {
     const key = `${year}_${month}`;
     // Save ONLY the chips (replaces that month's entry cleanly)
     const datesToSave = classDatesSelected.join(', ');
-    await set(ref(db, `classDates/${sId}/${key}`), { dates: datesToSave, year, month });
+    try {
+      await set(ref(db, `classDates/${sId}/${key}`), { dates: datesToSave, year, month });
+    } catch(err) {
+      console.error('uploadClassDates failed:', err);
+      return alert(`⚠️ Couldn't save class dates — please check your internet connection and try again.\n\n(${err && err.message ? err.message : err})`);
+    }
     alert(`✅ Class dates saved for ${month} ${year}! (${classDatesSelected.length} classes)`);
     loadClassDatesPreview();
     await checkAndSendClassEmail(sId, year, month);
@@ -8094,20 +8139,24 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 
   // ── Restore last tab — ALL functions now defined above ──
-  if(window.__pendingRestoreTab) {
-    window.switchTab(window.__pendingRestoreTab);
-    window.__pendingRestoreTab = null;
-  }
-  if(window.__pendingPopulateDropdowns) {
-    window.populateAllStudentDropdowns();
-    window.__pendingPopulateDropdowns = false;
-  }
-  // No saved session means the public homepage is showing — load its live data
-  if(!savedSession) {
-    window.loadHomeStats();
-    window.loadHomeNotices();
-  }
-  window.applyAcademyLogo(); // runs regardless of login state — logo appears everywhere
+  // Waits for Firebase Auth to finish restoring its session first, so the
+  // very first data loads after a reload don't race auth and fail silently.
+  authReadyPromise.then(() => {
+    if(window.__pendingRestoreTab) {
+      window.switchTab(window.__pendingRestoreTab);
+      window.__pendingRestoreTab = null;
+    }
+    if(window.__pendingPopulateDropdowns) {
+      window.populateAllStudentDropdowns();
+      window.__pendingPopulateDropdowns = false;
+    }
+    // No saved session means the public homepage is showing — load its live data
+    if(!savedSession) {
+      window.loadHomeStats();
+      window.loadHomeNotices();
+    }
+    window.applyAcademyLogo(); // runs regardless of login state — logo appears everywhere
+  });
 
 }); // end DOMContentLoaded
 </script>
