@@ -8,9 +8,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>emailjs.init("d0754iMYdWN8ktqGT");</script>
-<!-- Firebase compat (works with file:// protocol) -->
+<!-- Firebase compat SDKs (Firestore + Auth) -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <style>
   /* ═══════════════════════════════════════
@@ -3078,56 +3078,152 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 
   const app = firebase.initializeApp(firebaseConfig);
-  const _db = firebase.database();
+  const _db = firebase.firestore();
   const auth = firebase.auth();
 
-  // Helper wrappers to match modular API used throughout the code
-  function ref(db, path)    { return path ? _db.ref(path) : _db.ref(); }
-  function child(r, path)   { return r.child(path); }
-  function set(r, val)      { return r.set(val); }
-  function update(r, val)   {
-    // update(ref(db), {'/path': val}) → root update
-    // update(ref(db, 'path'), {key: val}) → node update
-    return r.update(val);
+  // Firestore adapter: keeps the page's existing RTDB-style calls working
+  // while reading/writing the Firestore collections in this project.
+  class FirestoreRef {
+    constructor(path = '') { this.path = String(path || '').replace(/^\/+|\/+$/g, ''); }
+    child(path) {
+      const p = String(path || '').replace(/^\/+|\/+$/g, '');
+      return new FirestoreRef(this.path ? `${this.path}/${p}` : p);
+    }
+    push() {
+      const key = _db.collection('_id_generator').doc().id;
+      return new FirestoreRef(this.path ? `${this.path}/${key}` : key);
+    }
+    get key() { const a = this.path.split('/'); return a[a.length - 1] || null; }
   }
-  function remove(r)        { return r.remove(); }
-  function get(r)           { return r.once('value'); }
-  const db = _db;
 
-  // ── Auth-ready gate ──
-  // On page load/reload, Firebase Auth restores its signed-in session
-  // ASYNCHRONOUSLY (can take a moment on a slow connection). Meanwhile this
-  // app restores the user's tab session from localStorage and used to fire
-  // off database reads/writes immediately — before Firebase Auth had
-  // finished restoring. If the database rules require auth, those early
-  // calls get silently rejected (no error shown), which is why data would
-  // randomly appear blank or fail to save right after opening/reloading the
-  // page, especially on slower machines/connections.
-  // Everything that reads/writes on initial load now waits for this first.
-  const authReadyPromise = new Promise((resolve) => {
-    const unsub = auth.onAuthStateChanged(() => { unsub(); resolve(); });
-    setTimeout(resolve, 4000); // safety net so the app never hangs if auth is slow/unavailable
-  });
+  class FirestoreSnapshot {
+    constructor(exists, value) { this._exists = !!exists; this._value = value; }
+    exists() { return this._exists; }
+    val() { return this._value; }
+  }
 
-  // Wrap an async function so a failure shows a visible message and retries
-  // once automatically, instead of silently leaving the screen blank.
-  function withRetry(fn, label) {
-    return async function(...args) {
-      try {
-        return await fn.apply(this, args);
-      } catch(err) {
-        console.warn(`${label} failed, retrying once:`, err);
-        await new Promise(r => setTimeout(r, 900));
-        try {
-          return await fn.apply(this, args);
-        } catch(err2) {
-          console.error(`${label} failed again:`, err2);
-          alert(`⚠️ Couldn't load/save "${label}" — please check your internet connection and try again.\n\n(${err2 && err2.message ? err2.message : err2})`);
-          throw err2;
-        }
+  function ref(db, path) { return new FirestoreRef(path || ''); }
+  function child(r, path) { return r.child(path); }
+  function _parts(r) { return (r instanceof FirestoreRef ? r.path : String(r || '')).split('/').filter(Boolean); }
+  function _unwrapDoc(data) {
+    if (data && typeof data === 'object' && !Array.isArray(data)) {
+      const keys = Object.keys(data);
+      if (keys.length === 1 && keys[0] === 'value') return data.value;
+    }
+    return data;
+  }
+  function _clone(v) {
+    if (v === undefined || v === null || typeof v !== 'object') return v;
+    if (v instanceof Date) return v;
+    if (typeof v.toDate === 'function') return v.toDate();
+    if (Array.isArray(v)) return v.map(_clone);
+    const out = {}; Object.keys(v).forEach(k => out[k] = _clone(v[k])); return out;
+  }
+  function _getNested(obj, segments) {
+    let cur = obj;
+    for (const s of segments) {
+      if (cur === null || cur === undefined || typeof cur !== 'object' || !(s in cur)) return {exists:false};
+      cur = cur[s];
+    }
+    return {exists:true, value:_clone(cur)};
+  }
+  function _setNested(obj, segments, value) {
+    if (!segments.length) return value;
+    let cur = obj;
+    for (let i=0; i<segments.length-1; i++) {
+      const s = segments[i];
+      if (!cur[s] || typeof cur[s] !== 'object' || Array.isArray(cur[s])) cur[s] = {};
+      cur = cur[s];
+    }
+    cur[segments[segments.length-1]] = value;
+    return obj;
+  }
+  function _deleteNested(obj, segments) {
+    if (!segments.length) return obj;
+    let cur = obj;
+    for (let i=0; i<segments.length-1; i++) {
+      if (!cur || typeof cur !== 'object' || !(segments[i] in cur)) return obj;
+      cur = cur[segments[i]];
+    }
+    if (cur && typeof cur === 'object') delete cur[segments[segments.length-1]];
+    return obj;
+  }
+
+  async function get(r) {
+    const parts = _parts(r);
+    if (!parts.length) return new FirestoreSnapshot(false, {});
+    const collection = parts[0];
+    if (parts.length === 1) {
+      const qs = await _db.collection(collection).get();
+      const out = {}; qs.forEach(doc => out[doc.id] = _unwrapDoc(doc.data()));
+      return new FirestoreSnapshot(!qs.empty, out);
+    }
+    const dr = _db.collection(collection).doc(parts[1]);
+    const ds = await dr.get();
+    if (!ds.exists) return new FirestoreSnapshot(false, null);
+    const data = _unwrapDoc(ds.data());
+    if (parts.length === 2) return new FirestoreSnapshot(true, _clone(data));
+    const nested = _getNested(data, parts.slice(2));
+    if (nested.exists) return new FirestoreSnapshot(true, nested.value);
+    return new FirestoreSnapshot(false, null);
+  }
+
+  async function set(r, val) {
+    const parts = _parts(r);
+    if (parts.length < 2) throw new Error('Firestore set requires collection/document path');
+    const dr = _db.collection(parts[0]).doc(parts[1]);
+    if (parts.length === 2) return dr.set(val);
+    const ds = await dr.get();
+    let data = ds.exists ? (_unwrapDoc(ds.data()) || {}) : {};
+    data = _setNested(data, parts.slice(2), val);
+    return dr.set(data);
+  }
+
+  async function remove(r) {
+    const parts = _parts(r);
+    if (parts.length < 2) throw new Error('Firestore remove requires collection/document path');
+    const dr = _db.collection(parts[0]).doc(parts[1]);
+    if (parts.length === 2) return dr.delete();
+    const ds = await dr.get();
+    if (!ds.exists) return;
+    let data = _unwrapDoc(ds.data()) || {};
+    data = _deleteNested(data, parts.slice(2));
+    return dr.set(data);
+  }
+
+  async function update(r, val) {
+    const parts = _parts(r);
+    if (!val || typeof val !== 'object') throw new Error('Firestore update expects an object');
+    if (!parts.length) {
+      const grouped = new Map();
+      for (const [rawPath, value] of Object.entries(val)) {
+        const ps = String(rawPath).replace(/^\/+/, '').split('/').filter(Boolean);
+        if (ps.length < 2) continue;
+        const key = `${ps[0]}/${ps[1]}`;
+        if (!grouped.has(key)) grouped.set(key, []);
+        grouped.get(key).push([ps.slice(2), value]);
       }
-    };
+      const batch = _db.batch();
+      for (const [docPath, changes] of grouped) {
+        const [collection, id] = docPath.split('/');
+        const dr = _db.collection(collection).doc(id);
+        const ds = await dr.get();
+        let data = ds.exists ? (_unwrapDoc(ds.data()) || {}) : {};
+        for (const [nested, value] of changes) data = nested.length ? _setNested(data, nested, value) : value;
+        batch.set(dr, data);
+      }
+      return batch.commit();
+    }
+    if (parts.length < 2) throw new Error('Firestore update requires collection/document path');
+    const dr = _db.collection(parts[0]).doc(parts[1]);
+    if (parts.length === 2) return dr.set(val, {merge:true});
+    const ds = await dr.get();
+    let data = ds.exists ? (_unwrapDoc(ds.data()) || {}) : {};
+    for (const [key, value] of Object.entries(val)) data = _setNested(data, String(key).split('.').filter(Boolean), value);
+    return dr.set(data);
   }
+
+  const db = _db;
 
   // ══════════════════ SECURITY HELPERS ══════════════════
 
@@ -3971,12 +4067,7 @@ window.addEventListener('DOMContentLoaded', function() {
     const { gpa, grade } = marksToGpaGrade(pct);
 
     const newRef = ref(db, `testResults/${sId}`).push();
-    try {
-      await set(newRef, { subject, testNo, totalMarks, obtainedMarks, percentage: pct, gpa, grade });
-    } catch(err) {
-      console.error('addTestResult failed:', err);
-      return alert(`⚠️ Couldn't save the test result — please check your internet connection and try again.\n\n(${err && err.message ? err.message : err})`);
-    }
+    await set(newRef, { subject, testNo, totalMarks, obtainedMarks, percentage: pct, gpa, grade });
 
     document.getElementById('tr-subject').value = '';
     document.getElementById('tr-total-marks').value = '';
@@ -4463,7 +4554,7 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 
   // ── Student view (read-only) ──
-  window.loadStudentTestResults = withRetry(async () => {
+  window.loadStudentTestResults = async () => {
     const overview = document.getElementById('student-testresults-overview');
     const tbody = document.getElementById('student-testresults-table');
     if(!tbody || !currentSession) return;
@@ -4492,7 +4583,7 @@ window.addEventListener('DOMContentLoaded', function() {
         <td style="font-family:var(--mono); color:var(--green); font-weight:700;">${parseFloat(r.gpa).toFixed(2)}</td>
       </tr>
     `).join('');
-  }, 'Test Results');
+  };
 
   // ══════════════════════════════════════════
   //  LEADERBOARD — ranks every student by avg GPA across all their Test Results
@@ -5418,7 +5509,7 @@ window.addEventListener('DOMContentLoaded', function() {
     }).join('');
   }
 
-  const loadStudentClassDates = withRetry(async function loadStudentClassDates() {
+  async function loadStudentClassDates() {
     const tbody = document.getElementById('class-dates-table-body');
     const filterYear = document.getElementById('classdate-filter-year')?.value || '';
     const snapshot = await get(child(ref(db), `classDates/${currentSession.id}`));
@@ -5453,7 +5544,7 @@ window.addEventListener('DOMContentLoaded', function() {
         <td style="color:var(--gold); font-size:13px;">${e.dates || 'No classes registered'}</td>
       </tr>
     `).join('');
-  }, 'Classes Held Dates');
+  }
 
   async function loadStudentHomeworks() {
     const tbody = document.getElementById('homework-table-body');
@@ -5884,12 +5975,7 @@ window.addEventListener('DOMContentLoaded', function() {
     const key = `${year}_${month}`;
     // Save ONLY the chips (replaces that month's entry cleanly)
     const datesToSave = classDatesSelected.join(', ');
-    try {
-      await set(ref(db, `classDates/${sId}/${key}`), { dates: datesToSave, year, month });
-    } catch(err) {
-      console.error('uploadClassDates failed:', err);
-      return alert(`⚠️ Couldn't save class dates — please check your internet connection and try again.\n\n(${err && err.message ? err.message : err})`);
-    }
+    await set(ref(db, `classDates/${sId}/${key}`), { dates: datesToSave, year, month });
     alert(`✅ Class dates saved for ${month} ${year}! (${classDatesSelected.length} classes)`);
     loadClassDatesPreview();
     await checkAndSendClassEmail(sId, year, month);
@@ -8139,24 +8225,20 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 
   // ── Restore last tab — ALL functions now defined above ──
-  // Waits for Firebase Auth to finish restoring its session first, so the
-  // very first data loads after a reload don't race auth and fail silently.
-  authReadyPromise.then(() => {
-    if(window.__pendingRestoreTab) {
-      window.switchTab(window.__pendingRestoreTab);
-      window.__pendingRestoreTab = null;
-    }
-    if(window.__pendingPopulateDropdowns) {
-      window.populateAllStudentDropdowns();
-      window.__pendingPopulateDropdowns = false;
-    }
-    // No saved session means the public homepage is showing — load its live data
-    if(!savedSession) {
-      window.loadHomeStats();
-      window.loadHomeNotices();
-    }
-    window.applyAcademyLogo(); // runs regardless of login state — logo appears everywhere
-  });
+  if(window.__pendingRestoreTab) {
+    window.switchTab(window.__pendingRestoreTab);
+    window.__pendingRestoreTab = null;
+  }
+  if(window.__pendingPopulateDropdowns) {
+    window.populateAllStudentDropdowns();
+    window.__pendingPopulateDropdowns = false;
+  }
+  // No saved session means the public homepage is showing — load its live data
+  if(!savedSession) {
+    window.loadHomeStats();
+    window.loadHomeNotices();
+  }
+  window.applyAcademyLogo(); // runs regardless of login state — logo appears everywhere
 
 }); // end DOMContentLoaded
 </script>
