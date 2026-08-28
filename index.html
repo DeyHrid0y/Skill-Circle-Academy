@@ -8,9 +8,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>emailjs.init("d0754iMYdWN8ktqGT");</script>
-<!-- Firebase compat SDKs (Firestore + Auth) -->
+<!-- Firebase compat (works with file:// protocol) -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <style>
   /* ═══════════════════════════════════════
@@ -3078,151 +3078,20 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 
   const app = firebase.initializeApp(firebaseConfig);
-  const _db = firebase.firestore();
+  const _db = firebase.database();
   const auth = firebase.auth();
 
-  // Firestore adapter: keeps the page's existing RTDB-style calls working
-  // while reading/writing the Firestore collections in this project.
-  class FirestoreRef {
-    constructor(path = '') { this.path = String(path || '').replace(/^\/+|\/+$/g, ''); }
-    child(path) {
-      const p = String(path || '').replace(/^\/+|\/+$/g, '');
-      return new FirestoreRef(this.path ? `${this.path}/${p}` : p);
-    }
-    push() {
-      const key = _db.collection('_id_generator').doc().id;
-      return new FirestoreRef(this.path ? `${this.path}/${key}` : key);
-    }
-    get key() { const a = this.path.split('/'); return a[a.length - 1] || null; }
+  // Helper wrappers to match modular API used throughout the code
+  function ref(db, path)    { return path ? _db.ref(path) : _db.ref(); }
+  function child(r, path)   { return r.child(path); }
+  function set(r, val)      { return r.set(val); }
+  function update(r, val)   {
+    // update(ref(db), {'/path': val}) → root update
+    // update(ref(db, 'path'), {key: val}) → node update
+    return r.update(val);
   }
-
-  class FirestoreSnapshot {
-    constructor(exists, value) { this._exists = !!exists; this._value = value; }
-    exists() { return this._exists; }
-    val() { return this._value; }
-  }
-
-  function ref(db, path) { return new FirestoreRef(path || ''); }
-  function child(r, path) { return r.child(path); }
-  function _parts(r) { return (r instanceof FirestoreRef ? r.path : String(r || '')).split('/').filter(Boolean); }
-  function _unwrapDoc(data) {
-    if (data && typeof data === 'object' && !Array.isArray(data)) {
-      const keys = Object.keys(data);
-      if (keys.length === 1 && keys[0] === 'value') return data.value;
-    }
-    return data;
-  }
-  function _clone(v) {
-    if (v === undefined || v === null || typeof v !== 'object') return v;
-    if (v instanceof Date) return v;
-    if (typeof v.toDate === 'function') return v.toDate();
-    if (Array.isArray(v)) return v.map(_clone);
-    const out = {}; Object.keys(v).forEach(k => out[k] = _clone(v[k])); return out;
-  }
-  function _getNested(obj, segments) {
-    let cur = obj;
-    for (const s of segments) {
-      if (cur === null || cur === undefined || typeof cur !== 'object' || !(s in cur)) return {exists:false};
-      cur = cur[s];
-    }
-    return {exists:true, value:_clone(cur)};
-  }
-  function _setNested(obj, segments, value) {
-    if (!segments.length) return value;
-    let cur = obj;
-    for (let i=0; i<segments.length-1; i++) {
-      const s = segments[i];
-      if (!cur[s] || typeof cur[s] !== 'object' || Array.isArray(cur[s])) cur[s] = {};
-      cur = cur[s];
-    }
-    cur[segments[segments.length-1]] = value;
-    return obj;
-  }
-  function _deleteNested(obj, segments) {
-    if (!segments.length) return obj;
-    let cur = obj;
-    for (let i=0; i<segments.length-1; i++) {
-      if (!cur || typeof cur !== 'object' || !(segments[i] in cur)) return obj;
-      cur = cur[segments[i]];
-    }
-    if (cur && typeof cur === 'object') delete cur[segments[segments.length-1]];
-    return obj;
-  }
-
-  async function get(r) {
-    const parts = _parts(r);
-    if (!parts.length) return new FirestoreSnapshot(false, {});
-    const collection = parts[0];
-    if (parts.length === 1) {
-      const qs = await _db.collection(collection).get();
-      const out = {}; qs.forEach(doc => out[doc.id] = _unwrapDoc(doc.data()));
-      return new FirestoreSnapshot(!qs.empty, out);
-    }
-    const dr = _db.collection(collection).doc(parts[1]);
-    const ds = await dr.get();
-    if (!ds.exists) return new FirestoreSnapshot(false, null);
-    const data = _unwrapDoc(ds.data());
-    if (parts.length === 2) return new FirestoreSnapshot(true, _clone(data));
-    const nested = _getNested(data, parts.slice(2));
-    if (nested.exists) return new FirestoreSnapshot(true, nested.value);
-    return new FirestoreSnapshot(false, null);
-  }
-
-  async function set(r, val) {
-    const parts = _parts(r);
-    if (parts.length < 2) throw new Error('Firestore set requires collection/document path');
-    const dr = _db.collection(parts[0]).doc(parts[1]);
-    if (parts.length === 2) return dr.set(val);
-    const ds = await dr.get();
-    let data = ds.exists ? (_unwrapDoc(ds.data()) || {}) : {};
-    data = _setNested(data, parts.slice(2), val);
-    return dr.set(data);
-  }
-
-  async function remove(r) {
-    const parts = _parts(r);
-    if (parts.length < 2) throw new Error('Firestore remove requires collection/document path');
-    const dr = _db.collection(parts[0]).doc(parts[1]);
-    if (parts.length === 2) return dr.delete();
-    const ds = await dr.get();
-    if (!ds.exists) return;
-    let data = _unwrapDoc(ds.data()) || {};
-    data = _deleteNested(data, parts.slice(2));
-    return dr.set(data);
-  }
-
-  async function update(r, val) {
-    const parts = _parts(r);
-    if (!val || typeof val !== 'object') throw new Error('Firestore update expects an object');
-    if (!parts.length) {
-      const grouped = new Map();
-      for (const [rawPath, value] of Object.entries(val)) {
-        const ps = String(rawPath).replace(/^\/+/, '').split('/').filter(Boolean);
-        if (ps.length < 2) continue;
-        const key = `${ps[0]}/${ps[1]}`;
-        if (!grouped.has(key)) grouped.set(key, []);
-        grouped.get(key).push([ps.slice(2), value]);
-      }
-      const batch = _db.batch();
-      for (const [docPath, changes] of grouped) {
-        const [collection, id] = docPath.split('/');
-        const dr = _db.collection(collection).doc(id);
-        const ds = await dr.get();
-        let data = ds.exists ? (_unwrapDoc(ds.data()) || {}) : {};
-        for (const [nested, value] of changes) data = nested.length ? _setNested(data, nested, value) : value;
-        batch.set(dr, data);
-      }
-      return batch.commit();
-    }
-    if (parts.length < 2) throw new Error('Firestore update requires collection/document path');
-    const dr = _db.collection(parts[0]).doc(parts[1]);
-    if (parts.length === 2) return dr.set(val, {merge:true});
-    const ds = await dr.get();
-    let data = ds.exists ? (_unwrapDoc(ds.data()) || {}) : {};
-    for (const [key, value] of Object.entries(val)) data = _setNested(data, String(key).split('.').filter(Boolean), value);
-    return dr.set(data);
-  }
-
+  function remove(r)        { return r.remove(); }
+  function get(r)           { return r.once('value'); }
   const db = _db;
 
   // ══════════════════ SECURITY HELPERS ══════════════════
