@@ -10,7 +10,7 @@
 <script>emailjs.init("d0754iMYdWN8ktqGT");</script>
 <!-- Firebase compat (works with file:// protocol) -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <style>
   /* ═══════════════════════════════════════
@@ -1361,7 +1361,6 @@
       <div class="nav-item" id="nav-syllabus" onclick="switchTab('syllabus')"><span class="nav-dot"></span>Syllabus Progress</div>
       <div class="nav-item" id="nav-testresults" onclick="switchTab('testresults')"><span class="nav-dot"></span>Test Results</div>
       <div class="nav-item" id="nav-leaderboard" onclick="switchTab('leaderboard')"><span class="nav-dot"></span>🏆 Leaderboard</div>
-      <div class="nav-item" id="nav-certificate" onclick="switchTab('certificate')"><span class="nav-dot"></span>🎓 Academic Certificate</div>
       <div class="nav-item" id="nav-payment" onclick="switchTab('payment')"><span class="nav-dot"></span>Payment Tracker</div>
       <div class="nav-item" id="nav-class-dates" onclick="switchTab('class-dates')"><span class="nav-dot"></span>Classes Held Dates</div>
       <div class="nav-item" id="nav-homework" onclick="switchTab('homework')"><span class="nav-dot"></span>Homework</div>
@@ -1378,7 +1377,6 @@
       <div class="nav-item" id="nav-admin-syllabus" onclick="switchTab('admin-syllabus')"><span class="nav-dot"></span>Manage Syllabus</div>
       <div class="nav-item" id="nav-admin-testresults" onclick="switchTab('admin-testresults')"><span class="nav-dot"></span>Manage Test Results</div>
       <div class="nav-item" id="nav-admin-gpa-approvals" onclick="switchTab('admin-gpa-approvals')"><span class="nav-dot"></span>Approve GPA Sheets</div>
-      <div class="nav-item" id="nav-admin-certificates" onclick="switchTab('admin-certificates')"><span class="nav-dot"></span>🎓 Certificate Requests</div>
       <div class="nav-item" id="nav-admin-notices" onclick="switchTab('admin-notices')"><span class="nav-dot"></span>🔔 Notices &amp; Branding</div>
       <div class="nav-item" id="nav-admin-payments" onclick="switchTab('admin-payments')"><span class="nav-dot"></span>Manage Payments</div>
       <div class="nav-item" id="nav-admin-class-dates" onclick="switchTab('admin-class-dates')"><span class="nav-dot"></span>Manage Class Dates</div>
@@ -1518,18 +1516,6 @@
         </div>
       </div>
     </section>
-
-    <!-- ACADEMIC CERTIFICATE (Student) -->
-    <section id="tab-certificate" class="tab-content hidden">
-      <div class="page-header">
-        <div class="page-title">🎓 Academic Certificate</div>
-        <div class="page-subtitle">Request your certificate — GPA is calculated from your Test Results (Homework counted as a bonus, if available)</div>
-      </div>
-      <div class="card" id="certificate-status-card">
-        <div style="text-align:center; padding:20px; color:var(--text-muted);">Loading...</div>
-      </div>
-    </section>
-
 
     <!-- PAYMENT -->
     <section id="tab-payment" class="tab-content hidden">
@@ -1719,6 +1705,9 @@
         <div class="page-subtitle">Your account details</div>
       </div>
       <div class="card" style="max-width: 480px;">
+        <div style="text-align:center; margin-bottom:20px;">
+          <div id="p-avatar" style="width:84px; height:84px; border-radius:50%; margin:0 auto; display:flex; align-items:center; justify-content:center; font-size:32px; font-weight:800; color:#fff; background:linear-gradient(135deg,var(--accent),var(--cyan)); overflow:hidden;"></div>
+        </div>
         <div class="profile-info-item">
           <span class="profile-info-label">Name</span>
           <span class="profile-info-value" id="p-name">—</span>
@@ -1893,9 +1882,16 @@
       <div style="background:var(--surface); border-radius:22px; border:1px solid var(--border-bright); padding:36px 32px; width:460px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.2); position:relative; max-height:90vh; overflow-y:auto;">
         <button onclick="closeStudentProfileModal()" style="position:absolute; top:16px; right:16px; background:#eef0ff; border:none; border-radius:8px; width:32px; height:32px; cursor:pointer; font-size:16px; color:var(--text-muted);">✕</button>
         <div style="display:flex; flex-direction:column; align-items:center; margin-bottom:24px;">
-          <div id="sp-avatar" style="width:72px; height:72px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:800; color:#fff; margin-bottom:12px; background:linear-gradient(135deg,var(--accent),var(--cyan));"></div>
+          <div id="sp-avatar" style="width:72px; height:72px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:800; color:#fff; margin-bottom:12px; background:linear-gradient(135deg,var(--accent),var(--cyan)); overflow:hidden;"></div>
           <div id="sp-name" style="font-size:20px; font-weight:800; letter-spacing:-0.4px;"></div>
           <div id="sp-role-badge" style="margin-top:6px;"></div>
+          <div style="width:100%; margin-top:14px; background:#f8f9ff; border-radius:var(--radius-sm); padding:12px;">
+            <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; text-align:center;">📷 Profile Picture</div>
+            <input type="file" id="sp-pic-file" accept="image/*" style="width:100%; font-size:12px; margin-bottom:6px;">
+            <div style="text-align:center; font-size:11px; color:var(--text-muted); margin:4px 0;">— or —</div>
+            <input type="text" id="sp-pic-drive-link" placeholder="Google Drive share link" style="width:100%; padding:8px 10px; font-size:12px; border:1px solid var(--border); border-radius:8px; margin-bottom:8px; box-sizing:border-box;">
+            <button class="btn-sm" style="width:100%; background:rgba(52,211,153,0.1); border-color:rgba(52,211,153,0.3); color:var(--green);" id="sp-save-pic-btn">💾 Save Picture</button>
+          </div>
         </div>
         <div style="background:#f8f9ff; border-radius:var(--radius); padding:18px; margin-bottom:16px;">
           <div style="display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border);"><span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Student ID</span><span id="sp-id" style="font-family:var(--mono); color:var(--accent); font-weight:700; font-size:13px;"></span></div>
@@ -2099,6 +2095,11 @@
           </table>
         </div>
       </div>
+      <div class="admin-form-card" style="margin-top:20px;">
+        <div class="card-title" style="margin-bottom:6px;">🛠️ Repair Edited Records</div>
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">If edited test results (or GPA approvals, homework feedback, syllabus edits) didn't apply and left blank "undefined" rows, run this once. It applies the edits that were lost and removes the broken leftovers.</div>
+        <button class="btn-sm" style="background:rgba(245,158,11,0.1); border-color:rgba(245,158,11,0.3); color:var(--gold);" onclick="repairCorruptedRecords()">🛠️ Run Repair</button>
+      </div>
     </section>
 
     <!-- ADMIN: APPROVE GPA SHEETS -->
@@ -2185,22 +2186,6 @@
           <table>
             <thead><tr><th>Title</th><th>Details</th><th>Date</th><th>Action</th></tr></thead>
             <tbody id="admin-notices-table"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ADMIN: CERTIFICATE REQUESTS -->
-    <section id="tab-admin-certificates" class="tab-content hidden">
-      <div class="page-header">
-        <div class="page-title">🎓 Certificate Requests</div>
-        <div class="page-subtitle">Approve requests so students can download their Academic Certificate as a PDF</div>
-      </div>
-      <div class="card">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Student</th><th>ID</th><th>Requested</th><th>GPA</th><th>Status</th><th>Action</th></tr></thead>
-            <tbody id="admin-certificates-table"></tbody>
           </table>
         </div>
       </div>
@@ -3078,22 +3063,344 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 
   const app = firebase.initializeApp(firebaseConfig);
-  const _db = firebase.database();
+  const _db = firebase.firestore();
   const auth = firebase.auth();
 
-  // Helper wrappers to match modular API used throughout the code
-  function ref(db, path)    { return path ? _db.ref(path) : _db.ref(); }
-  function child(r, path)   { return r.child(path); }
-  function set(r, val)      { return r.set(val); }
-  function update(r, val)   {
-    // update(ref(db), {'/path': val}) → root update
-    // update(ref(db, 'path'), {key: val}) → node update
-    return r.update(val);
-  }
-  function remove(r)        { return r.remove(); }
-  function get(r)           { return r.once('value'); }
-  const db = _db;
+  // ─────────────────────────────────────────────────────────────
+  // FIRESTORE DATA ACCESS
+  //
+  // Firestore structure used by the migrated project:
+  //
+  //   academySavings (collection)
+  //      └── 2026_April (document)
+  //            ├── amount: 6750
+  //            ├── month: "April"
+  //            ├── note: "Bank"
+  //            └── year: "2026"
+  //
+  // The old application uses RTDB-style paths such as:
+  //   academySavings/2026_April
+  //   users/STU001/name
+  //   exams/STU001/2026-08-30_123456
+  //
+  // They are translated to:
+  //   collection / document / field / nested-field
+  //
+  // So the code reads the REAL Firestore collections shown in the
+  // Firebase Console, rather than using a fake "__rtdb__" collection.
+  // ─────────────────────────────────────────────────────────────
 
+  function cleanPath(path) {
+    return String(path || '').replace(/^\/+|\/+$/g, '');
+  }
+
+  function splitPath(path) {
+    const p = cleanPath(path);
+    return p ? p.split('/').filter(Boolean) : [];
+  }
+
+  function makeRef(path='') {
+    const r = { __isFsRef:true, path:cleanPath(path) };
+    r.push = () => {
+      const id = 'f_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+      return makeRef([r.path, id].filter(Boolean).join('/'));
+    };
+    return r;
+  }
+
+  function ref(db, path) {
+    return makeRef(path || '');
+  }
+
+  function child(r, path) {
+    const base = r && r.__isFsRef ? r.path : '';
+    return makeRef([base, cleanPath(path)].filter(Boolean).join('/'));
+  }
+
+  // Firestore mapping:
+  //   collection                 -> collection
+  //   collection/document        -> document
+  //   collection/document/field  -> field
+  //   collection/document/a/b    -> nested field a.b
+  function fsDocument(path) {
+    const parts = splitPath(path);
+    if(parts.length < 2) return null;
+    return _db.collection(parts[0]).doc(parts[1]);
+  }
+
+  // Realtime Database keys can never contain '.', so any top-level field whose
+  // name does contain one was created by the old nested-update bug (it wrote
+  // literal "entry.field" fields). Hide those on read; repairCorruptedRecords()
+  // merges them back into the real entries and deletes them for good.
+  function dropCorruptedKeys(obj) {
+    if(!obj || typeof obj !== 'object' || Array.isArray(obj)) return obj;
+    const clean = {};
+    Object.keys(obj).forEach(k => { if(k.indexOf('.') === -1) clean[k] = obj[k]; });
+    return clean;
+  }
+
+  // Path segments below the document level (collection/document/<these...>).
+  // These stay an ARRAY and are never joined with '.', so the nested path is
+  // written as real nested maps (and keys that contain a dot stay literal).
+  // Joining with '.' and passing it to set({merge:true}) used to create
+  // literal "key.field" top-level fields instead of updating the nested value.
+  function fieldPartsFromParts(parts) {
+    return parts.slice(2);
+  }
+
+  // ['a','b'] + v  ->  { a: { b: v } }
+  function nestFromParts(fieldParts, val) {
+    const out = {};
+    let cur = out;
+    fieldParts.forEach((p, i) => {
+      if(i === fieldParts.length - 1) { cur[p] = val; }
+      else { cur[p] = {}; cur = cur[p]; }
+    });
+    return out;
+  }
+
+  function deepMergeInto(target, src) {
+    Object.keys(src).forEach(k => {
+      const v = src[k];
+      if(v && typeof v === 'object' && !Array.isArray(v) &&
+         target[k] && typeof target[k] === 'object' && !Array.isArray(target[k])) {
+        deepMergeInto(target[k], v);
+      } else {
+        target[k] = v;
+      }
+    });
+  }
+
+  // Writes values at nested field paths inside one document, replacing what was
+  // at each path (RTDB set/update semantics). FieldPath takes segments
+  // literally, so push-keys like "-OzRg..." need no escaping. If the document
+  // doesn't exist yet, it is created from the equivalent nested object.
+  async function writeFields(docRef, pairs) {
+    const args = [];
+    pairs.forEach(p => {
+      args.push(new firebase.firestore.FieldPath(...p.parts), p.value);
+    });
+    try {
+      await docRef.update(...args);
+    } catch(err) {
+      if(err && err.code === 'not-found') {
+        const merged = {};
+        pairs.forEach(p => deepMergeInto(merged, nestFromParts(p.parts, p.value)));
+        await docRef.set(merged, { merge:true });
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  function unwrapPrimitiveDocument(data) {
+    if(
+      data &&
+      typeof data === 'object' &&
+      Object.keys(data).length === 1 &&
+      Object.prototype.hasOwnProperty.call(data, '__value')
+    ) {
+      return data.__value;
+    }
+    if(
+      data &&
+      typeof data === 'object' &&
+      Object.keys(data).length === 1 &&
+      Object.prototype.hasOwnProperty.call(data, 'value')
+    ) {
+      return data.value;
+    }
+    return data;
+  }
+
+  function makeSnapshot(exists, value, key) {
+    return {
+      exists: () => !!exists,
+      val: () => value,
+      key: key || null
+    };
+  }
+
+  async function get(r) {
+    const path = cleanPath(r.path);
+    const parts = splitPath(path);
+
+    if(!parts.length) {
+      throw new Error('Reading the Firestore root directly is not supported.');
+    }
+
+    // collection: get all documents
+    if(parts.length === 1) {
+      const snap = await _db.collection(parts[0]).get();
+      const value = {};
+
+      snap.forEach(doc => {
+        value[doc.id] = dropCorruptedKeys(doc.data() || {});
+      });
+
+      return makeSnapshot(!snap.empty, value, null);
+    }
+
+    const docRef = fsDocument(path);
+    const docSnap = await docRef.get();
+
+    // collection/document: return the complete document
+    if(parts.length === 2) {
+      if(!docSnap.exists) {
+        return makeSnapshot(false, null, parts[1]);
+      }
+
+      return makeSnapshot(
+        true,
+        unwrapPrimitiveDocument(dropCorruptedKeys(docSnap.data() || {})),
+        parts[1]
+      );
+    }
+
+    // collection/document/field[/nestedField...]
+    // Example: config/approvedIds/STU001
+    // Example: exams/STU001/2026-08-30_123/date
+    if(!docSnap.exists) {
+      return makeSnapshot(false, null, parts[parts.length - 1]);
+    }
+
+    const data = docSnap.data() || {};
+    // Read nested map safely without relying on Firestore's FieldPath parser.
+    const fieldParts = fieldPartsFromParts(parts);
+    let value = data;
+
+    for(const part of fieldParts) {
+      if(value === null || value === undefined ||
+         typeof value !== 'object' ||
+         !Object.prototype.hasOwnProperty.call(value, part)) {
+        return makeSnapshot(false, null, parts[parts.length - 1]);
+      }
+      value = value[part];
+    }
+
+    return makeSnapshot(true, value, parts[parts.length - 1]);
+  }
+
+  async function set(r, val) {
+    if(!auth.currentUser) throw new Error('AUTH_REQUIRED: Please log in again before saving data.');
+    const path = cleanPath(r.path);
+    const parts = splitPath(path);
+
+    if(parts.length < 2) {
+      throw new Error(`Cannot set a Firestore collection directly: ${path}`);
+    }
+
+    const docRef = fsDocument(path);
+
+    // collection/document -> replace the document.
+    if(parts.length === 2) {
+      if(val !== null && typeof val === 'object' && !Array.isArray(val)) {
+        await docRef.set(val);
+      } else {
+        // Firestore documents must contain fields. Primitive RTDB values
+        // are kept under __value so get() still returns the original value.
+        await docRef.set({ __value: val });
+      }
+      return;
+    }
+
+    // collection/document/field[/nestedField...]
+    await writeFields(docRef, [{ parts: fieldPartsFromParts(parts), value: val }]);
+  }
+
+  async function remove(r) {
+    if(!auth.currentUser) throw new Error('AUTH_REQUIRED: Please log in again before deleting data.');
+    const path = cleanPath(r.path);
+    const parts = splitPath(path);
+
+    if(parts.length < 2) {
+      throw new Error(`Cannot remove a Firestore collection root: ${path}`);
+    }
+
+    const docRef = fsDocument(path);
+
+    // collection/document -> delete the whole document.
+    if(parts.length === 2) {
+      await docRef.delete();
+      return;
+    }
+
+    // collection/document/field[/nestedField...]
+    try {
+      await docRef.update(
+        new firebase.firestore.FieldPath(...fieldPartsFromParts(parts)),
+        firebase.firestore.FieldValue.delete()
+      );
+    } catch(err) {
+      // Removing something from a document that doesn't exist is a no-op (as in RTDB)
+      if(!(err && err.code === 'not-found')) throw err;
+    }
+  }
+
+  // RTDB-style update() compatibility.
+  //
+  // update(ref(db), {
+  //   "/users/STU001/name": "John",
+  //   "/users/STU001/email": "john@example.com"
+  // })
+  //
+  // is converted to:
+  // users/STU001.update({name:"John", email:"..."})
+  //
+  // Nested updates such as:
+  // /exams/STU001/examKey/date
+  // become a nested Firestore field update.
+  async function update(r, values) {
+    if(!auth.currentUser) throw new Error('AUTH_REQUIRED: Please log in again before updating data.');
+    const entries = Object.entries(values || {});
+    if(!entries.length) return;
+
+    const base = cleanPath(r.path);
+    const grouped = new Map();
+    const fullDocumentWrites = [];
+
+    for(const [rawKey, val] of entries) {
+      const key = String(rawKey).replace(/^\/+/, '');
+      const target = [base, key].filter(Boolean).join('/');
+      const parts = splitPath(target);
+
+      if(parts.length < 2) {
+        throw new Error(`Invalid Firestore update path: ${target}`);
+      }
+
+      const docPath = parts.slice(0, 2).join('/');
+      const docRef = fsDocument(docPath);
+
+      // collection/document => replace/merge the whole document value
+      if(parts.length === 2) {
+        fullDocumentWrites.push({ ref:docRef, value:val });
+        continue;
+      }
+
+      if(!grouped.has(docPath)) {
+        grouped.set(docPath, { ref:docRef, pairs:[] });
+      }
+
+      grouped.get(docPath).pairs.push({ parts: fieldPartsFromParts(parts), value: val });
+    }
+
+    for(const item of fullDocumentWrites) {
+      if(item.value !== null &&
+         typeof item.value === 'object' &&
+         !Array.isArray(item.value)) {
+        await item.ref.set(item.value, { merge:true });
+      } else {
+        await item.ref.set({ __value:item.value });
+      }
+    }
+
+    for(const item of grouped.values()) {
+      await writeFields(item.ref, item.pairs);
+    }
+  }
+
+  // Firestore instance used by the application.
+  const db = _db;
   // ══════════════════ SECURITY HELPERS ══════════════════
 
   // SHA-256 hash (via built-in Web Crypto API, no library needed)
@@ -3147,6 +3454,17 @@ window.addEventListener('DOMContentLoaded', function() {
     if(!match) match = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
     if(!match) return null;
     return `https://drive.google.com/file/d/${match[1]}/preview`;
+  }
+
+  // Converts a Google Drive share link into a direct-viewable thumbnail URL
+  // usable as an <img src>. Falls back to the URL as-is if it isn't a
+  // recognizable Drive link. Requires Drive sharing set to "Anyone with the link".
+  function getGoogleDriveImageUrl(url) {
+    if(!url) return null;
+    let match = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if(!match) match = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if(!match) return url;
+    return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w400`;
   }
 
   // Opens a note/PDF link inside the site via an embedded viewer when it's a
@@ -3219,10 +3537,28 @@ window.addEventListener('DOMContentLoaded', function() {
   }
   function invalidateUsersCache() { _usersCache = null; }
 
-  // ── Session Persistence — localStorage keeps session after refresh & browser close ──
+  // ── Secure session restoration ─────────────────────────────────────
+  // localStorage is only a UI hint. Access to the portal requires a real
+  // Firebase Authentication session.
   const savedSession = localStorage.getItem('skillCircleSession');
   if(savedSession) {
-    currentSession = JSON.parse(savedSession);
+    try { currentSession = JSON.parse(savedSession); }
+    catch(_) { localStorage.removeItem('skillCircleSession'); currentSession = null; }
+  }
+
+  auth.onAuthStateChanged((user) => {
+    if(!user) {
+      // Never trust a saved client-side session without Firebase Auth.
+      localStorage.removeItem('skillCircleSession');
+      localStorage.removeItem('skillCircleLastTab');
+      currentSession = null;
+      document.getElementById('portal-page').style.display = 'none';
+      document.getElementById('home-page').style.display = 'block';
+      return;
+    }
+
+    if(!currentSession) return;
+
     document.getElementById('home-page').style.display = 'none';
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('portal-page').style.display = 'block';
@@ -3236,10 +3572,9 @@ window.addEventListener('DOMContentLoaded', function() {
       document.getElementById('menu-user').classList.remove('hidden');
       document.getElementById('sidebar-logout-footer').style.display = 'none';
     }
-    // Restore last active tab after all functions are defined
     const lastTab = localStorage.getItem('skillCircleLastTab');
     window.__pendingRestoreTab = lastTab || (currentSession.role === 'admin' ? 'admin-users' : 'dash');
-  }
+  });
 
   const monthsList = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -3424,90 +3759,151 @@ window.addEventListener('DOMContentLoaded', function() {
   };
 
   window.handleSignUp = async () => {
-    const name   = document.getElementById('signup-name').value.trim();
-    const id     = document.getElementById('signup-id').value.trim();
-    const phone  = document.getElementById('signup-phone').value.trim();
-    const email  = document.getElementById('signup-email').value.trim();
-    const pass   = document.getElementById('signup-pass').value.trim();
-    const level  = document.getElementById('signup-level').value;
-    const group  = document.getElementById('signup-group').value;
-    const secret = document.getElementById('signup-secret').value.trim();
-
-    if(!name || !id || id === 'Generating...' || !phone || !email || !pass || !secret) return alert("Please fill all fields including the Secret Key!");
-    if(!level) return alert("Please select your student level (SSC / HSC / University)!");
-    if(!group) return alert("Please select your student group!");
-
-    const keySnap = await get(child(ref(db), 'config/registrationKey'));
-    if(!keySnap.exists()) return alert("❌ Registration is currently disabled. Please contact the admin.");
-    const validKey = keySnap.val();
-    if(secret !== validKey) return alert("❌ Invalid Secret Key! Please get the correct key from your admin.");
-
-    // Re-check freshness right before writing, in case someone else grabbed this ID meanwhile
-    const snapshot = await get(child(ref(db), `users/${id}`));
-    if(snapshot.exists()) {
-      alert("This ID was just taken by someone else — generating a new one for you, please try again.");
-      invalidateUsersCache();
-      return generateSignupId();
-    }
-
-    const hashedPass = await sha256Hex(pass);
-    await set(ref(db, 'users/' + id), { name, email, phone, pass: hashedPass, role: 'user', level, group });
-    invalidateUsersCache();
-
     try {
-      await auth.createUserWithEmailAndPassword(email, pass);
-      await auth.signOut(); // creating the account auto-signs-in; we don't want that yet
-    } catch(authErr) {
-      // Most likely this email is already used by a sibling's account, or the
-      // format was rejected — the student can still log in via the legacy
-      // DB-hash path, which auto-migrates them the next time it succeeds.
-      console.warn('Firebase Auth account creation at signup skipped:', authErr.message);
-    }
+      const name   = document.getElementById('signup-name').value.trim();
+      const id     = document.getElementById('signup-id').value.trim();
+      const phone  = document.getElementById('signup-phone').value.trim();
+      const email  = document.getElementById('signup-email').value.trim();
+      const pass   = document.getElementById('signup-pass').value.trim();
+      const level  = document.getElementById('signup-level').value;
+      const group  = document.getElementById('signup-group').value;
+      const secret = document.getElementById('signup-secret').value.trim();
 
-    alert("✅ Account created successfully!");
-    window.toggleAuth('login');
-    document.getElementById('login-id').value = id;
+      if(!name || !id || id === 'Generating...' || !phone || !email || !pass || !secret)
+        return alert("Please fill all fields including the Secret Key!");
+      if(!level) return alert("Please select your student level (SSC / HSC / University)!");
+      if(!group) return alert("Please select your student group!");
+      if(pass.length < 6) return alert("Password must be at least 6 characters!");
+
+      const keySnap = await get(child(ref(db), 'config/registrationKey'));
+      if(!keySnap.exists()) return alert("❌ Registration is currently disabled. Please contact the admin.");
+      if(secret !== keySnap.val()) return alert("❌ Invalid Secret Key! Please get the correct key from your admin.");
+
+      const existing = await get(child(ref(db), `users/${id}`));
+      if(existing.exists()) {
+        invalidateUsersCache();
+        alert("This ID is already registered. Please use another ID.");
+        return generateSignupId();
+      }
+
+      // Create the real Firebase Authentication account FIRST.
+      // This guarantees request.auth exists before we write the Firestore user document.
+      let credential;
+      try {
+        credential = await auth.createUserWithEmailAndPassword(email, pass);
+      } catch(e) {
+        console.error('Auth signup failed:', e);
+        if(e && e.code === 'auth/email-already-in-use')
+          return alert("This email is already registered. Please use another email or log in.");
+        return alert("Account creation failed: " + (e.message || e));
+      }
+
+      const hashedPass = await sha256Hex(pass);
+      try {
+        await set(ref(db, `users/${id}`), {
+          name, email, phone, pass: hashedPass, role: 'user', level, group, authUid: credential.user.uid
+        });
+        // Public login directory contains ONLY the student ID -> Auth email mapping.
+        // Passwords are never stored here.
+        await set(ref(db, `loginMap/${id}`), { email, authUid: credential.user.uid });
+      } catch(e) {
+        // Roll back the Auth account if the Firestore write fails.
+        try { await credential.user.delete(); } catch(_) {}
+        throw e;
+      }
+
+      invalidateUsersCache();
+      await auth.signOut();
+      alert("✅ Account created successfully!");
+      window.toggleAuth('login');
+      document.getElementById('login-id').value = id;
+    } catch(fatalErr) {
+      console.error('handleSignUp fatal error:', fatalErr);
+      alert('⚠️ Registration failed:\n\n' + (fatalErr && fatalErr.message ? fatalErr.message : fatalErr));
+    }
   };
 
   window.handleLogin = async () => {
-   try {
-    const id = document.getElementById('login-id').value.trim();
-    const pass = document.getElementById('login-pass').value.trim();
+    try {
+      const id = document.getElementById('login-id').value.trim();
+      const pass = document.getElementById('login-pass').value;
+      if(!id || !pass) return alert('Fields cannot be empty!');
 
-    if(!id || !pass) return alert("Fields cannot be empty!");
+      const rl = loginRateLimitCheck(id);
+      if(rl.blocked) return alert(`Too many failed attempts. Please try again in ${rl.secsLeft} seconds.`);
 
-    // ── Client-side brute-force throttle ──
-    const rl = loginRateLimitCheck(id);
-    if(rl.blocked) return alert(`Too many failed attempts. Please try again in ${rl.secsLeft} seconds.`);
+      // Secure login normally uses the public ID -> email directory.
+      // For EXISTING accounts created before this migration, bootstrap the
+      // directory once from the existing users/{id} profile. The old password
+      // is verified first, then Firebase Authentication becomes the authority.
+      let loginInfo = {};
+      let mapSnap = await get(child(ref(db), `loginMap/${id}`));
 
-    // ── First-run admin setup (no hardcoded default password anymore) ──
-    if(id === 'admin') {
-      const checkAdmin = await get(child(ref(db), 'users/admin'));
-      if(!checkAdmin.exists()) {
-        if(pass.length < 6) return alert("No admin account exists yet. Enter a new password (min 6 characters) here and click Login again to create it.");
-        const confirmSetup = confirm("No admin account was found. Create one now with the password you just typed?");
-        if(!confirmSetup) return;
-        const hashed = await sha256Hex(pass);
-        const adminEmail = 'admin@skillcircleacademy.app';
-        await set(ref(db, 'users/admin'), { name: 'System Admin', email: adminEmail, pass: hashed, role: 'admin' });
-        try { await auth.createUserWithEmailAndPassword(adminEmail, pass); } catch(e) { console.warn('Admin Auth account creation skipped:', e.message); }
-        alert("✅ Admin account created. Logging you in...");
+      if(mapSnap.exists()) {
+        loginInfo = mapSnap.val() || {};
+      } else {
+        // One-time migration path for legacy users.
+        const legacySnap = await get(child(ref(db), `users/${id}`));
+        if(!legacySnap.exists()) {
+          if(rl.data && rl.key) loginRateLimitFail(rl.key, rl.data);
+          return alert('Wrong ID or Password!');
+        }
+        const legacyUser = legacySnap.val() || {};
+        const legacyEmail = String(legacyUser.email || '').trim();
+        if(!legacyEmail || !legacyUser.pass) {
+          if(rl.data && rl.key) loginRateLimitFail(rl.key, rl.data);
+          return alert('Account configuration is incomplete. Please contact the admin.');
+        }
+
+        // Check the existing Firestore password only to bootstrap an already
+        // existing account. It is never stored in localStorage or loginMap.
+        const legacyPasswordOK = await verifyPassword(legacyUser.pass, pass);
+        if(!legacyPasswordOK) {
+          if(rl.data && rl.key) loginRateLimitFail(rl.key, rl.data);
+          return alert('Wrong ID or Password!');
+        }
+
+        loginInfo = { email: legacyEmail, authUid: legacyUser.authUid || '' };
       }
-    }
 
-    const snapshot = await get(child(ref(db), `users/${id}`));
-    if(!snapshot.exists()) {
-      if(rl.data && rl.key) loginRateLimitFail(rl.key, rl.data);
-      return alert("Wrong ID or Password!");
-    }
-    const userData = snapshot.val();
-    const email = userData.email;
+      const email = String(loginInfo.email || '').trim();
+      if(!email) return alert('Account configuration is incomplete. Please contact the admin.');
 
-    const proceedWithLogin = async () => {
+      let credential;
+      try {
+        credential = await auth.signInWithEmailAndPassword(email, pass);
+      } catch(authErr) {
+        if(rl.data && rl.key) loginRateLimitFail(rl.key, rl.data);
+        if(authErr.code === 'auth/wrong-password' || authErr.code === 'auth/invalid-credential')
+          return alert('Wrong ID or Password!');
+        if(authErr.code === 'auth/user-not-found')
+          return alert('This account is not available in Firebase Authentication. Please use the same password that was used when the Firebase Auth account was created, or reset the account password.');
+        throw authErr;
+      }
+
+      // If this was an old account, create its ID -> email mapping now.
+      // The write is authenticated because Firebase Auth has just succeeded.
+      if(!mapSnap.exists()) {
+        await set(ref(db, `loginMap/${id}`), { email, authUid: credential.user.uid });
+      }
+
+      // Only after Auth succeeds do we read the protected user profile.
+      const snapshot = await get(child(ref(db), `users/${id}`));
+      if(!snapshot.exists()) {
+        await auth.signOut();
+        return alert('User profile not found. Please contact the admin.');
+      }
+
+      const userData = snapshot.val() || {};
+      // Make sure the directory cannot point one ID at a different Auth account.
+      if(userData.authUid && credential.user.uid !== userData.authUid) {
+        await auth.signOut();
+        return alert('Account security check failed. Please contact the admin.');
+      }
+
       loginRateLimitReset(rl.key);
-      currentSession = { ...userData, id: id };
+      currentSession = { ...userData, id, authUid: credential.user.uid };
       delete currentSession.pass;
-      // Never persist the password (hashed or not) in memory or localStorage
       localStorage.setItem('skillCircleSession', JSON.stringify(currentSession));
 
       document.getElementById('login-page').style.display = 'none';
@@ -3525,50 +3921,10 @@ window.addEventListener('DOMContentLoaded', function() {
         document.getElementById('sidebar-logout-footer').style.display = 'none';
         window.switchTab('dash');
       }
-    };
-
-    // ── Primary path: real Firebase Auth sign-in (this is now the source of truth) ──
-    if(email) {
-      try {
-        await auth.signInWithEmailAndPassword(email, pass);
-        await proceedWithLogin();
-        return;
-      } catch(authErr) {
-        // Any failure here — wrong password, or no Firebase Auth account yet for
-        // this student — falls through to the legacy DB-hash check below, which
-        // is authoritative for accounts that haven't been migrated yet.
-      }
+    } catch(fatalErr) {
+      console.error('handleLogin fatal error:', fatalErr);
+      alert('⚠️ Login error:\n\n' + (fatalErr && fatalErr.message ? fatalErr.message : fatalErr) + '\n\nCode: ' + (fatalErr && fatalErr.code ? fatalErr.code : 'none'));
     }
-
-    // ── Legacy path: verify against the DB-stored hash, and silently migrate
-    //     this account to real Firebase Auth on success ──
-    const valid = await verifyPassword(userData.pass, pass);
-    if(!valid) {
-      if(rl.data && rl.key) loginRateLimitFail(rl.key, rl.data);
-      return alert("Wrong ID or Password!");
-    }
-
-    // Auto-migrate legacy plaintext passwords to hashed
-    if(!HASH_RE.test(userData.pass)) {
-      const hashed = await sha256Hex(pass);
-      await update(ref(db), { [`/users/${id}/pass`]: hashed });
-    }
-
-    // Auto-migrate this student to a real Firebase Auth account, so future
-    // logins go through the primary (secure, server-verified) path above.
-    if(email) {
-      try {
-        await auth.createUserWithEmailAndPassword(email, pass);
-      } catch(createErr) {
-        console.warn('Firebase Auth migration for', id, 'skipped:', createErr.message);
-      }
-    }
-
-    await proceedWithLogin();
-   } catch(fatalErr) {
-     console.error('handleLogin fatal error:', fatalErr);
-     alert('⚠️ Login error (please screenshot this and send to support):\n\n' + (fatalErr && fatalErr.message ? fatalErr.message : fatalErr) + '\n\nCode: ' + (fatalErr && fatalErr.code ? fatalErr.code : 'none'));
-   }
   };
 
   window.switchTab = (tabId) => {
@@ -3586,8 +3942,6 @@ window.addEventListener('DOMContentLoaded', function() {
     if(tabId === 'syllabus') loadStudentSyllabus();
     if(tabId === 'testresults') loadStudentTestResults();
     if(tabId === 'leaderboard') loadLeaderboard();
-    if(tabId === 'certificate') loadCertificateStatus();
-    if(tabId === 'admin-certificates') loadAdminCertificateRequests();
     if(tabId === 'admin-users') renderUserTable();
     if(tabId === 'admin-passrequests') loadPassRequests();
     if(tabId === 'admin-secretkey') loadSecretKey();
@@ -3962,6 +4316,49 @@ window.addEventListener('DOMContentLoaded', function() {
 
   window.closeTestResultEditModal = () => {
     document.getElementById('edit-testresult-modal').style.display = 'none';
+  };
+
+  // ── One-time repair for records damaged by the earlier nested-update bug ──
+  // Edits to Test Results, GPA-sheet approvals, homework feedback and syllabus
+  // used to be saved as literal "entry.field" fields instead of updating the
+  // entry. This applies those values to the real entry (only if the entry still
+  // exists — deleted entries are not resurrected) and removes the leftovers.
+  window.repairCorruptedRecords = async () => {
+    if(!confirm('Scan for records damaged by earlier edits (Test Results, GPA approvals, homework feedback, syllabus)?\n\nEdits that never applied will be applied now, and the broken leftover fields will be removed.')) return;
+    const collections = ['testResults','gpaCalculations','syllabus','homeworks','exams','payments','classDates','routine','schedules'];
+    const FieldPath = firebase.firestore.FieldPath;
+    const FieldValue = firebase.firestore.FieldValue;
+    const isObj = v => v !== null && typeof v === 'object' && !Array.isArray(v);
+    let applied = 0, discarded = 0, docsTouched = 0;
+    try {
+      for(const c of collections) {
+        const snap = await _db.collection(c).get();
+        for(const doc of snap.docs) {
+          const data = doc.data() || {};
+          const junkKeys = Object.keys(data).filter(k => k.indexOf('.') !== -1);
+          if(!junkKeys.length) continue;
+          for(const k of junkKeys) {
+            const parts = k.split('.').filter(Boolean);
+            const args = [];
+            if(parts.length >= 2 && isObj(data[parts[0]])) {
+              args.push(new FieldPath(...parts), data[k]);
+              applied++;
+            } else {
+              discarded++;
+            }
+            args.push(new FieldPath(k), FieldValue.delete());
+            await doc.ref.update(...args);
+          }
+          docsTouched++;
+        }
+      }
+      invalidateUsersCache();
+      alert(`✅ Repair finished.\n\nDocuments cleaned: ${docsTouched}\nEdits applied: ${applied}\nLeftovers discarded (entry no longer exists): ${discarded}`);
+      if(typeof loadTestResultsPreview === 'function') loadTestResultsPreview();
+    } catch(err) {
+      console.error('repairCorruptedRecords failed:', err);
+      alert(`❌ Repair stopped: ${err.message || err}`);
+    }
   };
 
   window.saveTestResultEdit = async () => {
@@ -4396,7 +4793,7 @@ window.addEventListener('DOMContentLoaded', function() {
     }
     const results = snap.val();
     const entries = Object.entries(results).map(([key, r]) => ({ key, ...r }))
-      .sort((a, b) => a.subject.localeCompare(b.subject) || a.testNo - b.testNo);
+      .sort((a, b) => (a.subject || '').localeCompare(b.subject || '') || (a.testNo || 0) - (b.testNo || 0));
 
     overview.innerHTML = overallGpaCard(entries, '📈 Overall GPA (All Subjects & Tests)');
 
@@ -4437,7 +4834,7 @@ window.addEventListener('DOMContentLoaded', function() {
     }
     const results = snap.val();
     const entries = Object.entries(results).map(([key, r]) => ({ key, ...r }))
-      .sort((a, b) => a.subject.localeCompare(b.subject) || a.testNo - b.testNo);
+      .sort((a, b) => (a.subject || '').localeCompare(b.subject || '') || (a.testNo || 0) - (b.testNo || 0));
 
     overview.innerHTML = overallGpaCard(entries, '📈 Your Overall GPA (All Subjects & Tests)');
     window._myTestResultsCache = entries;
@@ -4515,255 +4912,45 @@ window.addEventListener('DOMContentLoaded', function() {
     tbody.innerHTML = '';
     modal.style.display = 'flex';
 
-    const snap = await get(child(ref(db), `testResults/${studentId}`));
-    if(!snap.exists()) {
-      summary.innerHTML = '';
-      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">No test results found.</td></tr>`;
-      return;
-    }
-    const entries = Object.values(snap.val())
-      .sort((a, b) => a.subject.localeCompare(b.subject) || a.testNo - b.testNo);
+    try {
+      const snap = await get(child(ref(db), `testResults/${studentId}`));
+      if(!snap.exists() || !snap.val()) {
+        summary.innerHTML = '';
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">No test results found.</td></tr>`;
+        return;
+      }
+      // Guard against any malformed/incomplete entries (e.g. missing fields)
+      // so one bad record doesn't break the whole view for this student.
+      const entries = Object.values(snap.val())
+        .filter(r => r && typeof r === 'object')
+        .sort((a, b) => (a.subject || '').localeCompare(b.subject || '') || (a.testNo || 0) - (b.testNo || 0));
 
-    summary.innerHTML = overallGpaCard(entries, '📈 Overall GPA (All Subjects & Tests)');
-    tbody.innerHTML = entries.map(r => `
-      <tr>
-        <td style="font-weight:700;">${escapeHtml(r.subject)}</td>
-        <td style="font-family:var(--mono);">Test ${r.testNo}</td>
-        <td style="font-family:var(--mono);">${r.obtainedMarks} / ${r.totalMarks}</td>
-        <td style="font-family:var(--mono); color:var(--text-dim);">${parseFloat(r.percentage).toFixed(1)}%</td>
-        <td style="font-weight:700; color:var(--accent);">${escapeHtml(r.grade)}</td>
-        <td style="font-family:var(--mono); color:var(--green); font-weight:700;">${parseFloat(r.gpa).toFixed(2)}</td>
-      </tr>
-    `).join('');
+      if(entries.length === 0) {
+        summary.innerHTML = '';
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">No test results found.</td></tr>`;
+        return;
+      }
+
+      summary.innerHTML = overallGpaCard(entries, '📈 Overall GPA (All Subjects & Tests)');
+      tbody.innerHTML = entries.map(r => `
+        <tr>
+          <td style="font-weight:700;">${escapeHtml(r.subject || '—')}</td>
+          <td style="font-family:var(--mono);">Test ${r.testNo ?? '—'}</td>
+          <td style="font-family:var(--mono);">${r.obtainedMarks ?? '—'} / ${r.totalMarks ?? '—'}</td>
+          <td style="font-family:var(--mono); color:var(--text-dim);">${isNaN(parseFloat(r.percentage)) ? '—' : parseFloat(r.percentage).toFixed(1) + '%'}</td>
+          <td style="font-weight:700; color:var(--accent);">${escapeHtml(r.grade || '—')}</td>
+          <td style="font-family:var(--mono); color:var(--green); font-weight:700;">${isNaN(parseFloat(r.gpa)) ? '—' : parseFloat(r.gpa).toFixed(2)}</td>
+        </tr>
+      `).join('');
+    } catch(err) {
+      console.error('viewLeaderboardStudentResults failed:', err);
+      summary.innerHTML = '';
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--red); padding:20px;">⚠️ Couldn't load this student's results. (${escapeHtml(err.message || 'unknown error')})</td></tr>`;
+    }
   };
 
   window.closeLeaderboardDetailModal = () => {
     document.getElementById('leaderboard-detail-modal').style.display = 'none';
-  };
-
-  // ═══════════════════════════════════════════════════
-  //  ACADEMIC CERTIFICATE — request → admin approval → PDF download
-  // ═══════════════════════════════════════════════════
-
-  // Computes a certificate GPA: primarily from Test Results, with Homework
-  // folded in as an OPTIONAL bonus (only if the student has rated homework
-  // feedback on file). If there's no homework data at all, the certificate
-  // GPA is simply the Test Results average — homework never blocks it.
-  async function computeCertificateGpa(studentId) {
-    const scoreMap = { 'Excellent': 5, 'Good': 4, 'Average': 3, 'Needs Improvement': 2, 'Not Submitted': 1 };
-    const [resultsSnap, hwSnap] = await Promise.all([
-      get(child(ref(db), `testResults/${studentId}`)),
-      get(child(ref(db), `homeworks/${studentId}`))
-    ]);
-
-    let testGpa = 0, testCount = 0;
-    if(resultsSnap.exists()) {
-      const entries = Object.values(resultsSnap.val());
-      testCount = entries.length;
-      if(testCount > 0) testGpa = entries.reduce((sum, e) => sum + (parseFloat(e.gpa) || 0), 0) / testCount;
-    }
-
-    let hasHomeworkData = false, homeworkGpa = 0;
-    if(hwSnap.exists()) {
-      const rated = Object.values(hwSnap.val()).filter(h => h.satisfaction && scoreMap[h.satisfaction]);
-      if(rated.length > 0) {
-        hasHomeworkData = true;
-        homeworkGpa = rated.reduce((sum, h) => sum + scoreMap[h.satisfaction], 0) / rated.length;
-      }
-    }
-
-    // Homework is optional: 80% Test Results + 20% Homework when homework data
-    // exists, otherwise Test Results alone.
-    const finalGpa = hasHomeworkData
-      ? Math.min(5, (testGpa * 0.8) + (homeworkGpa * 0.2))
-      : testGpa;
-
-    return { finalGpa, testGpa, testCount, hasHomeworkData, homeworkGpa };
-  }
-
-  // ── Student: view request status / request / download ──
-  window.loadCertificateStatus = async () => {
-    const card = document.getElementById('certificate-status-card');
-    if(!card || !currentSession) return;
-    card.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted);">Loading...</div>`;
-
-    const snap = await get(child(ref(db), `certificateRequests/${currentSession.id}`));
-    const req = snap.exists() ? snap.val() : null;
-
-    if(!req) {
-      card.innerHTML = `
-        <div style="text-align:center; padding:16px;">
-          <div style="font-size:40px; margin-bottom:10px;">🎓</div>
-          <div style="font-weight:700; font-size:15px; margin-bottom:8px;">No certificate requested yet</div>
-          <div style="color:var(--text-muted); font-size:13px; margin-bottom:20px; max-width:420px; margin-left:auto; margin-right:auto;">Your GPA will be calculated from your Test Results (Homework feedback counts as a small bonus, if you have any).</div>
-          <button class="btn-action" style="max-width:280px;" onclick="requestCertificate()">📩 Request Certificate</button>
-        </div>`;
-      return;
-    }
-
-    if(req.status === 'pending') {
-      card.innerHTML = `
-        <div style="text-align:center; padding:16px;">
-          <div style="font-size:40px; margin-bottom:10px;">⏳</div>
-          <div style="font-weight:700; font-size:15px; color:var(--gold); margin-bottom:6px;">Request Pending</div>
-          <div style="color:var(--text-muted); font-size:13px;">Your certificate request is waiting for admin approval.</div>
-        </div>`;
-      return;
-    }
-
-    if(req.status === 'rejected') {
-      card.innerHTML = `
-        <div style="text-align:center; padding:16px;">
-          <div style="font-size:40px; margin-bottom:10px;">❌</div>
-          <div style="font-weight:700; font-size:15px; color:var(--red); margin-bottom:6px;">Request Declined</div>
-          ${req.reason ? `<div style="color:var(--text-muted); font-size:13px; margin-bottom:16px;">Reason: ${escapeHtml(req.reason)}</div>` : '<div style="margin-bottom:16px;"></div>'}
-          <button class="btn-action" style="max-width:280px;" onclick="requestCertificate()">📩 Request Again</button>
-        </div>`;
-      return;
-    }
-
-    if(req.status === 'approved') {
-      const g = await computeCertificateGpa(currentSession.id);
-      card.innerHTML = `
-        <div style="text-align:center; padding:16px;">
-          <div style="font-size:40px; margin-bottom:10px;">✅</div>
-          <div style="font-weight:700; font-size:15px; color:var(--green); margin-bottom:10px;">Approved!</div>
-          <div style="display:inline-block; background:#f4f5fa; border-radius:var(--radius-sm); padding:14px 22px; margin-bottom:20px;">
-            <div style="font-size:28px; font-weight:800; color:var(--gold); font-family:var(--mono);">${g.finalGpa.toFixed(2)}</div>
-            <div style="font-size:11px; color:var(--text-muted); font-weight:600;">CERTIFICATE GPA</div>
-          </div>
-          <div><button class="btn-action" style="max-width:280px;" onclick="downloadCertificatePdf()">📥 Download Certificate PDF</button></div>
-        </div>`;
-    }
-  };
-
-  window.requestCertificate = async () => {
-    if(!confirm('Request your Academic Certificate? An admin will review and approve it.')) return;
-    await set(ref(db, `certificateRequests/${currentSession.id}`), {
-      status: 'pending', requestedAt: new Date().toISOString()
-    });
-    alert('✅ Request sent! You\'ll be able to download it once approved.');
-    loadCertificateStatus();
-  };
-
-  // ── Student: download the approved certificate as an A4 PDF ──
-  window.downloadCertificatePdf = async () => {
-    if(!currentSession || currentSession.role === 'admin') return;
-    if(typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
-      return alert('Download tool failed to load. Please check your internet connection and try again.');
-    }
-    const { jsPDF } = window.jspdf;
-    const g = await computeCertificateGpa(currentSession.id);
-    const logoSnap = await get(child(ref(db), 'config/academyLogoUrl'));
-    const logoUrl = logoSnap.exists() ? logoSnap.val() : null;
-    const sigSnap = await get(child(ref(db), 'config/signatureImageUrl'));
-    const sigUrl = sigSnap.exists() ? sigSnap.val() : null;
-    const today = new Date().toLocaleDateString('en-BD', { day: 'numeric', month: 'long', year: 'numeric' });
-
-    // NOTE: this is a starter layout — happy to match it exactly to your demo design once you share it.
-    const temp = document.createElement('div');
-    temp.style.cssText = 'position:fixed; left:-9999px; top:0; width:800px; background:#fffdfa; padding:56px; font-family:Segoe UI, Arial, sans-serif; border:10px solid #4f46e5; box-sizing:border-box;';
-    temp.innerHTML = `
-      <div style="text-align:center; border-bottom:2px solid #e2e2e2; padding-bottom:24px; margin-bottom:32px;">
-        ${logoUrl ? `<img src="${logoUrl}" style="height:64px; object-fit:contain; margin-bottom:10px;">` : `<div style="font-size:48px;">🎓</div>`}
-        <div style="font-size:24px; font-weight:800; color:#4338ca; letter-spacing:0.5px;">SKILL CIRCLE ACADEMY</div>
-        <div style="font-size:12px; color:#888; margin-top:4px; letter-spacing:2px; text-transform:uppercase;">Certificate of Academic Achievement</div>
-      </div>
-      <div style="text-align:center; margin-bottom:30px;">
-        <div style="font-size:13px; color:#888; margin-bottom:14px;">This is to certify that</div>
-        <div style="font-size:30px; font-weight:800; color:#111; margin-bottom:6px;">${escapeHtml(currentSession.name)}</div>
-        <div style="font-size:13px; color:#888; font-family:'Courier New',monospace;">Student ID: ${escapeHtml(currentSession.id)}</div>
-        <div style="font-size:14px; color:#444; margin-top:20px; max-width:560px; margin-left:auto; margin-right:auto; line-height:1.7;">
-          has successfully completed coursework at Skill Circle Academy${currentSession.institution ? `, ${escapeHtml(currentSession.institution)}` : ''}, maintaining consistent academic performance across regular assessments.
-        </div>
-      </div>
-      <div style="text-align:center; padding:20px; background:#f4f5fa; border-radius:12px; margin-bottom:34px;">
-        <div style="font-size:34px; font-weight:800; color:#d97706; font-family:'Courier New',monospace;">${g.finalGpa.toFixed(2)}</div>
-        <div style="font-size:11px; color:#888; font-weight:700; letter-spacing:0.5px;">FINAL GPA${g.hasHomeworkData ? ' (Test Results + Homework)' : ' (Based on Test Results)'}</div>
-      </div>
-      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:50px;">
-        <div style="font-size:12px; color:#888;">Date Issued: ${today}</div>
-        <div style="text-align:center;">
-          ${sigUrl ? `<img src="${sigUrl}" style="height:56px; object-fit:contain;">` : ''}
-          <div style="border-top:1px solid #999; width:180px; margin-top:4px; padding-top:5px; font-size:11px; color:#888;">Authorized Signature</div>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(temp);
-
-    try {
-      const canvas = await html2canvas(temp, { backgroundColor: '#ffffff', scale: 2, useCORS: true });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 8;
-      const imgWidth = pageWidth - margin * 2;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const yOffset = Math.max(margin, (pageHeight - imgHeight) / 2);
-      pdf.addImage(imgData, 'PNG', margin, yOffset, imgWidth, imgHeight);
-      pdf.save(`Certificate_${currentSession.id}.pdf`);
-    } catch(e) {
-      alert('Download failed. Please try again.');
-    } finally {
-      document.body.removeChild(temp);
-    }
-  };
-
-  // ── Admin: view and approve/reject certificate requests ──
-  window.loadAdminCertificateRequests = async () => {
-    const tbody = document.getElementById('admin-certificates-table');
-    if(!tbody) return;
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">⏳ Loading...</td></tr>`;
-
-    const [reqSnap, users] = await Promise.all([
-      get(child(ref(db), 'certificateRequests')),
-      fetchUsersData()
-    ]);
-
-    if(!reqSnap.exists()) {
-      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">No certificate requests yet.</td></tr>`;
-      return;
-    }
-
-    const requests = Object.entries(reqSnap.val());
-    const rows = await Promise.all(requests.map(async ([studentId, req]) => {
-      const u = users[studentId] || {};
-      const g = await computeCertificateGpa(studentId);
-      const dateStr = req.requestedAt ? new Date(req.requestedAt).toLocaleDateString('en-BD', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
-      const statusBadge = req.status === 'approved'
-        ? '<span style="color:var(--green); font-weight:700; font-size:12px;">✅ Approved</span>'
-        : req.status === 'rejected'
-        ? '<span style="color:var(--red); font-weight:700; font-size:12px;">❌ Rejected</span>'
-        : '<span style="color:var(--gold); font-weight:700; font-size:12px;">⏳ Pending</span>';
-      const actionCell = req.status === 'pending'
-        ? `<button class="btn-sm" style="background:rgba(52,211,153,0.1);border-color:rgba(52,211,153,0.3);color:var(--green);" onclick="approveCertificateRequest('${studentId}')">✅ Approve</button>
-           <button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="rejectCertificateRequest('${studentId}')">❌ Reject</button>`
-        : `<button class="btn-sm" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:var(--red);" onclick="deleteEntry('certificateRequests/${studentId}', loadAdminCertificateRequests)">🗑️ Remove</button>`;
-      return `
-        <tr>
-          <td style="font-weight:700;">${escapeHtml(u.name || studentId)}</td>
-          <td style="font-family:var(--mono); color:var(--accent);">${escapeHtml(studentId)}</td>
-          <td style="font-size:12px; color:var(--text-muted);">${dateStr}</td>
-          <td style="font-family:var(--mono); color:var(--green); font-weight:700;">${g.finalGpa.toFixed(2)}</td>
-          <td>${statusBadge}</td>
-          <td style="display:flex; gap:5px; flex-wrap:wrap;">${actionCell}</td>
-        </tr>`;
-    }));
-
-    tbody.innerHTML = rows.join('');
-  };
-
-  window.approveCertificateRequest = async (studentId) => {
-    if(!confirm(`Approve the certificate request for ${studentId}?`)) return;
-    await update(ref(db, `certificateRequests/${studentId}`), { status: 'approved', approvedAt: new Date().toISOString() });
-    loadAdminCertificateRequests();
-  };
-
-  window.rejectCertificateRequest = async (studentId) => {
-    const reason = prompt('Reason for declining (optional):') || '';
-    await update(ref(db, `certificateRequests/${studentId}`), { status: 'rejected', reason, rejectedAt: new Date().toISOString() });
-    loadAdminCertificateRequests();
   };
 
 
@@ -6612,6 +6799,16 @@ window.addEventListener('DOMContentLoaded', function() {
     if(grpEl) grpEl.innerText = currentSession.group || 'Not Set';
     const snapshot = await get(child(ref(db), `users/${currentSession.id}`));
     const user = snapshot.exists() ? snapshot.val() : {};
+    const avatarEl = document.getElementById('p-avatar');
+    if(avatarEl) {
+      if(user.profilePic) {
+        avatarEl.innerHTML = `<img src="${user.profilePic}" alt="${escapeHtml(currentSession.name || '')}" style="width:100%; height:100%; object-fit:cover;">`;
+      } else {
+        const initials = currentSession.name ? currentSession.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : '??';
+        avatarEl.innerHTML = '';
+        avatarEl.innerText = initials;
+      }
+    }
     const instEl = document.getElementById('p-institution');
     if(instEl) instEl.innerText = user.institution || 'Not Set';
     const sscEl = document.getElementById('p-ssc-result');
@@ -6793,7 +6990,15 @@ window.addEventListener('DOMContentLoaded', function() {
     if(!snap.exists()) return;
     const u = snap.val();
     const initials = u.name ? u.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase() : '??';
-    document.getElementById('sp-avatar').innerText = initials;
+    const avatarEl = document.getElementById('sp-avatar');
+    if(u.profilePic) {
+      avatarEl.innerHTML = `<img src="${u.profilePic}" alt="${escapeHtml(u.name || '')}" style="width:100%; height:100%; object-fit:cover;">`;
+    } else {
+      avatarEl.innerHTML = '';
+      avatarEl.innerText = initials;
+    }
+    document.getElementById('sp-pic-drive-link').value = '';
+    document.getElementById('sp-pic-file').value = '';
     document.getElementById('sp-name').innerText = u.name;
     document.getElementById('sp-id').innerText = userId;
     document.getElementById('sp-email').innerText = u.email;
@@ -6844,6 +7049,7 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('sp-edit-fee-btn').onclick = () => editStudentFee(userId, u.monthlyFee || 0);
     document.getElementById('sp-edit-phone-btn').onclick = () => editStudentPhone(userId, u.phone || '');
     document.getElementById('sp-reset-pass-btn').onclick = () => adminResetStudentPassword(userId);
+    document.getElementById('sp-save-pic-btn').onclick = () => saveStudentProfilePic(userId);
 
     const modal = document.getElementById('student-profile-modal');
     modal.style.display = 'flex';
@@ -6992,6 +7198,39 @@ window.addEventListener('DOMContentLoaded', function() {
     const hashed = await sha256Hex(newPass);
     await update(ref(db), { [`/users/${userId}/pass`]: hashed });
     alert(`✅ Temporary password set for ${userId}. Please share it with the student directly. They'll be signed in through it automatically on next login.`);
+  };
+
+  // ── Admin: set a student's profile picture — direct file upload OR a Google Drive link ──
+  window.saveStudentProfilePic = async (userId) => {
+    const fileInput = document.getElementById('sp-pic-file');
+    const driveLink = document.getElementById('sp-pic-drive-link').value.trim();
+    const file = fileInput && fileInput.files[0];
+
+    if(!file && !driveLink) return alert('Please choose a file to upload, or paste a Google Drive link.');
+    if(file && driveLink) return alert('Please use only one option — either a file upload OR a Drive link, not both.');
+
+    let picUrl;
+    if(file) {
+      if(file.size > 500 * 1024) return alert('File is too large! Max size is 500 KB.');
+      picUrl = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = () => rej(new Error('File read failed'));
+        r.readAsDataURL(file);
+      });
+    } else {
+      picUrl = getGoogleDriveImageUrl(driveLink);
+    }
+
+    await update(ref(db), { [`/users/${userId}/profilePic`]: picUrl });
+    invalidateUsersCache();
+    if(allUsersCache[userId]) allUsersCache[userId].profilePic = picUrl;
+
+    const avatarEl = document.getElementById('sp-avatar');
+    avatarEl.innerHTML = `<img src="${picUrl}" style="width:100%; height:100%; object-fit:cover;">`;
+    fileInput.value = '';
+    document.getElementById('sp-pic-drive-link').value = '';
+    alert('✅ Profile picture saved!');
   };
 
   window.adminDeleteUser = async (userId) => {
@@ -7454,10 +7693,11 @@ window.addEventListener('DOMContentLoaded', function() {
     loadPassRequests();
   };
 
-  window.handleLogout = () => {
+  window.handleLogout = async () => {
     localStorage.removeItem('skillCircleSession');
     localStorage.removeItem('skillCircleLastTab');
     currentSession = null;
+    try { await auth.signOut(); } catch(e) { console.warn('Auth sign-out:', e); }
     document.getElementById('portal-page').style.display = 'none';
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('home-page').style.display = 'block';
