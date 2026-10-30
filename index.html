@@ -939,6 +939,35 @@
   .home-dash-row:last-child { border-bottom: none; }
   .home-dash-row .ic { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
 
+  /* ── Student ranking (student dashboard) ── */
+  .rank-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
+  .rank-empty { grid-column: 1 / -1; text-align: center; color: var(--text-muted); font-size: 13px; padding: 18px; }
+  .rank-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 8px 8px 12px;
+    text-align: center; cursor: pointer; transition: transform .15s, box-shadow .15s; box-shadow: var(--shadow-sm);
+  }
+  .rank-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+  .rank-photo {
+    position: relative; width: 100%; aspect-ratio: 4 / 5; border-radius: 12px; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px; font-weight: 800; color: #fff;
+    background: linear-gradient(135deg, var(--accent), var(--accent2) 55%, var(--cyan));
+  }
+  /* cover + biased towards the top so faces stay in frame */
+  .rank-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; display: block; }
+  .rank-badge {
+    position: absolute; top: 6px; left: 6px; z-index: 1; min-width: 28px; height: 28px; padding: 0 6px;
+    border-radius: 14px; background: rgba(15,22,35,0.78); color: #fff; font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .rank-name {
+    display: block; width: 100%; margin-top: 10px; padding: 0 4px; background: none; border: none; cursor: pointer;
+    font-family: inherit; font-size: 13.5px; font-weight: 700; color: var(--accent); line-height: 1.3; word-break: break-word;
+  }
+  .rank-name:hover { text-decoration: underline; }
+  .rank-gpa { margin-top: 4px; font-size: 12px; color: var(--text-muted); font-weight: 600; }
+  .rank-gpa b { font-family: var(--mono); font-size: 14px; font-weight: 800; }
+
   /* ── Instructor profile card ── */
   .home-instructor-card {
     display: flex; gap: 28px; align-items: center; max-width: 720px; margin: 0 auto;
@@ -1441,20 +1470,16 @@
         <div class="page-title">Hello, <span class="accent" id="user-name-display">Student</span> 👋</div>
         <div class="page-subtitle">Here is your current academic overview</div>
       </div>
-      <div class="grid-2">
+      <div style="display:grid; grid-template-columns:1fr; gap:20px;">
         <div class="card">
           <div class="card-title">📁 Recent Notices & Materials</div>
           <div id="file-list-user">Loading materials...</div>
         </div>
         <div class="card">
-          <div class="card-title">📊 Quick Stats</div>
-          <div class="stat-item">
-            <span class="stat-label">Registration Status</span>
-            <span class="badge badge-paid">Active</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Current Semester</span>
-            <span class="stat-value" style="color:var(--green)">Spring 2026</span>
+          <div class="card-title">🏆 Student Ranking</div>
+          <div id="dash-ranking-grid" class="rank-grid"><div class="rank-empty">Loading ranking...</div></div>
+          <div style="text-align:center; margin-top:16px;">
+            <a href="#" onclick="switchTab('leaderboard'); return false;" style="font-size:13px; font-weight:700; color:var(--accent); text-decoration:none;">View full leaderboard →</a>
           </div>
         </div>
       </div>
@@ -4697,6 +4722,77 @@ window.addEventListener('DOMContentLoaded', function() {
   // ══════════════════════════════════════════
   //  LEADERBOARD — ranks every student by avg GPA across all their Test Results
   // ══════════════════════════════════════════
+  // Ranks students by their average GPA across all Test Results.
+  // Shared by the Leaderboard page and the dashboard ranking so both always agree.
+  function rankStudentsByGpa(allResults) {
+    return Object.entries(allResults || {}).map(([studentId, entriesObj]) => {
+      const entries = Object.values(entriesObj || {}).filter(e => e && typeof e === 'object');
+      const avgGpa = entries.length ? entries.reduce((sum, e) => sum + (parseFloat(e.gpa) || 0), 0) / entries.length : 0;
+      return { studentId, testsCount: entries.length, avgGpa };
+    }).filter(r => r.testsCount > 0)
+      .sort((a, b) => b.avgGpa - a.avgGpa);
+  }
+
+  // ── Student dashboard: photo cards for the top-ranked students ──
+  // Only the top 10 students' profiles are fetched, so the dashboard stays light.
+  window.loadDashRanking = async () => {
+    const grid = document.getElementById('dash-ranking-grid');
+    if(!grid) return;
+    const note = msg => { grid.innerHTML = ''; const d = document.createElement('div'); d.className = 'rank-empty'; d.textContent = msg; grid.appendChild(d); };
+    try {
+      const snap = await get(child(ref(db), 'testResults'));
+      const ranked = snap.exists() ? rankStudentsByGpa(snap.val()) : [];
+      if(ranked.length === 0) return note('No test results published yet.');
+
+      const top = ranked.slice(0, 10);
+      const profiles = await Promise.all(top.map(r =>
+        get(child(ref(db), `users/${r.studentId}`)).then(x => (x.exists() ? x.val() : {})).catch(() => ({}))
+      ));
+      top.forEach((r, i) => { r.name = profiles[i].name || r.studentId; r.profilePic = profiles[i].profilePic || ''; });
+      window._leaderboardCache = top;   // lets the results popup show the student's name
+
+      const medals = ['🥇', '🥈', '🥉'];
+      grid.innerHTML = '';
+      top.forEach((r, i) => {
+        const card = document.createElement('div');
+        card.className = 'rank-card';
+        card.addEventListener('click', () => viewLeaderboardStudentResults(r.studentId));
+
+        const photo = document.createElement('div');
+        photo.className = 'rank-photo';
+        const initials = (r.name || '').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase() || '👤';
+        const showInitials = () => { photo.querySelectorAll('img').forEach(im => im.remove()); photo.appendChild(document.createTextNode(initials)); };
+        if(r.profilePic) {
+          const img = document.createElement('img');
+          img.alt = r.name; img.loading = 'lazy'; img.referrerPolicy = 'no-referrer';
+          img.addEventListener('error', showInitials);
+          img.src = r.profilePic;
+          photo.appendChild(img);
+        } else {
+          photo.appendChild(document.createTextNode(initials));
+        }
+        const badge = document.createElement('span');
+        badge.className = 'rank-badge';
+        badge.textContent = medals[i] || `#${i + 1}`;
+        photo.appendChild(badge);
+
+        const nameBtn = document.createElement('button');
+        nameBtn.type = 'button'; nameBtn.className = 'rank-name'; nameBtn.textContent = r.name;
+
+        const gpa = document.createElement('div');
+        gpa.className = 'rank-gpa';
+        const gpaColor = r.avgGpa >= 4 ? 'var(--green)' : r.avgGpa >= 2.5 ? 'var(--gold)' : 'var(--red)';
+        gpa.innerHTML = `GPA <b style="color:${gpaColor};">${r.avgGpa.toFixed(2)}</b>`;
+
+        card.appendChild(photo); card.appendChild(nameBtn); card.appendChild(gpa);
+        grid.appendChild(card);
+      });
+    } catch(e) {
+      console.warn('loadDashRanking failed:', e);
+      note('Could not load the ranking right now.');
+    }
+  };
+
   window.loadLeaderboard = async () => {
     const tbody = document.getElementById('leaderboard-table-body');
     if(!tbody) return;
@@ -4712,14 +4808,10 @@ window.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    const allResults = resultsSnap.val();
-    const ranked = Object.entries(allResults).map(([studentId, entriesObj]) => {
-      const entries = Object.values(entriesObj);
-      const avgGpa = entries.length ? entries.reduce((sum, e) => sum + (parseFloat(e.gpa) || 0), 0) / entries.length : 0;
-      const u = users[studentId] || {};
-      return { studentId, name: u.name || studentId, testsCount: entries.length, avgGpa };
-    }).filter(r => r.testsCount > 0)
-      .sort((a, b) => b.avgGpa - a.avgGpa);
+    const ranked = rankStudentsByGpa(resultsSnap.val()).map(r => {
+      const u = users[r.studentId] || {};
+      return { ...r, name: u.name || r.studentId };
+    });
 
     window._leaderboardCache = ranked;
 
@@ -5325,11 +5417,24 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('user-name-display').innerText = currentSession.name;
     const list = document.getElementById('file-list-user');
     const snapshot = await get(child(ref(db), 'files'));
-    if(snapshot.exists()) {
-      list.innerHTML = Object.values(snapshot.val()).map(f => `<div class="notice-item">📄 ${f}</div>`).join('');
+    // An entry is either a plain name (older data) or a file record {name, fileName, fileData}
+    const items = snapshot.exists() ? Object.values(snapshot.val()).map(f => {
+      if(f === null || f === undefined) return null;
+      if(typeof f !== 'object') return { label: String(f) };
+      const label = f.name || f.fileName || f.__value || f.value || '';
+      if(!label) return null;
+      const canDownload = typeof f.fileData === 'string' && f.fileData.startsWith('data:');
+      return { label, href: canDownload ? f.fileData : '', fileName: f.fileName || (label + '.pdf') };
+    }).filter(Boolean) : [];
+    if(items.length) {
+      list.innerHTML = items.map(it => `<div class="notice-item" style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+        <span>📄 ${escapeHtml(it.label)}</span>
+        ${it.href ? `<a href="${escapeHtml(it.href)}" download="${escapeHtml(it.fileName)}" class="btn-sm" style="background:rgba(52,211,153,0.1);border-color:rgba(52,211,153,0.3);color:var(--green);text-decoration:none;white-space:nowrap;">⬇️ Download</a>` : ''}
+      </div>`).join('');
     } else {
       list.innerHTML = `<span style="color:var(--text-muted); font-size:13px;">No notices uploaded yet.</span>`;
     }
+    loadDashRanking();
   }
 
   async function loadStudentPayments() {
