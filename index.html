@@ -939,6 +939,29 @@
   .home-dash-row:last-child { border-bottom: none; }
   .home-dash-row .ic { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
 
+  /* ── Instructor profile card ── */
+  .home-instructor-card {
+    display: flex; gap: 28px; align-items: center; max-width: 720px; margin: 0 auto;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 24px;
+    padding: 24px; box-shadow: var(--shadow);
+  }
+  .home-instructor-photo {
+    width: 170px; height: 210px; flex-shrink: 0; border-radius: 20px; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px; font-weight: 800; color: #fff;
+    background: linear-gradient(135deg, var(--accent), var(--accent2) 55%, var(--cyan));
+  }
+  .home-instructor-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .home-instructor-name { font-size: clamp(22px, 3vw, 30px); font-weight: 800; letter-spacing: -0.6px; line-height: 1.15; }
+  .home-instructor-role { color: var(--text-muted); font-size: 15px; font-weight: 600; margin-top: 4px; }
+  .home-instructor-academy { font-size: 18px; font-weight: 700; margin-top: 16px; }
+  .home-instructor-subjects { color: var(--text-dim); font-size: 14.5px; line-height: 1.6; margin-top: 8px; }
+  @media (max-width: 560px) {
+    .home-instructor-card { gap: 16px; padding: 16px; border-radius: 20px; }
+    .home-instructor-photo { width: 108px; height: 136px; font-size: 32px; border-radius: 16px; }
+    .home-instructor-academy { font-size: 16px; margin-top: 10px; }
+  }
+
   .home-cta-band {
     background: linear-gradient(135deg, #4338ca, #6366f1 55%, #0ea5e9); border-radius: 28px;
     padding: 64px 6vw; text-align: center; color: #fff; margin: 5vw 6vw; position: relative; overflow: hidden;
@@ -1135,6 +1158,24 @@
         <div class="home-dash-row"><div class="ic" style="background:rgba(16,185,129,0.12); color:var(--green);">📊</div> Test Results &amp; GPA</div>
         <div class="home-dash-row"><div class="ic" style="background:rgba(139,92,246,0.12); color:var(--purple);">📚</div> Syllabus Progress</div>
         <div class="home-dash-row"><div class="ic" style="background:rgba(6,182,212,0.12); color:var(--cyan);">💰</div> Payment Status</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSTRUCTOR PROFILE (photo comes from a Google Drive link set by the admin) -->
+  <section class="home-section" id="home-instructor">
+    <div class="home-section-head">
+      <div class="home-eyebrow">👨‍🏫 Instructor</div>
+      <h2>Meet Your Instructor</h2>
+      <p>Learn directly from the founder of Skill Circle Academy.</p>
+    </div>
+    <div class="home-instructor-card">
+      <div class="home-instructor-photo" id="home-ins-photo">HD</div>
+      <div class="home-instructor-info">
+        <div class="home-instructor-name" id="home-ins-name">Hridoy Dey</div>
+        <div class="home-instructor-role" id="home-ins-role">Founder &amp; Instructor</div>
+        <div class="home-instructor-academy" id="home-ins-academy">Skill Circle Academy</div>
+        <div class="home-instructor-subjects" id="home-ins-subjects">Physics · Chemistry · Mathematics · ICT</div>
       </div>
     </div>
   </section>
@@ -2150,7 +2191,7 @@
     <section id="tab-admin-notices" class="tab-content hidden">
       <div class="page-header">
         <div class="page-title">🔔 Notices &amp; Branding</div>
-        <div class="page-subtitle">Manage the public homepage's notices and the academy logo</div>
+        <div class="page-subtitle">Manage the public homepage's notices, instructor profile and the academy logo</div>
       </div>
       <div class="admin-form-card">
         <div class="card-title" style="margin-bottom:10px;">🖼️ Academy Logo</div>
@@ -2164,6 +2205,27 @@
           <button class="btn-sm" style="background:rgba(248,113,113,0.1); border-color:rgba(248,113,113,0.3); color:var(--red); margin-left:8px;" onclick="removeAcademyLogo()">🗑️ Remove</button>
         </div>
         <button class="btn-sm" style="background:rgba(52,211,153,0.1); border-color:rgba(52,211,153,0.3); color:var(--green);" onclick="saveAcademyLogo()">💾 Save Logo</button>
+      </div>
+      <div class="admin-form-card">
+        <div class="card-title" style="margin-bottom:10px;">👨‍🏫 Instructor Profile (shown on the homepage)</div>
+        <div class="grid-2">
+          <div class="form-group"><label>Name</label><input type="text" id="ins-name" placeholder="e.g. Hridoy Dey"></div>
+          <div class="form-group"><label>Title</label><input type="text" id="ins-role" placeholder="e.g. Founder &amp; Instructor"></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label>Academy</label><input type="text" id="ins-academy" placeholder="e.g. Skill Circle Academy"></div>
+          <div class="form-group"><label>Subjects</label><input type="text" id="ins-subjects" placeholder="e.g. Physics · Chemistry · Mathematics · ICT"></div>
+        </div>
+        <div class="form-group">
+          <label>Photo — Google Drive share link</label>
+          <input type="text" id="ins-photo-link" placeholder="https://drive.google.com/file/d/…/view?usp=sharing">
+        </div>
+        <div style="font-size:11px; color:var(--text-muted); margin:-4px 0 12px;">In Google Drive: Share → General access → <b>Anyone with the link</b> (Viewer), then paste the link here. A portrait photo works best.</div>
+        <div id="ins-photo-preview" class="home-instructor-photo" style="width:96px; height:120px; font-size:30px; margin-bottom:12px;"></div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn-sm" style="background:rgba(52,211,153,0.1); border-color:rgba(52,211,153,0.3); color:var(--green);" onclick="saveInstructorProfile()">💾 Save Profile</button>
+          <button class="btn-sm" style="background:rgba(248,113,113,0.1); border-color:rgba(248,113,113,0.3); color:var(--red);" onclick="removeInstructorPhoto()">🗑️ Remove Photo</button>
+        </div>
       </div>
       <div class="admin-form-card">
         <div class="form-group">
@@ -3316,6 +3378,7 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('home-page').style.display = 'block';
     window.loadHomeStats();
     window.loadHomeNotices();
+    window.loadHomeInstructor();
   };
 
   // ── Public homepage: real stats (no fabricated numbers) ──
@@ -3343,6 +3406,82 @@ window.addEventListener('DOMContentLoaded', function() {
       if(aboutNums[0]) aboutNums[0].innerText = studentCount;
       if(aboutNums[2]) aboutNums[2].innerText = testCount;
     } catch(e) { console.warn('loadHomeStats failed:', e); }
+  };
+
+  // ── Instructor profile card (homepage). The photo comes from a Google Drive link. ──
+  const INSTRUCTOR_DEFAULTS = {
+    name: 'Hridoy Dey', role: 'Founder & Instructor', academy: 'Skill Circle Academy',
+    subjects: 'Physics · Chemistry · Mathematics · ICT', photoUrl: ''
+  };
+
+  function instructorInitials(name) {
+    return (name || '').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase() || '👤';
+  }
+
+  // Shows the initials first and swaps the photo in once it has really loaded.
+  // If the Drive file isn't shared publicly the image never loads and the initials stay.
+  function paintInstructorPhoto(box, rawUrl, name) {
+    if(!box) return;
+    box.textContent = instructorInitials(name);
+    const url = rawUrl ? getGoogleDriveImageUrl(rawUrl) : null;
+    if(!url) return;
+    const img = new Image();
+    img.alt = name || 'Instructor';
+    img.referrerPolicy = 'no-referrer';
+    img.onload = () => { box.textContent = ''; box.appendChild(img); };
+    img.src = url.replace('sz=w400', 'sz=w600');
+  }
+
+  async function readInstructorProfile() {
+    let data = {};
+    try {
+      const snap = await get(child(ref(db), 'siteContent/instructor'));
+      if(snap.exists()) data = snap.val() || {};
+    } catch(e) { console.warn('Instructor profile read failed:', e); }
+    const d = { ...INSTRUCTOR_DEFAULTS };
+    Object.keys(INSTRUCTOR_DEFAULTS).forEach(k => {
+      if(typeof data[k] === 'string' && data[k].trim() !== '') d[k] = data[k].trim();
+    });
+    return d;
+  }
+
+  window.loadHomeInstructor = async () => {
+    const d = await readInstructorProfile();
+    const put = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
+    put('home-ins-name', d.name); put('home-ins-role', d.role);
+    put('home-ins-academy', d.academy); put('home-ins-subjects', d.subjects);
+    paintInstructorPhoto(document.getElementById('home-ins-photo'), d.photoUrl, d.name);
+  };
+
+  window.loadInstructorSettings = async () => {
+    const d = await readInstructorProfile();
+    const put = (id, v) => { const el = document.getElementById(id); if(el) el.value = v; };
+    put('ins-name', d.name); put('ins-role', d.role);
+    put('ins-academy', d.academy); put('ins-subjects', d.subjects);
+    put('ins-photo-link', d.photoUrl);
+    paintInstructorPhoto(document.getElementById('ins-photo-preview'), d.photoUrl, d.name);
+  };
+
+  window.saveInstructorProfile = async () => {
+    const val = id => document.getElementById(id).value.trim();
+    const profile = { name: val('ins-name'), role: val('ins-role'), academy: val('ins-academy'), subjects: val('ins-subjects'), photoUrl: val('ins-photo-link') };
+    if(!profile.name) return alert("Please enter the instructor's name.");
+    if(profile.photoUrl && !/^https?:\/\//i.test(profile.photoUrl)) return alert('Please paste a valid link that starts with https://');
+    try {
+      await set(ref(db, 'siteContent/instructor'), profile);
+    } catch(e) {
+      console.error('saveInstructorProfile failed:', e);
+      return alert(`❌ Couldn't save: ${(e && e.message) || e}\n\nIf this says "permission denied", the Firestore rules need a rule for the "siteContent" collection.`);
+    }
+    alert('✅ Instructor profile saved! It now shows on the homepage.');
+    loadInstructorSettings();
+    window.loadHomeInstructor();
+  };
+
+  window.removeInstructorPhoto = async () => {
+    if(!confirm('Remove the instructor photo?')) return;
+    document.getElementById('ins-photo-link').value = '';
+    await window.saveInstructorProfile();
   };
 
   // ── Public homepage: latest notices, published by admin ──
@@ -3654,7 +3793,7 @@ window.addEventListener('DOMContentLoaded', function() {
     if(tabId === 'admin-secretkey') loadSecretKey();
     if(tabId === 'admin-summary') { loadFinancialSummary(); }
     if(tabId === 'admin-testresults') { loadSignatureUrlSetting(); }
-    if(tabId === 'admin-notices') { loadAdminNotices(); loadAcademyLogoSetting(); }
+    if(tabId === 'admin-notices') { loadAdminNotices(); loadAcademyLogoSetting(); loadInstructorSettings(); }
     if(tabId === 'profile') loadProfileData();
     if(tabId === 'dash') initUserDash();
     if(tabId === 'payment') loadStudentPayments();
@@ -7334,6 +7473,7 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('login-pass').value = '';
     window.loadHomeStats();
     window.loadHomeNotices();
+    window.loadHomeInstructor();
   };
 
   // ── Restore last tab — moved to end of script after all functions are defined ──
@@ -7553,6 +7693,7 @@ window.addEventListener('DOMContentLoaded', function() {
   if(!savedSession) {
     window.loadHomeStats();
     window.loadHomeNotices();
+    window.loadHomeInstructor();
   }
   window.applyAcademyLogo(); // runs regardless of login state — logo appears everywhere
 
