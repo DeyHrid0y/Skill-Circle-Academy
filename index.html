@@ -939,6 +939,76 @@
   .home-dash-row:last-child { border-bottom: none; }
   .home-dash-row .ic { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
 
+  /* ── Neumorphic login page ── */
+  #login-page.auth-neo {
+    --neo-bg: #e9eff8; --neo-ink: #16203a; --neo-muted: #5b6b87; --neo-link: #3b5bdb;
+    background: var(--neo-bg); position: relative; overflow: hidden;
+    flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 28px 20px;
+  }
+  #login-page.auth-neo::before, #login-page.auth-neo::after {
+    content: ''; position: absolute; border-radius: 50%; pointer-events: none;
+    background: linear-gradient(145deg, #f6f9ff, #dfe7f3);
+    box-shadow: 18px 18px 36px rgba(163,177,198,0.28), -18px -18px 36px rgba(255,255,255,0.9);
+  }
+  #login-page.auth-neo::before { width: 300px; height: 300px; top: -130px; left: -120px; }
+  #login-page.auth-neo::after  { width: 360px; height: 360px; bottom: -180px; right: -150px; }
+
+  .neo-card {
+    position: relative; z-index: 1; width: 100%; max-width: 372px; padding: 32px 28px 26px; text-align: center;
+    border-radius: 30px; background: linear-gradient(145deg, #f7faff, #e9eff8);
+    box-shadow: 14px 14px 30px rgba(163,177,198,0.5), -14px -14px 30px rgba(255,255,255,0.95);
+  }
+  .neo-avatar {
+    width: 88px; height: 88px; margin: 0 auto 14px; border-radius: 50%; overflow: hidden;
+    display: flex; align-items: center; justify-content: center; font-size: 38px;
+    background: linear-gradient(145deg, #f7faff, #e3eaf5);
+    box-shadow: 6px 6px 14px rgba(163,177,198,0.5), -6px -6px 14px #ffffff;
+  }
+  /* the circle clip comes from the avatar itself — don't also round (and cut) the logo */
+  .neo-avatar img { padding: 14px; box-sizing: border-box; border-radius: 0; }
+  .neo-brand { font-size: 11px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: var(--neo-muted); }
+  .neo-title { margin: 6px 0 4px; font-size: 32px; font-weight: 800; letter-spacing: -0.5px; color: var(--neo-ink); }
+  .neo-sub { margin-bottom: 26px; font-size: 13.5px; color: var(--neo-muted); }
+
+  .neo-field { position: relative; margin-bottom: 16px; }
+  .neo-field .neo-ico { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #6b7a99; pointer-events: none; }
+  .neo-field input {
+    width: 100%; box-sizing: border-box; padding: 15px 16px 15px 46px; border: none; outline: none; border-radius: 14px;
+    background: #eaf0f9; color: var(--neo-ink); font-family: inherit; font-size: 14px;
+    box-shadow: inset 5px 5px 10px rgba(163,177,198,0.5), inset -5px -5px 10px rgba(255,255,255,0.95);
+  }
+  .neo-field input::placeholder { color: #5b6b87; }
+  .neo-field input:focus {
+    box-shadow: inset 5px 5px 10px rgba(163,177,198,0.5), inset -5px -5px 10px rgba(255,255,255,0.95), 0 0 0 2px rgba(59,91,219,0.5);
+  }
+  .neo-row { text-align: right; margin: -4px 2px 18px; }
+  .neo-row a, .neo-new a { color: var(--neo-link); text-decoration: none; font-weight: 700; }
+  .neo-row a { font-size: 12.5px; }
+  .neo-row a:hover, .neo-new a:hover { text-decoration: underline; }
+
+  .neo-btn {
+    width: 100%; padding: 15px; border: none; border-radius: 14px; cursor: pointer;
+    background: linear-gradient(145deg, #f7faff, #e6edf8); color: var(--neo-ink);
+    font-family: inherit; font-size: 15px; font-weight: 800; letter-spacing: 0.2px;
+    box-shadow: 6px 6px 14px rgba(163,177,198,0.55), -6px -6px 14px #ffffff;
+    transition: box-shadow .15s, transform .15s;
+  }
+  .neo-btn:hover { transform: translateY(-1px); }
+  .neo-btn:active { transform: translateY(0); box-shadow: inset 4px 4px 9px rgba(163,177,198,0.55), inset -4px -4px 9px rgba(255,255,255,0.95); }
+  .neo-btn:focus-visible { outline: 2px solid rgba(59,91,219,0.65); outline-offset: 3px; }
+
+  .neo-divider { display: flex; align-items: center; gap: 12px; margin: 22px 0 14px; color: #5b6b87; font-size: 12px; }
+  .neo-divider::before, .neo-divider::after { content: ''; flex: 1; height: 1px; background: rgba(163,177,198,0.55); }
+  .neo-new { font-size: 13.5px; color: var(--neo-muted); }
+
+  .neo-help {
+    position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 9px; padding: 11px 18px; border-radius: 100px;
+    text-decoration: none; color: var(--neo-muted); font-size: 12.5px; font-weight: 700;
+    background: linear-gradient(145deg, #f7faff, #e6edf8);
+    box-shadow: 5px 5px 12px rgba(163,177,198,0.5), -5px -5px 12px #ffffff;
+  }
+  .neo-help:hover { color: var(--neo-ink); }
+
   /* ── Student ranking (student dashboard) ── */
   .rank-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
   .rank-empty { grid-column: 1 / -1; text-align: center; color: var(--text-muted); font-size: 13px; padding: 18px; }
@@ -1223,63 +1293,34 @@
 </div>
 
 <!-- LOGIN PAGE -->
-<div id="login-page" class="auth-wrapper" style="display:none;">
-  <!-- Left decorative panel -->
-  <div class="auth-panel-left">
-    <div class="auth-panel-content">
-      <div class="auth-panel-logo academy-logo-icon" onclick="showHomePage()" style="cursor:pointer;">🎓</div>
-      <div class="auth-panel-title" onclick="showHomePage()" style="cursor:pointer;">Skill Circle<br><span>Academy</span></div>
-      <div class="auth-panel-tagline">Your gateway to academic excellence</div>
-      <div class="auth-panel-dots">
-        <span></span><span class="active"></span><span></span>
-      </div>
-    </div>
-    <div class="auth-panel-blur1"></div>
-    <div class="auth-panel-blur2"></div>
-  </div>
-  <!-- Right form panel -->
-  <div class="auth-form-panel">
-    <div class="auth-form-inner">
-      <div class="auth-form-badge">Student Portal</div>
-      <div class="auth-heading">Please sign in to access your student portal</div>
-      <div class="auth-subheading">Enter your Student ID and password to continue</div>
-      <div class="form-group">
-        <label>Student ID</label>
-        <div class="input-icon-wrap">
-          <span class="input-icon">🪪</span>
-          <input type="text" id="login-id" placeholder="Enter your Student ID" onkeydown="if(event.key==='Enter')handleLogin()">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Password</label>
-        <div class="input-icon-wrap">
-          <span class="input-icon">🔒</span>
-          <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')handleLogin()">
-        </div>
-      </div>
-      <div style="text-align:right; margin-top:-8px; margin-bottom:20px;">
-        <a href="#" onclick="toggleAuth('forgot')" style="font-size:12.5px; color:var(--accent); text-decoration:none; font-weight:600;">Forgot password?</a>
-      </div>
-      <button class="btn-primary" onclick="handleLogin()">
-        <span>Sign In</span>
-        <span style="font-size:16px;">→</span>
-      </button>
-      <div class="auth-divider"><span>or</span></div>
-      <div class="auth-toggle">New student? <a href="#" onclick="toggleAuth('signup')">Create an account</a></div>
+<div id="login-page" class="auth-wrapper auth-neo" style="display:none;">
+  <div class="neo-card">
+    <div class="neo-avatar academy-logo-icon" onclick="showHomePage()" title="Back to home" style="cursor:pointer;">🎓</div>
+    <div class="neo-brand">Skill Circle Academy</div>
+    <h1 class="neo-title">Login</h1>
+    <div class="neo-sub">Welcome back! Please sign in</div>
 
-      <!-- Contact Section -->
-      <div style="margin-top:28px; padding-top:22px; border-top:1.5px solid rgba(234,88,12,0.12);">
-        <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; text-align:center;">📞 Need Help? Contact Us</div>
-        <a href="https://wa.me/8801729640488" target="_blank" rel="noopener noreferrer"
-          style="display:flex; align-items:center; justify-content:center; gap:10px; padding:13px 20px; background:linear-gradient(135deg,#25d366,#128c7e); border-radius:12px; text-decoration:none; color:#fff; font-weight:700; font-size:14px; box-shadow:0 4px 14px rgba(37,211,102,0.35); transition:all 0.2s;"
-          onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(37,211,102,0.45)'"
-          onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 14px rgba(37,211,102,0.35)'">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          Chat on WhatsApp
-        </a>
-      </div>
+    <div class="neo-field">
+      <svg class="neo-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+      <input type="text" id="login-id" placeholder="Student ID" aria-label="Student ID" autocomplete="username" onkeydown="if(event.key==='Enter')handleLogin()">
     </div>
+    <div class="neo-field">
+      <svg class="neo-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+      <input type="password" id="login-pass" placeholder="Password" aria-label="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()">
+    </div>
+
+    <div class="neo-row"><a href="#" onclick="toggleAuth('forgot'); return false;">Forgot Password?</a></div>
+
+    <button type="button" class="neo-btn" onclick="handleLogin()">Sign In</button>
+
+    <div class="neo-divider"><span>or</span></div>
+    <div class="neo-new">New student? <a href="#" onclick="toggleAuth('signup'); return false;">Create an account</a></div>
   </div>
+
+  <a class="neo-help" href="https://wa.me/8801729640488" target="_blank" rel="noopener noreferrer">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="#25a85a"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    <span>Need help? Chat on WhatsApp</span>
+  </a>
 </div>
 
 <!-- FORGOT PASSWORD PAGE -->
