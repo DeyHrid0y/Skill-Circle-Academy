@@ -940,18 +940,18 @@
   .home-dash-row .ic { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
 
   /* ── Neumorphic login page ── */
-  #login-page.auth-neo {
+  .auth-wrapper.auth-neo {
     --neo-bg: #e9eff8; --neo-ink: #16203a; --neo-muted: #5b6b87; --neo-link: #3b5bdb;
     background: var(--neo-bg); position: relative; overflow: hidden;
     flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 28px 20px;
   }
-  #login-page.auth-neo::before, #login-page.auth-neo::after {
+  .auth-wrapper.auth-neo::before, .auth-wrapper.auth-neo::after {
     content: ''; position: absolute; border-radius: 50%; pointer-events: none;
     background: linear-gradient(145deg, #f6f9ff, #dfe7f3);
     box-shadow: 18px 18px 36px rgba(163,177,198,0.28), -18px -18px 36px rgba(255,255,255,0.9);
   }
-  #login-page.auth-neo::before { width: 300px; height: 300px; top: -130px; left: -120px; }
-  #login-page.auth-neo::after  { width: 360px; height: 360px; bottom: -180px; right: -150px; }
+  .auth-wrapper.auth-neo::before { width: 300px; height: 300px; top: -130px; left: -120px; }
+  .auth-wrapper.auth-neo::after  { width: 360px; height: 360px; bottom: -180px; right: -150px; }
 
   .neo-card {
     position: relative; z-index: 1; width: 100%; max-width: 372px; padding: 32px 28px 26px; text-align: center;
@@ -996,6 +996,27 @@
   .neo-btn:hover { transform: translateY(-1px); }
   .neo-btn:active { transform: translateY(0); box-shadow: inset 4px 4px 9px rgba(163,177,198,0.55), inset -4px -4px 9px rgba(255,255,255,0.95); }
   .neo-btn:focus-visible { outline: 2px solid rgba(59,91,219,0.65); outline-offset: 3px; }
+
+  /* labelled fields, dropdowns and the small extras used on the sign-up / reset pages */
+  .neo-avatar-icon { color: var(--neo-link); }
+  .neo-group { margin-bottom: 16px; text-align: left; }
+  .neo-group .neo-field { margin-bottom: 0; }
+  .neo-label { display: block; margin: 0 4px 7px; font-size: 12px; font-weight: 700; color: var(--neo-muted); }
+  .neo-auto { font-weight: 600; font-size: 11px; }
+  .neo-hint { margin: 6px 4px 0; font-size: 11.5px; color: var(--neo-muted); }
+  .neo-field select {
+    -webkit-appearance: none; appearance: none; width: 100%; box-sizing: border-box; cursor: pointer;
+    padding: 15px 40px 15px 46px; border: none; outline: none; border-radius: 14px;
+    color: var(--neo-ink); font-family: inherit; font-size: 14px;
+    background: #eaf0f9 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none' stroke='%235b6b87' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 16px center;
+    box-shadow: inset 5px 5px 10px rgba(163,177,198,0.5), inset -5px -5px 10px rgba(255,255,255,0.95);
+  }
+  .neo-field select:focus {
+    box-shadow: inset 5px 5px 10px rgba(163,177,198,0.5), inset -5px -5px 10px rgba(255,255,255,0.95), 0 0 0 2px rgba(59,91,219,0.5);
+  }
+  .neo-field select:has(option[value=""]:checked) { color: #5b6b87; }   /* "— Select —" reads as a placeholder */
+  .neo-field input[readonly] { font-family: var(--mono); font-weight: 700; color: var(--neo-link); cursor: not-allowed; }
+  .neo-result { margin-top: 16px; padding: 12px 14px; border-radius: 14px; font-size: 13px; font-weight: 600; line-height: 1.5; text-align: left; }
 
   .neo-divider { display: flex; align-items: center; gap: 12px; margin: 22px 0 14px; color: #5b6b87; font-size: 12px; }
   .neo-divider::before, .neo-divider::after { content: ''; flex: 1; height: 1px; background: rgba(163,177,198,0.55); }
@@ -1324,137 +1345,97 @@
 </div>
 
 <!-- FORGOT PASSWORD PAGE -->
-<div id="forgot-page" class="auth-wrapper" style="display:none;">
-  <div class="auth-panel-left" style="background:linear-gradient(160deg,#7c3aed,#4f46e5,#0ea5e9);">
-    <div class="auth-panel-content">
-      <div class="auth-panel-logo" onclick="showHomePage()" style="cursor:pointer;">🔑</div>
-      <div class="auth-panel-title">Reset<br><span>Password</span></div>
-      <div class="auth-panel-tagline">We'll get you back in safely</div>
-      <div class="auth-panel-dots"><span></span><span></span><span class="active"></span></div>
+<div id="forgot-page" class="auth-wrapper auth-neo" style="display:none;">
+  <div class="neo-card">
+    <div class="neo-avatar neo-avatar-icon" onclick="showHomePage()" title="Back to home" style="cursor:pointer;"><svg class="neo-avatar-svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="m11 12 8-8m-3 3 3 3"/></svg></div>
+    <div class="neo-brand">Skill Circle Academy</div>
+    <h1 class="neo-title">Reset Password</h1>
+    <div class="neo-sub">Submit a request — admin will approve your new password</div>
+
+    <div class="neo-group">
+      <label class="neo-label" for="forgot-name">Full Name</label>
+      <div class="neo-field"><svg class="neo-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg><input type="text" id="forgot-name" placeholder="Your registered full name" autocomplete="name"></div>
     </div>
-    <div class="auth-panel-blur1"></div>
-    <div class="auth-panel-blur2"></div>
-  </div>
-  <div class="auth-form-panel">
-    <div class="auth-form-inner">
-      <div class="auth-form-badge">Password Reset</div>
-      <div class="auth-heading">Reset your password 🔑</div>
-      <div class="auth-subheading">Submit a request — admin will approve your new password</div>
-      <div class="form-group">
-        <label>Full Name</label>
-        <div class="input-icon-wrap"><span class="input-icon">👤</span>
-          <input type="text" id="forgot-name" placeholder="Your registered full name">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Student ID</label>
-        <div class="input-icon-wrap"><span class="input-icon">🪪</span>
-          <input type="text" id="forgot-id" placeholder="e.g. 101">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>New Password (Requested)</label>
-        <div class="input-icon-wrap"><span class="input-icon">🔒</span>
-          <input type="password" id="forgot-newpass" placeholder="Your desired new password">
-        </div>
-      </div>
-      <button class="btn-primary" onclick="handleForgotPassword()">
-        <span>Send Request</span><span style="font-size:16px;">→</span>
-      </button>
-      <div id="forgot-result" style="margin-top:16px; padding:14px; border-radius:var(--radius-sm); display:none;"></div>
-      <div class="auth-toggle" style="margin-top:20px;"><a href="#" onclick="toggleAuth('login')">← Back to Sign In</a></div>
+    <div class="neo-group">
+      <label class="neo-label" for="forgot-id">Student ID</label>
+      <div class="neo-field"><svg class="neo-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.6-1.4 1.8-2 3-2s2.4.6 3 2M15 10h3M15 13h3"/></svg><input type="text" id="forgot-id" placeholder="e.g. 101" autocomplete="username"></div>
     </div>
+    <div class="neo-group">
+      <label class="neo-label" for="forgot-newpass">New Password (Requested)</label>
+      <div class="neo-field"><svg class="neo-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><input type="password" id="forgot-newpass" placeholder="Your desired new password" autocomplete="new-password"></div>
+    </div>
+
+    <button type="button" class="neo-btn" onclick="handleForgotPassword()">Send Request</button>
+    <div id="forgot-result" class="neo-result" style="display:none;"></div>
+
+    <div class="neo-divider"><span>or</span></div>
+    <div class="neo-new"><a href="#" onclick="toggleAuth('login'); return false;">← Back to Sign In</a></div>
   </div>
+
+  <a class="neo-help" href="https://wa.me/8801729640488" target="_blank" rel="noopener noreferrer">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="#25a85a"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    <span>Need help? Chat on WhatsApp</span>
+  </a>
 </div>
 
 <!-- SIGNUP PAGE -->
-<div id="signup-page" class="auth-wrapper" style="display:none;">
-  <div class="auth-panel-left" style="background:linear-gradient(160deg,#059669,#0d9488,#0284c7);">
-    <div class="auth-panel-content">
-      <div class="auth-panel-logo" onclick="showHomePage()" style="cursor:pointer;">✨</div>
-      <div class="auth-panel-title">Join<br><span>Academy</span></div>
-      <div class="auth-panel-tagline">Start your learning journey today</div>
-      <div class="auth-panel-dots"><span class="active"></span><span></span><span></span></div>
+<div id="signup-page" class="auth-wrapper auth-neo" style="display:none;">
+  <div class="neo-card">
+    <div class="neo-avatar neo-avatar-icon" onclick="showHomePage()" title="Back to home" style="cursor:pointer;"><svg class="neo-avatar-svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3.1-7 7-7s7 3 7 7"/><path d="M19 8v6M16 11h6"/></svg></div>
+    <div class="neo-brand">Skill Circle Academy</div>
+    <h1 class="neo-title">Create Account</h1>
+    <div class="neo-sub">Fill in your details to get started</div>
+
+    <div class="neo-group">
+      <label class="neo-label" for="signup-name">Full Name</label>
+      <div class="neo-field"><svg class="neo-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg><input type="text" id="signup-name" placeholder="Your full name" autocomplete="name"></div>
     </div>
-    <div class="auth-panel-blur1"></div>
-    <div class="auth-panel-blur2"></div>
-  </div>
-  <div class="auth-form-panel" style="overflow-y:auto;">
-    <div class="auth-form-inner">
-      <div class="auth-form-badge">New Student</div>
-      <div class="auth-heading">Create account ✨</div>
-      <div class="auth-subheading">Fill in your details to get started</div>
-      <div class="form-group">
-        <label>Full Name</label>
-        <div class="input-icon-wrap"><span class="input-icon">👤</span>
-          <input type="text" id="signup-name" placeholder="Your full name">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Batch (Year)</label>
-        <select id="signup-batch" onchange="generateSignupId()" style="width:100%; background:#fff6ee; border:1.5px solid rgba(234,88,12,0.14); padding:12px 15px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:14px;">
-          <option value="22">2022</option><option value="23">2023</option>
-          <option value="24">2024</option><option value="25">2025</option>
-          <option value="26">2026</option><option value="27">2027</option>
-          <option value="28">2028</option><option value="29">2029</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Student ID <span style="color:var(--text-muted); font-size:10px; font-weight:600;">(auto-generated)</span></label>
-        <input type="text" id="signup-id" readonly style="width:100%; background:#f4f5fa; border:1.5px solid rgba(234,88,12,0.14); padding:12px 15px; color:var(--accent); font-weight:700; font-family:var(--mono); border-radius:var(--radius-sm); outline:none; font-size:14px; cursor:not-allowed;" placeholder="Select a batch above...">
-      </div>
-      <div class="form-group">
-        <label>Phone Number</label>
-        <div class="input-icon-wrap"><span class="input-icon">📱</span>
-          <input type="tel" id="signup-phone" placeholder="01XXXXXXXXX">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Email</label>
-        <div class="input-icon-wrap"><span class="input-icon">📧</span>
-          <input type="email" id="signup-email" placeholder="example@email.com">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Password</label>
-        <div class="input-icon-wrap"><span class="input-icon">🔒</span>
-          <input type="password" id="signup-pass" placeholder="Choose a password">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Student Level</label>
-        <select id="signup-level" style="width:100%; background:#fff6ee; border:1.5px solid rgba(234,88,12,0.14); padding:12px 15px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:14px;">
-          <option value="">— Select your level —</option>
-          <option value="SSC">SSC</option>
-          <option value="HSC">HSC</option>
-          <option value="University">University</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Student Group</label>
-        <select id="signup-group" style="width:100%; background:#fff6ee; border:1.5px solid rgba(234,88,12,0.14); padding:12px 15px; color:var(--text); border-radius:var(--radius-sm); outline:none; font-family:var(--font); font-size:14px;">
-          <option value="">— Select your group —</option>
-          <option value="Science">🔬 Science</option>
-          <option value="Science with Higher Math">📐 Science with Higher Math</option>
-          <option value="Humanities">📚 Humanities</option>
-          <option value="Commerce">💼 Commerce</option>
-          <option value="Other">📦 Other</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>🔑 Registration Secret Key</label>
-        <div class="input-icon-wrap"><span class="input-icon">🗝️</span>
-          <input type="password" id="signup-secret" placeholder="Key provided by admin">
-        </div>
-        <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">Required. Contact your admin for this key.</div>
-      </div>
-      <button class="btn-primary" onclick="handleSignUp()">
-        <span>Register Now</span><span style="font-size:16px;">→</span>
-      </button>
-      <div class="auth-toggle" style="margin-top:20px;">Already have an account? <a href="#" onclick="toggleAuth('login')">Sign In</a></div>
+    <div class="neo-group">
+      <label class="neo-label" for="signup-batch">Batch (Year)</label>
+      <div class="neo-field"><svg class="neo-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><select id="signup-batch" onchange="generateSignupId()"><option value="22">2022</option><option value="23">2023</option><option value="24">2024</option><option value="25">2025</option><option value="26">2026</option><option value="27">2027</option><option value="28">2028</option><option value="29">2029</option></select></div>
     </div>
+    <div class="neo-group">
+      <label class="neo-label" for="signup-id">Student ID <span class="neo-auto">(auto-generated)</span></label>
+      <div class="neo-field"><svg class="neo-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.6-1.4 1.8-2 3-2s2.4.6 3 2M15 10h3M15 13h3"/></svg><input type="text" id="signup-id" placeholder="Select a batch above..." readonly></div>
+    </div>
+    <div class="neo-group">
+      <label class="neo-label" for="signup-phone">Phone Number</label>
+      <div class="neo-field"><svg class="neo-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 18h2"/></svg><input type="tel" id="signup-phone" placeholder="01XXXXXXXXX" autocomplete="tel"></div>
+    </div>
+    <div class="neo-group">
+      <label class="neo-label" for="signup-email">Email</label>
+      <div class="neo-field"><svg class="neo-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></svg><input type="email" id="signup-email" placeholder="example@email.com" autocomplete="email"></div>
+    </div>
+    <div class="neo-group">
+      <label class="neo-label" for="signup-pass">Password</label>
+      <div class="neo-field"><svg class="neo-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><input type="password" id="signup-pass" placeholder="Choose a password" autocomplete="new-password"></div>
+    </div>
+    <div class="neo-group">
+      <label class="neo-label" for="signup-level">Student Level</label>
+      <div class="neo-field"><svg class="neo-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg><select id="signup-level"><option value="">— Select your level —</option><option value="SSC">SSC</option><option value="HSC">HSC</option><option value="University">University</option></select></div>
+    </div>
+    <div class="neo-group">
+      <label class="neo-label" for="signup-group">Student Group</label>
+      <div class="neo-field"><svg class="neo-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.4c1.8.9 3 2.7 3 5.6"/></svg><select id="signup-group"><option value="">— Select your group —</option><option value="Science">🔬 Science</option><option value="Science with Higher Math">📐 Science with Higher Math</option><option value="Humanities">📚 Humanities</option><option value="Commerce">💼 Commerce</option><option value="Other">📦 Other</option></select></div>
+    </div>
+    <div class="neo-group">
+      <label class="neo-label" for="signup-secret">Registration Secret Key</label>
+      <div class="neo-field"><svg class="neo-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="m11 12 8-8m-3 3 3 3"/></svg><input type="password" id="signup-secret" placeholder="Key provided by admin"></div>
+      <div class="neo-hint">Required. Contact your admin for this key.</div>
+    </div>
+
+    <button type="button" class="neo-btn" onclick="handleSignUp()">Register Now</button>
+
+    <div class="neo-divider"><span>or</span></div>
+    <div class="neo-new">Already have an account? <a href="#" onclick="toggleAuth('login'); return false;">Sign In</a></div>
   </div>
+
+  <a class="neo-help" href="https://wa.me/8801729640488" target="_blank" rel="noopener noreferrer">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="#25a85a"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    <span>Need help? Chat on WhatsApp</span>
+  </a>
 </div>
+
 
 <!-- PORTAL PAGE -->
 <div id="portal-page">
@@ -3632,7 +3613,7 @@ window.addEventListener('DOMContentLoaded', function() {
       resultDiv.style.display = 'block';
       resultDiv.style.background = 'rgba(248,113,113,0.1)';
       resultDiv.style.border = '1px solid rgba(248,113,113,0.3)';
-      resultDiv.style.color = 'var(--red)';
+      resultDiv.style.color = '#b91c1c';
       resultDiv.innerHTML = '❌ No account found with this Student ID.';
       return;
     }
@@ -3641,25 +3622,36 @@ window.addEventListener('DOMContentLoaded', function() {
       resultDiv.style.display = 'block';
       resultDiv.style.background = 'rgba(248,113,113,0.1)';
       resultDiv.style.border = '1px solid rgba(248,113,113,0.3)';
-      resultDiv.style.color = 'var(--red)';
+      resultDiv.style.color = '#b91c1c';
       resultDiv.innerHTML = '❌ Name does not match the records for this ID.';
       return;
     }
 
     // Save request to Firebase
     const reqKey = `${id}_${Date.now()}`;
-    await set(ref(db, `passRequests/${reqKey}`), {
-      studentId: id,
-      name: userData.name,
-      requestedPass: newpass,
-      time: new Date().toLocaleString('en-BD', { timeZone: 'Asia/Dhaka' }),
-      status: 'pending'
-    });
+    try {
+      await set(ref(db, `passRequests/${reqKey}`), {
+        studentId: id,
+        name: userData.name,
+        requestedPass: newpass,
+        time: new Date().toLocaleString('en-BD', { timeZone: 'Asia/Dhaka' }),
+        status: 'pending'
+      });
+    } catch(err) {
+      // Don't fail silently — tell the student what to do instead
+      console.error('Password reset request failed:', err);
+      resultDiv.style.display = 'block';
+      resultDiv.style.background = 'rgba(248,113,113,0.1)';
+      resultDiv.style.border = '1px solid rgba(248,113,113,0.3)';
+      resultDiv.style.color = '#b91c1c';
+      resultDiv.innerHTML = "❌ Couldn't send your request right now. Please contact the academy on WhatsApp to reset your password.";
+      return;
+    }
 
     resultDiv.style.display = 'block';
     resultDiv.style.background = 'rgba(52,211,153,0.1)';
     resultDiv.style.border = '1px solid rgba(52,211,153,0.3)';
-    resultDiv.style.color = 'var(--green)';
+    resultDiv.style.color = '#047857';
     resultDiv.innerHTML = `✅ Request sent successfully!<br><small style="color:var(--text-muted); display:block; margin-top:6px;">The admin will review your request and update your password shortly.</small>`;
     document.getElementById('forgot-name').value = '';
     document.getElementById('forgot-id').value = '';
