@@ -1350,22 +1350,14 @@
     <div class="neo-avatar neo-avatar-icon" onclick="showHomePage()" title="Back to home" style="cursor:pointer;"><svg class="neo-avatar-svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="m11 12 8-8m-3 3 3 3"/></svg></div>
     <div class="neo-brand">Skill Circle Academy</div>
     <h1 class="neo-title">Reset Password</h1>
-    <div class="neo-sub">Submit a request — admin will approve your new password</div>
+    <div class="neo-sub">Enter your Student ID and we'll email a link to the address you registered with</div>
 
-    <div class="neo-group">
-      <label class="neo-label" for="forgot-name">Full Name</label>
-      <div class="neo-field"><svg class="neo-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg><input type="text" id="forgot-name" placeholder="Your registered full name" autocomplete="name"></div>
-    </div>
     <div class="neo-group">
       <label class="neo-label" for="forgot-id">Student ID</label>
       <div class="neo-field"><svg class="neo-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.6-1.4 1.8-2 3-2s2.4.6 3 2M15 10h3M15 13h3"/></svg><input type="text" id="forgot-id" placeholder="e.g. 101" autocomplete="username"></div>
     </div>
-    <div class="neo-group">
-      <label class="neo-label" for="forgot-newpass">New Password (Requested)</label>
-      <div class="neo-field"><svg class="neo-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><input type="password" id="forgot-newpass" placeholder="Your desired new password" autocomplete="new-password"></div>
-    </div>
 
-    <button type="button" class="neo-btn" onclick="handleForgotPassword()">Send Request</button>
+    <button type="button" class="neo-btn" onclick="handleForgotPassword()">Send Reset Link</button>
     <div id="forgot-result" class="neo-result" style="display:none;"></div>
 
     <div class="neo-divider"><span>or</span></div>
@@ -3398,9 +3390,7 @@ window.addEventListener('DOMContentLoaded', function() {
     else if(page === 'forgot') {
       document.getElementById('forgot-page').style.display = 'flex';
       document.getElementById('forgot-result').style.display = 'none';
-      document.getElementById('forgot-name').value = '';
       document.getElementById('forgot-id').value = '';
-      document.getElementById('forgot-newpass').value = '';
     }
     else document.getElementById('login-page').style.display = 'flex';
   };
@@ -3598,64 +3588,61 @@ window.addEventListener('DOMContentLoaded', function() {
     }).join('');
   };
 
+  // "h***@gmail.com" — tells the student which inbox to check without printing the whole address
+  function maskEmail(email) {
+    const [local, domain] = String(email).split('@');
+    return domain ? `${local.charAt(0)}***@${domain}` : '';
+  }
+
+  let lastResetRequestAt = 0;
+
+  // Forgot password: Firebase emails a reset link to the address on file.
+  // (Replaces the old "request a password + wait for admin approval" flow, which
+  //  stored the requested password in plain text and could not run signed-out.)
   window.handleForgotPassword = async () => {
-    const name = document.getElementById('forgot-name').value.trim();
     const id = document.getElementById('forgot-id').value.trim();
-    const newpass = document.getElementById('forgot-newpass').value.trim();
     const resultDiv = document.getElementById('forgot-result');
-
-    if(!name || !id || !newpass) return alert("Please fill in all fields!");
-    if(newpass.length < 4) return alert("New password must be at least 4 characters!");
-
-    // Verify student exists
-    const snapshot = await get(child(ref(db), `users/${id}`));
-    if(!snapshot.exists()) {
+    const show = (ok, html) => {
       resultDiv.style.display = 'block';
-      resultDiv.style.background = 'rgba(248,113,113,0.1)';
-      resultDiv.style.border = '1px solid rgba(248,113,113,0.3)';
-      resultDiv.style.color = '#b91c1c';
-      resultDiv.innerHTML = '❌ No account found with this Student ID.';
-      return;
-    }
-    const userData = snapshot.val();
-    if(userData.name.toLowerCase() !== name.toLowerCase()) {
-      resultDiv.style.display = 'block';
-      resultDiv.style.background = 'rgba(248,113,113,0.1)';
-      resultDiv.style.border = '1px solid rgba(248,113,113,0.3)';
-      resultDiv.style.color = '#b91c1c';
-      resultDiv.innerHTML = '❌ Name does not match the records for this ID.';
-      return;
-    }
+      resultDiv.style.background = ok ? 'rgba(52,211,153,0.1)' : 'rgba(248,113,113,0.1)';
+      resultDiv.style.border = ok ? '1px solid rgba(52,211,153,0.3)' : '1px solid rgba(248,113,113,0.3)';
+      resultDiv.style.color = ok ? '#047857' : '#b91c1c';
+      resultDiv.innerHTML = html;
+    };
 
-    // Save request to Firebase
-    const reqKey = `${id}_${Date.now()}`;
+    if(!id) return alert("Please enter your Student ID!");
+    if(!/^[\w-]+$/.test(id)) return show(false, '❌ No account found with this Student ID.');
+    // Firebase throttles this too, but don't let the button be hammered
+    const waitMs = 60000 - (Date.now() - lastResetRequestAt);
+    if(waitMs > 0) return show(false, `⏳ Please wait ${Math.ceil(waitMs / 1000)} seconds before requesting another email.`);
+
+    // 1. Which email does this account sign in with?
+    let email = null;
     try {
-      await set(ref(db, `passRequests/${reqKey}`), {
-        studentId: id,
-        name: userData.name,
-        requestedPass: newpass,
-        time: new Date().toLocaleString('en-BD', { timeZone: 'Asia/Dhaka' }),
-        status: 'pending'
-      });
+      const mapSnap = await get(child(ref(db), `loginMap/${id}`));
+      if(mapSnap.exists()) email = (mapSnap.val() || {}).email || null;
+      if(!email) {   // accounts created before the login directory existed
+        const userSnap = await get(child(ref(db), `users/${id}`));
+        if(userSnap.exists()) email = (userSnap.val() || {}).email || null;
+      }
     } catch(err) {
-      // Don't fail silently — tell the student what to do instead
-      console.error('Password reset request failed:', err);
-      resultDiv.style.display = 'block';
-      resultDiv.style.background = 'rgba(248,113,113,0.1)';
-      resultDiv.style.border = '1px solid rgba(248,113,113,0.3)';
-      resultDiv.style.color = '#b91c1c';
-      resultDiv.innerHTML = "❌ Couldn't send your request right now. Please contact the academy on WhatsApp to reset your password.";
-      return;
+      console.error('Reset: account lookup failed:', err);
+      return show(false, "❌ Couldn't look up your account right now. Please try again, or contact the academy on WhatsApp.");
     }
+    if(!email) return show(false, '❌ No account found with this Student ID.');
 
-    resultDiv.style.display = 'block';
-    resultDiv.style.background = 'rgba(52,211,153,0.1)';
-    resultDiv.style.border = '1px solid rgba(52,211,153,0.3)';
-    resultDiv.style.color = '#047857';
-    resultDiv.innerHTML = `✅ Request sent successfully!<br><small style="color:var(--text-muted); display:block; margin-top:6px;">The admin will review your request and update your password shortly.</small>`;
-    document.getElementById('forgot-name').value = '';
+    // 2. Firebase sends the reset link
+    try {
+      await auth.sendPasswordResetEmail(email);
+    } catch(err) {
+      console.error('Reset: sending the email failed:', err);
+      if(err && err.code === 'auth/too-many-requests') return show(false, '⏳ Too many requests. Please wait a few minutes and try again.');
+      if(err && err.code === 'auth/user-not-found') return show(false, "❌ This account isn't set up for email reset yet. Please contact the academy on WhatsApp.");
+      return show(false, "❌ Couldn't send the email right now. Please try again, or contact the academy on WhatsApp.");
+    }
+    lastResetRequestAt = Date.now();
+    show(true, `✅ Reset link sent to <b>${escapeHtml(maskEmail(email))}</b><br><small style="color:var(--text-muted); display:block; margin-top:6px;">Open the email and follow the link to set a new password. Can't find it? Check your spam folder, or contact the academy on WhatsApp.</small>`);
     document.getElementById('forgot-id').value = '';
-    document.getElementById('forgot-newpass').value = '';
   };
 
   window.handleSignUp = async () => {
