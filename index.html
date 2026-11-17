@@ -1031,13 +1031,16 @@
   .neo-help:hover { color: var(--neo-ink); }
 
   /* ── Student ranking (student dashboard) ── */
-  .rank-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
-  .rank-empty { grid-column: 1 / -1; text-align: center; color: var(--text-muted); font-size: 13px; padding: 18px; }
+  /* centred rows, two per row on a phone — a lone third card sits in the middle instead of hugging the left */
+  .rank-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
+  .rank-empty { flex: 0 0 100%; text-align: center; color: var(--text-muted); font-size: 13px; padding: 18px; }
   .rank-card {
+    box-sizing: border-box; width: calc(50% - 7px); max-width: 180px;
     background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 8px 8px 12px;
     text-align: center; cursor: pointer; transition: transform .15s, box-shadow .15s; box-shadow: var(--shadow-sm);
   }
   .rank-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+  .rank-gap { flex: 0 0 100%; text-align: center; color: var(--text-muted); font-size: 22px; line-height: 1; letter-spacing: 6px; padding: 2px 0; }
   .rank-photo {
     position: relative; width: 100%; aspect-ratio: 4 / 5; border-radius: 12px; overflow: hidden;
     display: flex; align-items: center; justify-content: center;
@@ -4754,7 +4757,8 @@ window.addEventListener('DOMContentLoaded', function() {
   }
 
   // ── Student dashboard: photo cards for the top-ranked students ──
-  // Only the top 10 students' profiles are fetched, so the dashboard stays light.
+  // Shows ranks 1-3 and the last two students. Only those few profiles are fetched,
+  // so the dashboard stays light.
   window.loadDashRanking = async () => {
     const grid = document.getElementById('dash-ranking-grid');
     if(!grid) return;
@@ -4764,16 +4768,28 @@ window.addEventListener('DOMContentLoaded', function() {
       const ranked = snap.exists() ? rankStudentsByGpa(snap.val()) : [];
       if(ranked.length === 0) return note('No test results published yet.');
 
-      const top = ranked.slice(0, 10);
-      const profiles = await Promise.all(top.map(r =>
+      const total = ranked.length;
+      const topCount = Math.min(3, total);
+      const tailStart = Math.max(topCount, total - 2);          // never repeats a student from the top 3
+      const top = ranked.slice(0, topCount).map((r, i) => ({ ...r, rank: i + 1 }));
+      const last = ranked.slice(tailStart).map((r, i) => ({ ...r, rank: tailStart + i + 1 }));
+      const shown = [...top, ...last];
+
+      const profiles = await Promise.all(shown.map(r =>
         get(child(ref(db), `users/${r.studentId}`)).then(x => (x.exists() ? x.val() : {})).catch(() => ({}))
       ));
-      top.forEach((r, i) => { r.name = profiles[i].name || r.studentId; r.profilePic = profiles[i].profilePic || ''; });
-      window._leaderboardCache = top;   // lets the results popup show the student's name
+      shown.forEach((r, i) => { r.name = profiles[i].name || r.studentId; r.profilePic = profiles[i].profilePic || ''; });
+      window._leaderboardCache = shown;   // lets the results popup show the student's name
 
       const medals = ['🥇', '🥈', '🥉'];
       grid.innerHTML = '';
-      top.forEach((r, i) => {
+      shown.forEach((r, i) => {
+        // a "⋯" between the top 3 and the last two, when students in between are not shown
+        if(i === top.length && last.length && last[0].rank > top.length + 1) {
+          const gap = document.createElement('div');
+          gap.className = 'rank-gap'; gap.textContent = '⋯'; gap.setAttribute('aria-hidden', 'true');
+          grid.appendChild(gap);
+        }
         const card = document.createElement('div');
         card.className = 'rank-card';
         card.addEventListener('click', () => viewLeaderboardStudentResults(r.studentId));
@@ -4793,7 +4809,7 @@ window.addEventListener('DOMContentLoaded', function() {
         }
         const badge = document.createElement('span');
         badge.className = 'rank-badge';
-        badge.textContent = medals[i] || `#${i + 1}`;
+        badge.textContent = medals[r.rank - 1] || `#${r.rank}`;
         photo.appendChild(badge);
 
         const nameBtn = document.createElement('button');
